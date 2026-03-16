@@ -10,20 +10,20 @@ export function Footer() {
             <a href="#privacy" className="hover:opacity-100 transition">
               Privacy Policy
             </a>
-            <a href="mailto:hi@gauss.money" className="hover:opacity-100 transition">
-              hi@gauss.money
+            <a href="mailto:hello@mybuffer.ca" className="hover:opacity-100 transition">
+              hello@mybuffer.ca
             </a>
           </div>
           
           <div className="space-y-3 text-sm opacity-50">
             <p className="text-xs">
-              <sup>1</sup> Gauss credit line APR, which is the same as interest rate, is 14%-18%, depending on a number of factors, including credit profile. The rate is variable with prime rate. The majority of credit cards are eligible for the balance transfer if a credit line is approved.
+              <sup>1</sup> Buffer credit line APR, which is the same as interest rate, ranges from 14%–18% depending on factors including your credit profile. The rate is variable with the Bank of Canada prime rate. Most major Canadian credit cards are eligible for balance transfer once a credit line is approved.
             </p>
             <p className="text-xs">
-              <sup>2</sup> For example, if user's APR is 24%, total balance is $10,000 and fixed monthly payments are $300, user's interest expense until full payoff would be $6,644 vs. $2,737 with Gauss. Use Gauss payoff calculator to estimate debt-free dates for your case.
+              <sup>2</sup> For example, if your APR is 24%, total balance is $10,000, and you make fixed monthly payments of $300, your total interest until full payoff would be $6,644 — versus $2,737 with Buffer. Use the Buffer payoff calculator to see your personalized debt-free date.
             </p>
             <p className="text-xs">
-              <sup>3</sup> Average user outcomes in 2024, based on Vantage 3.0 score. Individual results may vary. Credit score stability/improvement is not guaranteed. Credit scores are independently determined by credit bureaus, and on-time payment history is only one of many factors that such bureaus consider. Your credit score may be negatively impacted by other financial decisions you make, or by activities or services you engage in with other financial services organizations.
+              <sup>3</sup> Based on average user outcomes in 2024, measured using the Vantage 3.0 scoring model. Individual results will vary. Credit score improvement is not guaranteed. Credit scores are independently calculated by credit bureaus and reflect many factors beyond payment history alone. Your score may be affected by other financial decisions or by products and services you use with other providers.
             </p>
             
             <div className="pt-4">
@@ -31,8 +31,8 @@ export function Footer() {
             </div>
             
             <div className="pt-4 space-y-1">
-              <p>Gauss (Placid Inc.)</p>
-              <p>200 Vesey Street, 24th Floor, New York, NY 10281</p>
+              <p>Buffer</p>
+              <p>1155 Pender St, Vancouver, BC, Canada.</p>
               <p>(877) 909-1559</p>
               <p className="pt-2">NMLS ID: 2654599</p>
               <p>Copyright 2025. All rights reserved.</p>

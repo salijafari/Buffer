@@ -6,44 +6,44 @@ export function FAQ() {
 
   const faqs = [
     {
-      question: "Is using Gauss safe?",
-      answer: "Yes, Gauss uses bank-level security with 256-bit encryption to protect your data. We're regulated by federal and state authorities and your information is never shared without your permission."
+      question: "Is Buffer safe to use?",
+      answer: "Yes, Buffer uses bank-level security with 256-bit encryption to protect your data. We're regulated by federal and provincial authorities and your information is never shared without your permission."
     },
     {
-      question: "How does Gauss affect my credit score?",
-      answer: "Gauss can help improve your credit score by reducing your credit utilization ratio and ensuring on-time payments. Most users see their credit score improve within the first few months."
+      question: "How does Buffer affect my credit score?",
+      answer: "Buffer can help improve your credit score by reducing your credit utilization ratio and ensuring on-time payments. Most users see their credit score improve within the first few months."
     },
     {
-      question: "I have issues with the app. What do I do?",
-      answer: "Contact our support team at hi@gauss.money or through the in-app chat feature. We're here to help 24/7."
+      question: "I'm having trouble with the app. What should I do?",
+      answer: "Contact our support team at hello@mybuffer.ca or through the in-app chat feature. We're here to help 24/7."
     },
     {
-      question: "Who is Gauss good for?",
-      answer: "Gauss is ideal for anyone with credit card debt who wants to save money on interest, improve their credit score, and pay off debt faster."
+      question: "Who is Buffer designed for?",
+      answer: "Buffer is ideal for anyone with credit card debt who wants to save money on interest, improve their credit score, and pay off debt faster."
     },
     {
-      question: "What are the requirements to use Gauss?",
+      question: "What are the requirements to join Buffer?",
       answer: "You need to be 18 or older, have a steady income, a valid bank account, and a credit score of at least 600 to qualify."
     },
     {
-      question: "Is Gauss a bank?",
-      answer: "No, Gauss is not a bank. We're a financial technology company that partners with banks to offer credit lines."
+      question: "Is Buffer a bank?",
+      answer: "No, Buffer is not a bank. We're a financial technology company that partners with banks to offer credit lines."
     },
     {
-      question: "How does Gauss make money?",
-      answer: "Gauss makes money from the interest on credit lines we provide. We keep our rates low and transparent with no hidden fees."
+      question: "How does Buffer make money?",
+      answer: "Buffer makes money from the interest on credit lines we provide. We keep our rates low and transparent with no hidden fees."
     },
     {
-      question: "Is Gauss available in my state?",
-      answer: "Gauss is available in most states. Check our website or app for the most current list of supported states."
+      question: "Is Buffer available in my province?",
+      answer: "Buffer is available in most provinces. Check our website or app for the most current list of supported provinces."
     },
     {
-      question: "Is Gauss a debt consolidator?",
-      answer: "Gauss offers balance transfer credit lines that can help consolidate multiple credit card debts into one lower-rate payment."
+      question: "Is Buffer a debt consolidation service?",
+      answer: "Buffer offers balance transfer credit lines that can help consolidate multiple credit card debts into one lower-rate payment."
     },
     {
-      question: "How do I delete my account?",
-      answer: "You can delete your account through the app settings or by contacting our support team at hi@gauss.money."
+      question: "How do I close my account?",
+      answer: "You can close your account through the app settings or by contacting our support team at hello@mybuffer.ca."
     }
   ];
 

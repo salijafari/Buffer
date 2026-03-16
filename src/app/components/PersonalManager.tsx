@@ -8,14 +8,14 @@ export function PersonalManager() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 order-2 md:order-1">
               <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                Personal Credit Manager
+                Personal Debt Strategist
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed">
-                Get expert guidance and personalized recommendations to optimize your credit strategy and reach your financial goals faster.
+                Receive tailored guidance and data-driven recommendations to sharpen your repayment strategy and hit your financial milestones ahead of plan.
               </p>
               <div className="pt-4">
                 <button className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition">
-                  Learn more
+                  See how it works
                 </button>
               </div>
             </div>

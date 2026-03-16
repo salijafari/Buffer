@@ -14,27 +14,27 @@ export function HowItWorks() {
               </div>
               <h3 className="text-2xl font-bold">Apply in minutes</h3>
               <p className="text-white/90 leading-relaxed">
-                Complete a quick application and get instantly approved for a Gauss credit line.
+                Fill out a short application and get an instant decision on your Buffer credit line.
               </p>
             </div>
-            
+
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 space-y-4">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl font-bold text-[#12afe3]">
                 2
               </div>
-              <h3 className="text-2xl font-bold">Transfer your balance</h3>
+              <h3 className="text-2xl font-bold">Move your high-rate debt</h3>
               <p className="text-white/90 leading-relaxed">
-                Move your high-interest credit card debt to Gauss at a much lower rate.
+                Transfer your high-interest card balances to Buffer and start saving on day one.
               </p>
             </div>
-            
+
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 space-y-4">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl font-bold text-[#12afe3]">
                 3
               </div>
-              <h3 className="text-2xl font-bold">Save and pay off faster</h3>
+              <h3 className="text-2xl font-bold">Watch your progress compound</h3>
               <p className="text-white/90 leading-relaxed">
-                Watch your credit score improve while paying thousands less in interest.
+                Your credit score strengthens while you pay a fraction of what the banks were charging.
               </p>
             </div>
           </div>

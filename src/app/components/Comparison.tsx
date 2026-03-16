@@ -29,9 +29,9 @@ export function Comparison() {
       <div className="container mx-auto max-w-7xl px-5">
         <div className="bg-gradient-to-br from-[#12afe3] to-[#37b884] rounded-3xl p-8 md:p-16">
           <div className="text-center mb-12">
-            <img src={imgGauss} alt="Gauss" className="w-[225px] h-auto mx-auto mb-8" />
+            <img src={imgGauss} alt="Buffer" className="w-[225px] h-auto mx-auto mb-8" />
             <h2 className="text-4xl md:text-5xl font-bold text-white">
-              How is Gauss different?
+              How is Buffer different?
             </h2>
           </div>
           
@@ -64,7 +64,7 @@ export function Comparison() {
           
           <div className="mt-8 text-center">
             <button className="bg-[#00659e] hover:bg-[#00547f] transition text-white px-8 py-4 rounded-xl text-xl font-bold">
-              See comparison →
+              See the full comparison →
             </button>
           </div>
         </div>

@@ -58,11 +58,11 @@ export function Hero() {
             </svg>
             
             <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight">
-              Self-Improving<br />Credit
+              Debt That Pays<br />Itself Down
             </h1>
-            
+
             <p className="text-lg text-gray-700 leading-relaxed max-w-md">
-              Automatically improve your credit profile, lower the interest on your cards and loans, pay off debt faster, and continuously unlock more cash to spend.
+              Automatically reduce the interest on your cards and loans, accelerate your payoff timeline, strengthen your credit profile, and free up more of your paycheque every month.
             </p>
             
             <div className="space-y-4">
@@ -83,7 +83,7 @@ export function Hero() {
           
           <div className="relative flex justify-center md:justify-end">
             <div className="relative rounded-3xl bg-gradient-to-br from-[#c8e0f3] to-[#d3ebe7] p-8 md:p-12">
-              <img src={imgPhone} alt="Gauss App" className="w-full max-w-[400px] h-auto" />
+              <img src={imgPhone} alt="Buffer App" className="w-full max-w-[400px] h-auto" />
             </div>
           </div>
         </div>
