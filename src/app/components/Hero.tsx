@@ -78,23 +78,23 @@ export function Hero() {
 
           {/* RIGHT: Phone overflowing above soft blue gradient background */}
           <div className="hidden md:block relative" style={{ minHeight: "540px" }}>
-            {/* Blue box: starts 60px below column top, fills to bottom */}
+            {/* Blue box: fixed height, anchored to bottom */}
             <div
               className="absolute inset-x-0 bottom-0 rounded-3xl"
               style={{
                 background: "linear-gradient(244.609deg, rgb(200,224,243) 0%, rgb(211,235,231) 100%)",
-                top: "60px",
+                height: "400px",
               }}
             />
-            {/* Phone: fixed height preserves aspect ratio, right-anchored so right edge overflows */}
+            {/* Phone: taller than box, both bottom-aligned → top extends above box */}
             <img
               src={imgPhone}
               alt="Buffer App"
               style={{
                 position: "absolute",
-                top: "0",
+                bottom: "0",
                 right: "-40px",
-                height: "600px",
+                height: "520px",
                 width: "auto",
                 zIndex: 10,
               }}
