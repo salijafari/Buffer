@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 200" fill="none">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7DD8F8"/>
+      <stop offset="48%" stop-color="#4DC08A"/>
+      <stop offset="100%" stop-color="#3AAF45"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield shape -->
+  <path d="M 95,6 L 14,34 L 14,98 C 14,152 95,184 95,184 C 95,184 176,152 176,98 L 176,34 Z" fill="url(#shieldGrad)"/>
+
+  <!-- Upper arcs (signal/wifi style, opening upward) -->
+  <path d="M 45,80 C 60,55 130,55 145,80" stroke="white" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M 58,90 C 70,72 120,72 132,90" stroke="white" stroke-width="7" fill="none" stroke-linecap="round"/>
+
+  <!-- Lower stack lines (database layers, curving downward) -->
+  <path d="M 40,108 C 67,126 123,126 150,108" stroke="white" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M 40,124 C 67,142 123,142 150,124" stroke="white" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M 45,140 C 70,155 120,155 145,140" stroke="white" stroke-width="7" fill="none" stroke-linecap="round"/>
+
+  <!-- "Buffer" text -->
+  <text x="198" y="152" font-family="'Arial Black','Arial Bold',Arial,Helvetica,sans-serif" font-weight="900" font-size="112" fill="#1B3870">Buffer</text>
+</svg>

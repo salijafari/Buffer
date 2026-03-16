@@ -1,4 +1,4 @@
-import imgLogo from "@/assets/04fb4c7c0b18c1e25f6375f8b26f8eeeeeb88c9c.png";
+import imgLogo from "@/assets/buffer-logo.svg";
 
 export function Header() {
   return (
