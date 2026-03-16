@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import imgLogo from "@/assets/buffer-logo.svg";
 
 export function Header() {
@@ -6,9 +7,11 @@ export function Header() {
       <div className="container mx-auto max-w-7xl px-5">
         <div className="flex h-[70px] items-center justify-between">
           <div className="flex items-center">
-            <img src={imgLogo} alt="Buffer" className="h-[55px] w-auto" />
+            <Link to="/">
+              <img src={imgLogo} alt="Buffer" className="h-[55px] w-auto" />
+            </Link>
           </div>
-          
+
           <nav className="hidden md:flex items-center gap-8">
             <a href="#faq" className="text-base text-black hover:text-gray-600 transition">
               FAQ
@@ -16,9 +19,9 @@ export function Header() {
             <a href="#blog" className="text-base text-black hover:text-gray-600 transition">
               Blog
             </a>
-            <a href="#calculator" className="text-base text-black hover:text-gray-600 transition">
+            <Link to="/payoff-calculator" className="text-base text-black hover:text-gray-600 transition">
               Payoff calculator
-            </a>
+            </Link>
           </nav>
 
           <button className="bg-black text-white px-8 py-2.5 rounded-md text-sm font-semibold hover:bg-gray-800 transition">
