@@ -17,32 +17,42 @@ interface CalcResult {
   months: number;
   totalInterest: number;
   totalPaid: number;
+  startingMin?: number;
+  error?: string;
 }
 
 function calcFromPayment(balance: number, apr: number, monthlyPayment: number): CalcResult {
+  if (balance <= 0) {
+    return { monthlyPayment, months: 0, totalInterest: 0, totalPaid: 0, error: "Enter a balance." };
+  }
   const r = apr / 100 / 12;
-  if (monthlyPayment <= balance * r) {
-    return { monthlyPayment, months: Infinity, totalInterest: Infinity, totalPaid: Infinity };
+  const monthlyInterest = balance * r;
+  if (monthlyPayment <= monthlyInterest) {
+    return {
+      monthlyPayment,
+      months: Infinity,
+      totalInterest: Infinity,
+      totalPaid: Infinity,
+      error: "Your payment doesn't cover the interest. Increase it to make progress.",
+    };
   }
   if (r === 0) {
     const months = Math.ceil(balance / monthlyPayment);
-    return { monthlyPayment, months, totalInterest: 0, totalPaid: balance };
+    const totalPaid = monthlyPayment * months;
+    return { monthlyPayment, months, totalInterest: 0, totalPaid };
   }
   const n = -Math.log(1 - (balance * r) / monthlyPayment) / Math.log(1 + r);
   const months = Math.ceil(n);
-  let bal = balance;
-  let totalInterest = 0;
-  for (let i = 0; i < months; i++) {
-    const interest = bal * r;
-    totalInterest += interest;
-    const principal = Math.min(monthlyPayment - interest, bal);
-    bal -= principal;
-    if (bal <= 0.005) break;
-  }
-  return { monthlyPayment, months, totalInterest, totalPaid: balance + totalInterest };
+  const totalPaid = monthlyPayment * months;
+  const totalInterest = totalPaid - balance;
+  return { monthlyPayment, months, totalInterest, totalPaid };
 }
 
-function calcFromMonths(balance: number, apr: number, months: number): CalcResult {
+function calcFromMonths(balance: number, apr: number, targetMonths: number): CalcResult {
+  if (balance <= 0) {
+    return { monthlyPayment: 0, months: 0, totalInterest: 0, totalPaid: 0, error: "Enter a balance." };
+  }
+  const months = Math.max(1, targetMonths);
   const r = apr / 100 / 12;
   let monthlyPayment: number;
   if (r === 0) {
@@ -53,6 +63,39 @@ function calcFromMonths(balance: number, apr: number, months: number): CalcResul
   const totalPaid = monthlyPayment * months;
   const totalInterest = totalPaid - balance;
   return { monthlyPayment, months, totalInterest, totalPaid };
+}
+
+function calcMinPayment(balance: number, apr: number): CalcResult {
+  if (balance <= 0) {
+    return { monthlyPayment: 0, months: 0, totalInterest: 0, totalPaid: 0, error: "Enter a balance." };
+  }
+  const r = apr / 100 / 12;
+  const maxMonths = 1200;
+  let remainingBalance = balance;
+  let totalPaid = 0;
+  let months = 0;
+  let startingMin = 0;
+
+  while (remainingBalance > 0 && months < maxMonths) {
+    const monthlyInterest = remainingBalance * r;
+    const minPayment = Math.max(Math.floor(remainingBalance * 0.02 + monthlyInterest), 10);
+
+    if (months === 0) startingMin = minPayment;
+
+    if (minPayment >= remainingBalance + monthlyInterest) {
+      totalPaid += remainingBalance + monthlyInterest;
+      months += 1;
+      remainingBalance = 0;
+      break;
+    }
+
+    totalPaid += minPayment;
+    remainingBalance = remainingBalance + monthlyInterest - minPayment;
+    months += 1;
+  }
+
+  const totalInterest = totalPaid - balance;
+  return { monthlyPayment: startingMin, months, totalInterest, totalPaid, startingMin };
 }
 
 function fmt(n: number, decimals = 0) {
@@ -108,13 +151,18 @@ export default function PayoffCalculator() {
   const [mode, setMode] = useState<"payment" | "months">("payment");
   const [payment, setPayment] = useState("200");
   const [months, setMonths] = useState("36");
-  const [result, setResult] = useState<CalcResult>(() =>
-    calcFromPayment(5000, 24, 200)
-  );
+  const [showMinPayment, setShowMinPayment] = useState(false);
+  const [result, setResult] = useState<CalcResult>(() => calcFromPayment(5000, 24, 200));
 
   function handleCalculate() {
     const b = parseFloat(balance.replace(/,/g, "")) || 0;
     const a = parseFloat(apr) || 0;
+
+    if (showMinPayment) {
+      setResult(calcMinPayment(b, a));
+      return;
+    }
+
     if (mode === "payment") {
       const p = parseFloat(payment.replace(/,/g, "")) || 0;
       setResult(calcFromPayment(b, a, p));
@@ -124,9 +172,18 @@ export default function PayoffCalculator() {
     }
   }
 
-  const isInfinite = !isFinite(result.months) || !isFinite(result.totalInterest);
-  const balancePct = isInfinite ? 50 : Math.round((parseFloat(balance.replace(/,/g, "")) / result.totalPaid) * 100);
-  const interestPct = isInfinite ? 50 : 100 - balancePct;
+  const isError = !!result.error;
+  const b = parseFloat(balance.replace(/,/g, "")) || 0;
+  const a = parseFloat(apr) || 0;
+
+  // Buffer comparison (only in min payment mode, no error)
+  const bufferResult =
+    showMinPayment && result.startingMin && !isError
+      ? calcFromPayment(b, 14, result.startingMin)
+      : null;
+
+  const balancePct = isError ? 50 : Math.round((b / result.totalPaid) * 100);
+  const interestPct = isError ? 50 : 100 - balancePct;
 
   return (
     <div className="min-h-screen bg-white">
@@ -189,13 +246,13 @@ export default function PayoffCalculator() {
                     </div>
                   </div>
 
-                  {/* Toggle row */}
+                  {/* Mode toggle row */}
                   <div>
                     <div className="flex items-center gap-2 mb-3 p-1 bg-gray-100 rounded-xl">
                       <button
-                        onClick={() => setMode("payment")}
+                        onClick={() => { setMode("payment"); setShowMinPayment(false); }}
                         className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
-                          mode === "payment"
+                          mode === "payment" && !showMinPayment
                             ? "bg-[#0f1923] text-white shadow-sm"
                             : "text-gray-500 hover:text-gray-700"
                         }`}
@@ -203,9 +260,9 @@ export default function PayoffCalculator() {
                         Monthly Payment
                       </button>
                       <button
-                        onClick={() => setMode("months")}
+                        onClick={() => { setMode("months"); setShowMinPayment(false); }}
                         className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
-                          mode === "months"
+                          mode === "months" && !showMinPayment
                             ? "bg-[#0f1923] text-white shadow-sm"
                             : "text-gray-500 hover:text-gray-700"
                         }`}
@@ -214,14 +271,33 @@ export default function PayoffCalculator() {
                       </button>
                     </div>
 
+                    {/* Min payment toggle */}
+                    <label className="flex items-center gap-2.5 mb-3 cursor-pointer select-none">
+                      <div
+                        onClick={() => setShowMinPayment((v) => !v)}
+                        className={`relative w-9 h-5 rounded-full transition-colors ${showMinPayment ? "bg-[#12AFE3]" : "bg-gray-300"}`}
+                      >
+                        <span
+                          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${showMinPayment ? "translate-x-4" : ""}`}
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Show minimum payment only</span>
+                    </label>
+
+                    {/* Dynamic input field */}
                     {mode === "payment" ? (
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                        <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-medium ${showMinPayment ? "text-gray-300" : "text-gray-500"}`}>$</span>
                         <input
                           type="number"
                           value={payment}
                           onChange={(e) => setPayment(e.target.value)}
-                          className="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-[16px] font-medium focus:outline-none focus:ring-2 focus:ring-[#12AFE3]/40 focus:border-[#12AFE3]"
+                          disabled={showMinPayment}
+                          className={`w-full pl-8 pr-4 py-3 rounded-xl border text-[16px] font-medium focus:outline-none transition ${
+                            showMinPayment
+                              ? "border-gray-100 bg-gray-100 text-gray-300 cursor-not-allowed"
+                              : "border-gray-200 bg-gray-50 focus:ring-2 focus:ring-[#12AFE3]/40 focus:border-[#12AFE3]"
+                          }`}
                           placeholder="200"
                           min="0"
                         />
@@ -232,11 +308,16 @@ export default function PayoffCalculator() {
                           type="number"
                           value={months}
                           onChange={(e) => setMonths(e.target.value)}
-                          className="w-full pl-4 pr-16 py-3 rounded-xl border border-gray-200 bg-gray-50 text-[16px] font-medium focus:outline-none focus:ring-2 focus:ring-[#12AFE3]/40 focus:border-[#12AFE3]"
+                          disabled={showMinPayment}
+                          className={`w-full pl-4 pr-16 py-3 rounded-xl border text-[16px] font-medium focus:outline-none transition ${
+                            showMinPayment
+                              ? "border-gray-100 bg-gray-100 text-gray-300 cursor-not-allowed"
+                              : "border-gray-200 bg-gray-50 focus:ring-2 focus:ring-[#12AFE3]/40 focus:border-[#12AFE3]"
+                          }`}
                           placeholder="36"
                           min="1"
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm">months</span>
+                        <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium ${showMinPayment ? "text-gray-300" : "text-gray-500"}`}>months</span>
                       </div>
                     )}
                   </div>
@@ -257,11 +338,10 @@ export default function PayoffCalculator() {
               >
                 <h2 className="text-xl font-bold mb-7">Results</h2>
 
-                {isInfinite ? (
+                {isError ? (
                   <div className="flex items-center justify-center h-40">
-                    <p className="text-gray-600 text-center text-sm">
-                      Your monthly payment is too low to cover the interest.<br />
-                      Increase your payment to see results.
+                    <p className="text-red-500 text-center text-sm font-medium">
+                      {result.error}
                     </p>
                   </div>
                 ) : (
@@ -270,7 +350,14 @@ export default function PayoffCalculator() {
                     <div className="grid grid-cols-2 gap-4 mb-8">
                       <div className="bg-white rounded-2xl px-5 py-4">
                         <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">Monthly Payment</p>
-                        <p className="text-2xl font-bold text-[#0f1923]">${fmt(result.monthlyPayment, 0)}</p>
+                        {showMinPayment && result.startingMin ? (
+                          <>
+                            <p className="text-2xl font-bold text-[#0f1923]">${fmt(result.startingMin, 0)}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">starting</p>
+                          </>
+                        ) : (
+                          <p className="text-2xl font-bold text-[#0f1923]">${fmt(result.monthlyPayment, 0)}</p>
+                        )}
                       </div>
                       <div className="bg-white rounded-2xl px-5 py-4">
                         <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">Months to Debt-Free</p>
@@ -291,17 +378,11 @@ export default function PayoffCalculator() {
                       <div className="flex rounded-full overflow-hidden h-4 mb-2">
                         <div
                           className="h-full"
-                          style={{
-                            width: `${balancePct}%`,
-                            backgroundColor: "#0f1923",
-                          }}
+                          style={{ width: `${balancePct}%`, backgroundColor: "#0f1923" }}
                         />
                         <div
                           className="h-full"
-                          style={{
-                            width: `${interestPct}%`,
-                            background: "linear-gradient(90deg, #12AFE3, #37B884)",
-                          }}
+                          style={{ width: `${interestPct}%`, background: "linear-gradient(90deg, #12AFE3, #37B884)" }}
                         />
                       </div>
                       <div className="flex justify-between text-xs text-gray-600 font-medium">
@@ -315,6 +396,28 @@ export default function PayoffCalculator() {
                         </span>
                       </div>
                     </div>
+
+                    {/* Comparison row — only in min payment mode */}
+                    {showMinPayment && bufferResult && !bufferResult.error && (
+                      <div className="mt-6 rounded-2xl bg-white/70 border border-white px-5 py-4 space-y-3 text-sm">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-0.5 w-2.5 h-2.5 rounded-full bg-[#12AFE3] flex-shrink-0 mt-1" />
+                          <p className="text-gray-600">
+                            <span className="font-semibold text-gray-800">At minimum payments:</span>{" "}
+                            debt-free in {fmt(result.months)} months,{" "}
+                            <span className="text-[#12AFE3] font-semibold">${fmt(result.totalInterest, 0)} in interest</span>
+                          </p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-0.5 w-2.5 h-2.5 rounded-full bg-[#37B884] flex-shrink-0 mt-1" />
+                          <p className="text-gray-600">
+                            <span className="font-semibold text-gray-800">With Buffer (14% APR, same ${fmt(result.startingMin ?? 0)}/mo):</span>{" "}
+                            debt-free in {fmt(bufferResult.months)} months,{" "}
+                            <span className="text-[#37B884] font-semibold">${fmt(bufferResult.totalInterest, 0)} in interest</span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
