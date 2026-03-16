@@ -13,11 +13,11 @@ export function Header() {
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#faq" className="text-base text-black hover:text-gray-600 transition">
-              FAQ
+            <a href="/#how-it-works" className="text-base text-black hover:text-gray-600 transition">
+              How it works
             </a>
-            <a href="#blog" className="text-base text-black hover:text-gray-600 transition">
-              Blog
+            <a href="/#faq" className="text-base text-black hover:text-gray-600 transition">
+              FAQ
             </a>
             <Link to="/payoff-calculator" className="text-base text-black hover:text-gray-600 transition">
               Payoff calculator

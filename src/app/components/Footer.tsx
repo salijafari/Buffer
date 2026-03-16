@@ -26,10 +26,6 @@ export function Footer() {
               <sup>3</sup> Based on average user outcomes in 2024, measured using the Vantage 3.0 scoring model. Individual results will vary. Credit score improvement is not guaranteed. Credit scores are independently calculated by credit bureaus and reflect many factors beyond payment history alone. Your score may be affected by other financial decisions or by products and services you use with other providers.
             </p>
             
-            <div className="pt-4">
-              <a href="#blog" className="text-[#00659e] hover:underline">Blog</a>
-            </div>
-            
             <div className="pt-4 space-y-1">
               <p>Buffer</p>
               <p>1155 Pender St, Vancouver, BC, Canada.</p>

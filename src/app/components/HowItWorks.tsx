@@ -21,7 +21,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-10 bg-white">
+    <section id="how-it-works" className="py-10 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
         <div className="grid md:grid-cols-2 overflow-hidden rounded-3xl" style={{ minHeight: "480px" }}>
 
