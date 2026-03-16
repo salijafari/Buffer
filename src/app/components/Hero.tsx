@@ -3,12 +3,12 @@ import imgAppleIcon from "@/assets/9bacaaf934ba616b78ec2d4b9d012296ff799217.png"
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-white pt-14 md:pt-20 pb-0">
+    <section className="relative overflow-hidden bg-white pt-4 pb-0">
       <div className="container mx-auto max-w-7xl px-5">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="grid md:grid-cols-2 gap-8">
 
           {/* LEFT: QR + heading + description + buttons */}
-          <div className="space-y-7 pb-14 md:pb-20">
+          <div className="space-y-7 pt-8 md:pt-10 pb-14 md:pb-20">
             {/* QR Code */}
             <svg width="117" height="117" viewBox="0 0 117 117" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="117" height="117" rx="8" fill="white" stroke="#E5E7EB" strokeWidth="2"/>
@@ -76,23 +76,31 @@ export function Hero() {
             </div>
           </div>
 
-          {/* RIGHT: Phone on soft blue gradient background */}
-          <div className="hidden md:flex justify-center items-end">
+          {/* RIGHT: Phone overflowing above soft blue gradient background */}
+          <div className="hidden md:block relative" style={{ minHeight: "520px" }}>
+            {/* Blue box anchored to bottom */}
             <div
-              className="relative rounded-3xl overflow-hidden flex items-end justify-center"
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-3xl"
               style={{
                 background: "linear-gradient(244.609deg, rgb(200,224,243) 0%, rgb(211,235,231) 100%)",
                 width: "550px",
                 height: "399px",
               }}
-            >
-              <img
-                src={imgPhone}
-                alt="Buffer App"
-                style={{ height: "450px", width: "498px", objectFit: "contain", marginBottom: "-51px" }}
-                className="relative z-10"
-              />
-            </div>
+            />
+            {/* Phone starts at column top, overflows above the box */}
+            <img
+              src={imgPhone}
+              alt="Buffer App"
+              style={{
+                position: "absolute",
+                top: "0",
+                left: "50%",
+                transform: "translateX(-50%)",
+                height: "calc(100% + 30px)",
+                width: "auto",
+                zIndex: 10,
+              }}
+            />
           </div>
 
         </div>
