@@ -2,26 +2,35 @@ import imgPhone from "@/assets/78418ac86a25c5da27de25e83deb68698e0d42f2.png";
 
 export function CreditScore() {
   return (
-    <section className="py-16 md:py-24 bg-[#e8f2f8]">
+    <section className="py-16 md:py-20" style={{ backgroundColor: "#e8f2f8" }}>
       <div className="container mx-auto max-w-7xl px-5">
         <div className="grid md:grid-cols-2 gap-12 items-center">
+
+          {/* LEFT: phone image */}
           <div>
             <img src={imgPhone} alt="Credit Score" className="w-full max-w-md mx-auto" />
           </div>
 
-          <div className="space-y-6">
-            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+          {/* RIGHT: icon chip + heading + description */}
+          <div className="space-y-5">
+            {/* Credit card icon chip */}
+            <div className="inline-flex items-center justify-center bg-black text-white w-10 h-10 rounded-lg">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+              </svg>
+            </div>
+
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
               Spend less on interest. Finish sooner.
             </h2>
-            <p className="text-lg text-gray-700 leading-relaxed">
+            <p className="text-[18px] text-gray-800 leading-[28px]">
               Buffer's lower rates mean you keep thousands that would have gone to your bank — and reach debt-free years ahead of schedule.
             </p>
-            <div className="pt-4">
-              <button className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition">
-                Get started
-              </button>
-            </div>
+            <p className="text-[18px] text-gray-800 leading-[28px]">
+              Your cards and loans move to lower APRs.<sup>1</sup> You save money on interest charges and pay off balances faster.<sup>2</sup>
+            </p>
           </div>
+
         </div>
       </div>
     </section>
