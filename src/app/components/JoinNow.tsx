@@ -1,5 +1,5 @@
-import imgQR from "figma:asset/c15230467ad576c565dfd2f3fbf8ae60d6eda2e6.png";
-import imgAppStore from "figma:asset/57f4b0a1f2ee89dd31423d5adc1d2df67c6bdb14.png";
+import imgQR from "@/assets/c15230467ad576c565dfd2f3fbf8ae60d6eda2e6.png";
+import imgAppStore from "@/assets/57f4b0a1f2ee89dd31423d5adc1d2df67c6bdb14.png";
 
 export function JoinNow() {
   return (
