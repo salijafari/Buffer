@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/react";
 import imgLogo from "@/assets/buffer-logo.png";
 
 export function Header() {
@@ -24,9 +25,16 @@ export function Header() {
             </Link>
           </nav>
 
-          <button className="bg-black text-white px-8 py-2.5 rounded-md text-sm font-semibold hover:bg-gray-800 transition">
-            Log in / Sign up
-          </button>
+          <SignedOut>
+            <SignInButton>
+              <button className="bg-black text-white px-8 py-2.5 rounded-md text-sm font-semibold hover:bg-gray-800 transition">
+                Log in / Sign up
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
       </div>
     </header>
