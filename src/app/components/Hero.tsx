@@ -1,4 +1,3 @@
-import imgLogo from "@/assets/a93787efbcbacc9352fdb7abdfae61bee6c09e2e.png";
 import imgPhone from "@/assets/e1c5d242b328eb754ecaa2b62f529e67177aed6f.png";
 import imgAppleIcon from "@/assets/9bacaaf934ba616b78ec2d4b9d012296ff799217.png";
 
@@ -8,7 +7,55 @@ export function Hero() {
       <div className="container mx-auto max-w-7xl px-5">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
-            <img src={imgLogo} alt="Gauss Logo" className="w-[117px] h-auto" />
+            {/* QR Code Placeholder */}
+            <svg width="117" height="117" viewBox="0 0 117 117" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Border */}
+              <rect width="117" height="117" rx="8" fill="white" stroke="#E5E7EB" strokeWidth="2"/>
+              {/* Top-left position square */}
+              <rect x="10" y="10" width="30" height="30" rx="2" fill="#111827"/>
+              <rect x="16" y="16" width="18" height="18" rx="1" fill="white"/>
+              <rect x="20" y="20" width="10" height="10" rx="1" fill="#111827"/>
+              {/* Top-right position square */}
+              <rect x="77" y="10" width="30" height="30" rx="2" fill="#111827"/>
+              <rect x="83" y="16" width="18" height="18" rx="1" fill="white"/>
+              <rect x="87" y="20" width="10" height="10" rx="1" fill="#111827"/>
+              {/* Bottom-left position square */}
+              <rect x="10" y="77" width="30" height="30" rx="2" fill="#111827"/>
+              <rect x="16" y="83" width="18" height="18" rx="1" fill="white"/>
+              <rect x="20" y="87" width="10" height="10" rx="1" fill="#111827"/>
+              {/* Data modules - middle area */}
+              <rect x="48" y="10" width="6" height="6" fill="#111827"/>
+              <rect x="57" y="10" width="6" height="6" fill="#111827"/>
+              <rect x="48" y="20" width="6" height="6" fill="#111827"/>
+              <rect x="57" y="20" width="6" height="6" fill="#111827"/>
+              <rect x="48" y="30" width="6" height="6" fill="#111827"/>
+              <rect x="10" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="20" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="30" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="48" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="57" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="66" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="77" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="87" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="101" y="48" width="6" height="6" fill="#111827"/>
+              <rect x="48" y="57" width="6" height="6" fill="#111827"/>
+              <rect x="66" y="57" width="6" height="6" fill="#111827"/>
+              <rect x="87" y="57" width="6" height="6" fill="#111827"/>
+              <rect x="101" y="57" width="6" height="6" fill="#111827"/>
+              <rect x="57" y="66" width="6" height="6" fill="#111827"/>
+              <rect x="77" y="66" width="6" height="6" fill="#111827"/>
+              <rect x="101" y="66" width="6" height="6" fill="#111827"/>
+              <rect x="48" y="77" width="6" height="6" fill="#111827"/>
+              <rect x="66" y="77" width="6" height="6" fill="#111827"/>
+              <rect x="77" y="87" width="6" height="6" fill="#111827"/>
+              <rect x="87" y="87" width="6" height="6" fill="#111827"/>
+              <rect x="101" y="77" width="6" height="6" fill="#111827"/>
+              <rect x="48" y="87" width="6" height="6" fill="#111827"/>
+              <rect x="57" y="101" width="6" height="6" fill="#111827"/>
+              <rect x="77" y="101" width="6" height="6" fill="#111827"/>
+              <rect x="87" y="101" width="6" height="6" fill="#111827"/>
+              <rect x="101" y="101" width="6" height="6" fill="#111827"/>
+            </svg>
             
             <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight">
               Self-Improving<br />Credit
