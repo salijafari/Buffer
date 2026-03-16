@@ -1,4 +1,4 @@
-import imgPhone from "figma:asset/0f784c2fc0dce30be8a6e9bc1cecd721a09cac2b.png";
+import imgPhone from "@/assets/0f784c2fc0dce30be8a6e9bc1cecd721a09cac2b.png";
 
 export function PersonalManager() {
   return (

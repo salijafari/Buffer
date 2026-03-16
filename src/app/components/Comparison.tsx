@@ -1,4 +1,4 @@
-import imgGauss from "figma:asset/bf9e3122f64b138d3f91401bf73db550ddb81a1d.png";
+import imgGauss from "@/assets/bf9e3122f64b138d3f91401bf73db550ddb81a1d.png";
 
 export function Comparison() {
   const comparisons = [

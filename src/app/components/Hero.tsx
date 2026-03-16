@@ -1,6 +1,6 @@
-import imgLogo from "figma:asset/a93787efbcbacc9352fdb7abdfae61bee6c09e2e.png";
-import imgPhone from "figma:asset/e1c5d242b328eb754ecaa2b62f529e67177aed6f.png";
-import imgAppleIcon from "figma:asset/9bacaaf934ba616b78ec2d4b9d012296ff799217.png";
+import imgLogo from "@/assets/a93787efbcbacc9352fdb7abdfae61bee6c09e2e.png";
+import imgPhone from "@/assets/e1c5d242b328eb754ecaa2b62f529e67177aed6f.png";
+import imgAppleIcon from "@/assets/9bacaaf934ba616b78ec2d4b9d012296ff799217.png";
 
 export function Hero() {
   return (
