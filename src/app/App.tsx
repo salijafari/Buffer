@@ -1,6 +1,7 @@
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { Partners } from './components/Partners';
+import { PayLessSection } from './components/PayLessSection';
 import { Features } from './components/Features';
 import { CreditScore } from './components/CreditScore';
 import { PersonalManager } from './components/PersonalManager';
@@ -19,6 +20,7 @@ export default function App() {
       <main>
         <Hero />
         <Partners />
+        <PayLessSection />
         <Features />
         <CreditScore />
         <PersonalManager />
