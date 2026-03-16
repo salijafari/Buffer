@@ -7,9 +7,9 @@ export function JoinNow() {
       <div className="container mx-auto max-w-7xl px-5">
         <div className="bg-gradient-to-br from-[#e2eff5] to-[#dbe9ff] rounded-3xl p-8 md:p-16">
           <div className="text-center space-y-8">
-            <h2 className="text-4xl md:text-5xl font-bold">Join Now</h2>
+            <h2 className="text-4xl md:text-5xl font-bold">Get Started</h2>
             <p className="text-lg md:text-xl text-gray-700 max-w-md mx-auto">
-              Scan the QR code to get started now!
+              Scan the QR code to create your account.
             </p>
             
             <div className="flex flex-col items-center gap-4">
@@ -60,7 +60,7 @@ export function JoinNow() {
               </button>
             </div>
             
-            <p className="text-sm text-gray-600">Just launched!</p>
+            <p className="text-sm text-gray-600">Now available in Canada.</p>
           </div>
         </div>
       </div>

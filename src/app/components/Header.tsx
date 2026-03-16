@@ -6,7 +6,7 @@ export function Header() {
       <div className="container mx-auto max-w-7xl px-5">
         <div className="flex h-[70px] items-center justify-between">
           <div className="flex items-center">
-            <img src={imgLogo} alt="Gauss" className="h-[55px] w-auto" />
+            <img src={imgLogo} alt="Buffer" className="h-[55px] w-auto" />
           </div>
           
           <nav className="hidden md:flex items-center gap-8">

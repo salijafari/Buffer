@@ -5,9 +5,9 @@ export function Features() {
         <div className="grid md:grid-cols-2 gap-8">
           <div className="bg-gradient-to-br from-[#1597c4] to-[#137eb3] rounded-3xl p-12 text-white flex flex-col justify-center min-h-[400px]">
             <h2 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
-              Better Credit.<br />
-              Lower Bills.<br />
-              Faster Payoff²
+              Stronger Credit.<br />
+              Lower Interest.<br />
+              Debt-Free Sooner.²
             </h2>
           </div>
           
@@ -23,10 +23,10 @@ export function Features() {
                 </svg>
               </div>
               <h3 className="text-3xl font-bold text-[#1597c4]">
-                Improve Credit Score
+                Build Your Credit Score
               </h3>
               <p className="text-gray-700 leading-relaxed">
-                Watch your credit score grow as Gauss automatically optimizes your credit utilization and payment history.
+                See your credit score climb as Buffer automatically manages your credit utilization and keeps your payment history spotless.
               </p>
             </div>
           </div>

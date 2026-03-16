@@ -12,10 +12,10 @@ export function LateProtection() {
             
             <div className="space-y-6">
               <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                Late Fee Protection
+                Late Payment Shield
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed">
-                Never worry about late fees again. Gauss automatically monitors your payment schedule and alerts you before any payment is due.
+                Stop losing money to late fees. Buffer tracks every payment deadline across your accounts and notifies you before anything comes due.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
@@ -32,7 +32,7 @@ export function LateProtection() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-gray-700">Smart scheduling to avoid late fees</span>
+                  <span className="text-gray-700">Intelligent scheduling to stay ahead of due dates</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-[#1ba19c] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
@@ -40,7 +40,7 @@ export function LateProtection() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-gray-700">Protection from penalty APR increases</span>
+                  <span className="text-gray-700">Protection against penalty rate hikes</span>
                 </li>
               </ul>
             </div>

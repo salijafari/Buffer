@@ -12,14 +12,14 @@ export function CreditScore() {
             
             <div className="space-y-6">
               <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                Pay less. Pay off faster.
+                Spend less on interest. Finish sooner.
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed">
-                With Gauss's lower interest rates, you'll save thousands in interest payments and become debt-free years sooner.
+                Buffer's lower rates mean you keep thousands that would have gone to your bank — and reach debt-free years ahead of schedule.
               </p>
               <div className="pt-4">
                 <button className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition">
-                  Get the app
+                  Get started
                 </button>
               </div>
             </div>
