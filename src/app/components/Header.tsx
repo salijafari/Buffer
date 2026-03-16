@@ -8,7 +8,7 @@ export function Header() {
         <div className="flex h-[70px] items-center justify-between">
           <div className="flex items-center">
             <Link to="/">
-              <img src={imgLogo} alt="Buffer" className="h-[45px] md:h-[55px] w-auto" />
+              <img src={imgLogo} alt="Buffer" className="h-[27px] md:h-[33px] w-auto" />
             </Link>
           </div>
 
