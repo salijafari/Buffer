@@ -1,4 +1,4 @@
-import imgPhone from "@/assets/e1c5d242b328eb754ecaa2b62f529e67177aed6f.png";
+import imgPhone from "@/assets/HeroSectionImage2.png";
 import imgAppleIcon from "@/assets/9bacaaf934ba616b78ec2d4b9d012296ff799217.png";
 
 export function Hero() {
