@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import imgLogo from "@/assets/buffer-logo.svg";
+import imgLogo from "@/assets/buffer-logo.png";
 
 export function Header() {
   return (
@@ -8,7 +8,7 @@ export function Header() {
         <div className="flex h-[70px] items-center justify-between">
           <div className="flex items-center">
             <Link to="/">
-              <img src={imgLogo} alt="Buffer" className="h-[55px] w-auto" />
+              <img src={imgLogo} alt="Buffer" className="h-[45px] md:h-[55px] w-auto" />
             </Link>
           </div>
 
