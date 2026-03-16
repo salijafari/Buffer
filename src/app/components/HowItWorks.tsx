@@ -1,12 +1,12 @@
 export function HowItWorks() {
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 md:py-24 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
         <div className="bg-gradient-to-br from-[#12afe3] to-[#37b884] rounded-3xl p-8 md:p-16 text-white">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
             How It Works
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 space-y-4">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl font-bold text-[#12afe3]">

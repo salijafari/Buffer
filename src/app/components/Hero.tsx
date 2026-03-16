@@ -3,10 +3,10 @@ import imgAppleIcon from "@/assets/9bacaaf934ba616b78ec2d4b9d012296ff799217.png"
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-white py-16 md:py-24">
+    <section className="relative overflow-hidden bg-white pt-16 md:pt-20 pb-0">
       <div className="container mx-auto max-w-7xl px-5">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+          <div className="space-y-8 pb-16 md:pb-20">
             {/* QR Code Placeholder */}
             <svg width="117" height="117" viewBox="0 0 117 117" fill="none" xmlns="http://www.w3.org/2000/svg">
               {/* Border */}
@@ -56,7 +56,7 @@ export function Hero() {
               <rect x="87" y="101" width="6" height="6" fill="#111827"/>
               <rect x="101" y="101" width="6" height="6" fill="#111827"/>
             </svg>
-            
+
             <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight">
               Debt That Pays<br />Itself Down
             </h1>
@@ -64,26 +64,30 @@ export function Hero() {
             <p className="text-lg text-gray-700 leading-relaxed max-w-md">
               Automatically reduce the interest on your cards and loans, accelerate your payoff timeline, strengthen your credit profile, and free up more of your paycheque every month.
             </p>
-            
+
             <div className="space-y-4">
               <button className="flex items-center gap-3 bg-[#081419] text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition">
                 <img src={imgAppleIcon} alt="Apple" className="w-5 h-auto" />
                 <span className="text-base">App Store</span>
               </button>
-              
+
               <button className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition">
                 Android
               </button>
-              
+
               <button className="border border-black text-black px-8 py-3 rounded-lg hover:bg-gray-50 transition block w-full md:w-auto">
                 Web Sign-up / Login
               </button>
             </div>
           </div>
-          
-          <div className="relative flex justify-center md:justify-end">
-            <div className="relative rounded-3xl bg-gradient-to-br from-[#c8e0f3] to-[#d3ebe7] p-8 md:p-12">
-              <img src={imgPhone} alt="Buffer App" className="w-full max-w-[400px] h-auto" />
+
+          <div className="relative md:-mr-5 hidden md:block">
+            <div className="relative rounded-l-3xl bg-gradient-to-br from-[#c8e0f3] to-[#d3ebe7] overflow-hidden h-[560px]">
+              <img
+                src={imgPhone}
+                alt="Buffer App"
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[95%] w-auto object-contain"
+              />
             </div>
           </div>
         </div>
