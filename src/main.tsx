@@ -6,7 +6,7 @@ import PayoffCalculator from "./app/pages/PayoffCalculator.tsx";
 import "./styles/index.css";
 
 createRoot(document.getElementById("root")!).render(
-  <ClerkProvider>
+  <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
