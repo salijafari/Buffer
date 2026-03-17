@@ -2,17 +2,32 @@ import imgPhone from "@/assets/78418ac86a25c5da27de25e83deb68698e0d42f2.png";
 
 export function CreditScore() {
   return (
-    <section className="py-16 md:py-20" style={{ backgroundColor: "#e8f2f8" }}>
+    <section className="py-10 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-6 items-center">
 
-          {/* LEFT: phone image */}
-          <div>
-            <img src={imgPhone} alt="Credit Score" className="w-full max-w-md mx-auto" />
+          {/* LEFT: phone mockup on gradient card — PersonalManager composition */}
+          <div
+            className="rounded-3xl overflow-hidden flex items-end justify-center"
+            style={{
+              background: "linear-gradient(19.5deg, rgb(225,240,242) 8%, rgb(248,247,247) 48%, rgb(232,240,252) 96%)",
+              minHeight: "480px",
+            }}
+          >
+            <img
+              src={imgPhone}
+              alt="Credit Score"
+              style={{
+                width: "75%",
+                maxWidth: "340px",
+                display: "block",
+                objectFit: "contain",
+              }}
+            />
           </div>
 
           {/* RIGHT: icon chip + heading + description */}
-          <div className="space-y-5">
+          <div className="space-y-5 px-4 md:px-8">
             {/* Credit card icon chip */}
             <div className="inline-flex items-center justify-center bg-black text-white w-10 h-10 rounded-lg">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
