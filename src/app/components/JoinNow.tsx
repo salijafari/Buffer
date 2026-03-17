@@ -1,4 +1,4 @@
-import imgQR from "@/assets/c15230467ad576c565dfd2f3fbf8ae60d6eda2e6.png";
+import imgBufferIcon from "@/assets/buffer-icon.png";
 import imgAppStore from "@/assets/57f4b0a1f2ee89dd31423d5adc1d2df67c6bdb14.png";
 
 const socialIcons = [
@@ -28,7 +28,7 @@ export function JoinNow() {
           </p>
 
           <div className="flex flex-col items-center gap-4">
-            <img src={imgQR} alt="QR Code" className="w-[140px] h-[140px]" />
+            <img src={imgBufferIcon} alt="Buffer" className="w-[140px] h-[140px]" style={{ borderRadius: "28px" }} />
             <img src={imgAppStore} alt="Download on App Store" className="h-[13px] w-auto" />
           </div>
 
