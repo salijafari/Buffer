@@ -27,14 +27,17 @@ export function HowItWorks() {
           className="flex flex-col md:flex-row overflow-hidden rounded-[32px]"
           style={{
             background: "linear-gradient(135deg, #0b72a8 0%, #4daee6 100%)",
-            padding: "56px 64px",
+            paddingTop: "56px",
+            paddingBottom: "0",
+            paddingLeft: "64px",
+            paddingRight: "64px",
             minHeight: "480px",
           }}
         >
           {/* LEFT: title + steps — ~55% */}
           <div
             className="flex flex-col justify-center"
-            style={{ flex: "0 0 55%", paddingRight: "48px" }}
+            style={{ flex: "0 0 55%", paddingRight: "48px", paddingBottom: "56px" }}
           >
             <h2
               className="text-white font-extrabold mb-10"
@@ -78,16 +81,16 @@ export function HowItWorks() {
             </ol>
           </div>
 
-          {/* RIGHT: phone image — ~45% */}
+          {/* RIGHT: phone image — ~45%, bottom-anchored */}
           <div
-            className="flex items-center justify-center mt-10 md:mt-0"
+            className="relative mt-10 md:mt-0 flex justify-center items-end"
             style={{ flex: "0 0 45%" }}
           >
             <img
               src={imgPhone}
               alt="Buffer app screen"
               style={{
-                maxWidth: "460px",
+                maxWidth: "420px",
                 width: "100%",
                 height: "auto",
                 objectFit: "contain",
