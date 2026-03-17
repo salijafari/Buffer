@@ -3,13 +3,29 @@ export function NoHiddenFees() {
     <section className="py-6 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
         <div
-          className="rounded-3xl text-white text-center py-20 px-8"
-          style={{ background: "linear-gradient(-40deg, rgb(18,175,227) 0%, rgb(55,184,132) 90%)" }}
+          className="rounded-3xl text-white"
+          style={{
+            background: "linear-gradient(-40deg, rgb(18,175,227) 0%, rgb(55,184,132) 90%)",
+            padding: "80px 80px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            minHeight: "320px",
+          }}
         >
-          <h2 className="font-bold leading-none mb-4" style={{ fontSize: "clamp(80px, 12vw, 120px)" }}>
+          <h2
+            className="font-extrabold leading-none"
+            style={{ fontSize: "clamp(72px, 12vw, 150px)", lineHeight: 1 }}
+          >
             $0
           </h2>
-          <p className="text-4xl md:text-5xl font-bold">No Hidden Fees</p>
+          <p
+            className="font-semibold"
+            style={{ fontSize: "clamp(28px, 4vw, 52px)", marginTop: "20px" }}
+          >
+            No Hidden Fees
+          </p>
         </div>
       </div>
     </section>
