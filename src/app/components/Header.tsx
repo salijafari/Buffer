@@ -6,10 +6,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white/95 shadow-sm backdrop-blur-sm">
       <div className="container mx-auto max-w-7xl px-5">
-        <div className="flex h-[70px] items-center justify-between">
+        <div className="flex h-[56px] md:h-[70px] items-center justify-between gap-3">
           <div className="flex items-center">
             <Link to="/">
-              <img src={imgLogo} alt="Buffer" className="h-[27px] md:h-[33px] w-auto" />
+              <img src={imgLogo} alt="Buffer" className="h-[24px] md:h-[33px] w-auto" />
             </Link>
           </div>
 
@@ -27,7 +27,7 @@ export function Header() {
 
           <Show when="signed-out">
             <SignInButton>
-              <button className="bg-black text-white px-8 py-2.5 rounded-md text-sm font-semibold hover:bg-gray-800 transition">
+              <button className="bg-black text-white px-5 md:px-8 py-2 md:py-2.5 rounded-[12px] md:rounded-md text-sm font-semibold hover:bg-gray-800 transition whitespace-nowrap">
                 Log in / Sign up
               </button>
             </SignInButton>
