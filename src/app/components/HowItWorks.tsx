@@ -1,21 +1,21 @@
-import imgPhone from "@/assets/78418ac86a25c5da27de25e83deb68698e0d42f2.png";
+import imgPhone from "@/assets/IMG_1250.png";
 
 const steps = [
   {
     n: "1",
-    text: "Apply in minutes and get an instant decision on your Buffer credit line.",
+    text: "Pull your credit data and see where your money is going",
   },
   {
     n: "2",
-    text: "Connect your cards and accounts via Buffer.",
+    text: "Connect your cards and accounts securely",
   },
   {
     n: "3",
-    text: "Transfer high-interest balances. Buffer AI finds ways to lower interest and improve credit terms across cards and loans.",
+    text: "Buffer moves your balance to lower interest automatically",
   },
   {
     n: "4",
-    text: "Keep using your accounts while the cost of credit keeps going down.",
+    text: "Watch your debt shrink faster while you keep spending as usual",
   },
 ];
 
@@ -23,38 +23,78 @@ export function HowItWorks() {
   return (
     <section id="how-it-works" className="py-10 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
-        <div className="grid md:grid-cols-2 overflow-hidden rounded-3xl" style={{ minHeight: "480px" }}>
-
-          {/* LEFT: Dark panel — How it works steps */}
-          <div className="bg-[#0f1923] text-white px-10 py-12 md:px-14 flex flex-col justify-center">
-            <h2 className="text-3xl font-bold mb-10">How it works</h2>
-            <ol className="space-y-7">
+        <div
+          className="flex flex-col md:flex-row overflow-hidden rounded-[32px]"
+          style={{
+            background: "linear-gradient(135deg, #0b72a8 0%, #4daee6 100%)",
+            padding: "56px 64px",
+            minHeight: "480px",
+          }}
+        >
+          {/* LEFT: title + steps — ~55% */}
+          <div
+            className="flex flex-col justify-center"
+            style={{ flex: "0 0 55%", paddingRight: "48px" }}
+          >
+            <h2
+              className="text-white font-extrabold mb-10"
+              style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", lineHeight: 1.1 }}
+            >
+              How it works
+            </h2>
+            <ol style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
               {steps.map((s) => (
-                <li key={s.n} className="flex items-start gap-4">
+                <li key={s.n} style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
                   <span
-                    className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-bold"
-                    style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
+                    style={{
+                      flexShrink: 0,
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "10px",
+                      backgroundColor: "#0f1923",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "15px",
+                      fontWeight: 700,
+                      color: "#ffffff",
+                    }}
                   >
                     {s.n}
                   </span>
-                  <p className="text-[15px] leading-[22px] text-white/80">{s.text}</p>
+                  <p
+                    style={{
+                      fontSize: "clamp(0.95rem, 1.6vw, 1.1rem)",
+                      lineHeight: 1.45,
+                      color: "#ffffff",
+                      margin: 0,
+                      paddingTop: "6px",
+                    }}
+                  >
+                    {s.text}
+                  </p>
                 </li>
               ))}
             </ol>
           </div>
 
-          {/* RIGHT: Light panel — phone image */}
+          {/* RIGHT: phone image — ~45% */}
           <div
-            className="flex items-end justify-center"
-            style={{ backgroundColor: "#e8f2f8" }}
+            className="flex items-center justify-center mt-10 md:mt-0"
+            style={{ flex: "0 0 45%" }}
           >
             <img
               src={imgPhone}
-              alt="How Buffer works"
-              className="max-h-[440px] w-auto object-contain"
+              alt="Buffer app screen"
+              style={{
+                maxWidth: "460px",
+                width: "100%",
+                height: "auto",
+                objectFit: "contain",
+                display: "block",
+              }}
             />
           </div>
-
         </div>
       </div>
     </section>
