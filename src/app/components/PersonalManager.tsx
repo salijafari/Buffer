@@ -32,10 +32,10 @@ export function PersonalManager() {
             </span>
 
             <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-              Personal Debt Strategist
+              Your personal debt strategist
             </h2>
             <p className="text-[18px] text-gray-800 leading-[28px]">
-              Receive tailored guidance and data-driven recommendations to sharpen your repayment strategy and hit your financial milestones ahead of plan.
+              Tell Buffer your situation once. It maps out exactly how to cut your interest costs, tracks your credit across bureaus, surfaces better card and loan options you actually qualify for, builds a payoff plan around your real income and spending — and quietly handles the rest in the background.
             </p>
           </div>
 
