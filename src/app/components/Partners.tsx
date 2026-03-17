@@ -14,6 +14,11 @@ export function Partners() {
             <text x="0" y="22" fontFamily="Arial, sans-serif" fontWeight="400" fontSize="20" fill="#1a1a1a">experian.</text>
           </svg>
 
+          {/* TransUnion */}
+          <svg height="28" viewBox="0 0 160 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="22" fontFamily="Arial, sans-serif" fontWeight="400" fontSize="20" fill="#1a1a1a">TransUnion</text>
+          </svg>
+
           {/* PLAID */}
           <svg height="28" viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="0" y="4" width="8" height="8" fill="#1a1a1a"/>
