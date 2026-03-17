@@ -57,13 +57,10 @@ export function CreditScore() {
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-              Spend less on interest. Finish sooner.
+              Your personal debt strategist
             </h2>
             <p className="text-[18px] text-gray-800 leading-[28px]">
-              Buffer's lower rates mean you keep thousands that would have gone to your bank — and reach debt-free years ahead of schedule.
-            </p>
-            <p className="text-[18px] text-gray-800 leading-[28px]">
-              Your cards and loans move to lower APRs.<sup>1</sup> You save money on interest charges and pay off balances faster.<sup>2</sup>
+              Tell Buffer your situation once. It maps out exactly how to cut your interest costs, tracks your credit across bureaus, surfaces better card and loan options you actually qualify for, builds a payoff plan around your real income and spending — and quietly handles the rest in the background.
             </p>
           </div>
 
