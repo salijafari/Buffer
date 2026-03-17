@@ -2,44 +2,127 @@ import imgPhone from "@/assets/4e1733ab90be924b3a8d9c276e1ff5feae8b6bfe.png";
 
 export function LateProtection() {
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <section className="py-10 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <img src={imgPhone} alt="Late Fee Protection" className="w-full max-w-md mx-auto" />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "45fr 55fr",
+            alignItems: "center",
+            background: "linear-gradient(135deg, #eef5f3 0%, #f3f5fb 100%)",
+            borderRadius: "32px",
+            overflow: "hidden",
+          }}
+        >
+          {/* LEFT: phone visual */}
+          <div
+            style={{
+              position: "relative",
+              minHeight: "520px",
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "center",
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={imgPhone}
+              alt="Late payment protection app screen"
+              style={{
+                position: "relative",
+                top: "-8px",
+                maxHeight: "500px",
+                width: "auto",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
           </div>
 
-          <div className="space-y-6">
-            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+          {/* RIGHT: text content */}
+          <div style={{ padding: "56px 64px 56px 32px", maxWidth: "620px" }}>
+            <h2
+              style={{
+                fontSize: "clamp(44px, 5vw, 64px)",
+                lineHeight: 0.95,
+                fontWeight: 800,
+                letterSpacing: "-0.03em",
+                marginBottom: "24px",
+                color: "#0a0a0a",
+              }}
+            >
               Late Payment Shield
             </h2>
-            <p className="text-lg text-gray-700 leading-relaxed">
+            <p
+              style={{
+                fontSize: "clamp(18px, 2vw, 24px)",
+                lineHeight: 1.5,
+                marginBottom: "28px",
+                color: "#374151",
+              }}
+            >
               Stop losing money to late fees. Buffer tracks every payment deadline across your accounts and notifies you before anything comes due.
             </p>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-[#1ba19c] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <ul style={{ display: "flex", flexDirection: "column", gap: "20px", listStyle: "none", margin: 0, padding: 0 }}>
+              <li style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
+                <div
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    background: "#1ba19c",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    marginTop: "2px",
+                  }}
+                >
+                  <svg width="14" height="14" fill="none" stroke="white" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-gray-700">Automatic payment reminders</span>
+                <span style={{ fontSize: "18px", color: "#374151", lineHeight: 1.5 }}>Automatic payment reminders</span>
               </li>
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-[#1ba19c] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <li style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
+                <div
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    background: "#1ba19c",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    marginTop: "2px",
+                  }}
+                >
+                  <svg width="14" height="14" fill="none" stroke="white" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-gray-700">Intelligent scheduling to stay ahead of due dates</span>
+                <span style={{ fontSize: "18px", color: "#374151", lineHeight: 1.5 }}>Intelligent scheduling to stay ahead of due dates</span>
               </li>
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-[#1ba19c] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <li style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
+                <div
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    background: "#1ba19c",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    marginTop: "2px",
+                  }}
+                >
+                  <svg width="14" height="14" fill="none" stroke="white" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-gray-700">Protection against penalty rate hikes</span>
+                <span style={{ fontSize: "18px", color: "#374151", lineHeight: 1.5 }}>Protection against penalty rate hikes</span>
               </li>
             </ul>
           </div>
