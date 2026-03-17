@@ -45,6 +45,7 @@ export function HowItWorks() {
             >
               How it works
             </h2>
+            {/* steps */}
             <ol style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
               {steps.map((s) => (
                 <li key={s.n} style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
