@@ -1,4 +1,4 @@
-import imgPhone from "@/assets/4e1733ab90be924b3a8d9c276e1ff5feae8b6bfe.png";
+import imgPhone from "@/assets/Nolatefee.png";
 
 export function LateProtection() {
   return (
