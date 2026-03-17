@@ -1,4 +1,4 @@
-import imgPhone from "@/assets/78418ac86a25c5da27de25e83deb68698e0d42f2.png";
+import imgQR from "@/assets/IMG_1226.webp";
 
 export function CreditScore() {
   return (
@@ -15,13 +15,15 @@ export function CreditScore() {
             }}
           >
             <img
-              src={imgPhone}
-              alt="Credit Score"
+              src={imgQR}
+              alt="Scan to download Buffer"
               style={{
-                width: "75%",
-                maxWidth: "340px",
+                width: "60%",
+                maxWidth: "280px",
                 display: "block",
                 objectFit: "contain",
+                borderRadius: "16px",
+                margin: "auto auto 40px",
               }}
             />
           </div>
