@@ -27,17 +27,17 @@ export function HowItWorks() {
           className="flex flex-col md:flex-row overflow-hidden rounded-[32px]"
           style={{
             background: "linear-gradient(135deg, #0b72a8 0%, #4daee6 100%)",
-            paddingTop: "56px",
+            paddingTop: "clamp(32px, 6vw, 56px)",
             paddingBottom: "0",
-            paddingLeft: "64px",
-            paddingRight: "64px",
+            paddingLeft: "clamp(24px, 6vw, 64px)",
+            paddingRight: "clamp(24px, 6vw, 64px)",
             minHeight: "480px",
           }}
         >
           {/* LEFT: title + steps — ~55% */}
           <div
             className="flex flex-col justify-center"
-            style={{ flex: "0 0 55%", paddingRight: "48px", paddingBottom: "56px" }}
+            style={{ flex: "0 0 55%", paddingRight: "clamp(0px, 4vw, 48px)", paddingBottom: "clamp(32px, 6vw, 56px)" }}
           >
             <h2
               className="text-white font-extrabold mb-10"

@@ -6,7 +6,7 @@ export function NoHiddenFees() {
           className="rounded-3xl text-white"
           style={{
             background: "linear-gradient(-40deg, rgb(18,175,227) 0%, rgb(55,184,132) 90%)",
-            padding: "80px 80px",
+            padding: "clamp(32px, 8vw, 80px) clamp(24px, 8vw, 80px)",
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-start",

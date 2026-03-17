@@ -5,25 +5,25 @@ export function LateProtection() {
     <section className="py-10 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
         <div
+          className="flex flex-col md:grid overflow-hidden"
           style={{
-            display: "grid",
             gridTemplateColumns: "45fr 55fr",
             alignItems: "center",
             background: "linear-gradient(135deg, #eef5f3 0%, #f3f5fb 100%)",
             borderRadius: "32px",
-            overflow: "hidden",
           }}
         >
           {/* LEFT: phone visual */}
           <div
             style={{
               position: "relative",
-              minHeight: "520px",
+              minHeight: "280px",
               display: "flex",
               alignItems: "flex-start",
               justifyContent: "center",
               overflow: "hidden",
             }}
+            className="min-h-[280px] md:min-h-[520px]"
           >
             <img
               src={imgPhone}
@@ -40,10 +40,10 @@ export function LateProtection() {
           </div>
 
           {/* RIGHT: text content */}
-          <div style={{ padding: "56px 64px 56px 32px", maxWidth: "620px" }}>
+          <div className="px-6 py-8 md:py-14 md:pl-8 md:pr-16" style={{ maxWidth: "620px" }}>
             <h2
               style={{
-                fontSize: "clamp(44px, 5vw, 64px)",
+                fontSize: "clamp(32px, 5vw, 64px)",
                 lineHeight: 0.95,
                 fontWeight: 800,
                 letterSpacing: "-0.03em",
@@ -55,7 +55,7 @@ export function LateProtection() {
             </h2>
             <p
               style={{
-                fontSize: "clamp(18px, 2vw, 24px)",
+                fontSize: "clamp(16px, 2vw, 24px)",
                 lineHeight: 1.5,
                 marginBottom: "28px",
                 color: "#374151",
