@@ -6,10 +6,12 @@ export function CreditScore() {
       <div className="container mx-auto max-w-7xl px-5">
         <div className="grid md:grid-cols-2 gap-6 items-center">
 
-          {/* LEFT: phone mockup on gradient card — PersonalManager composition */}
+          {/* LEFT: phone mockup on gradient card — top-anchored */}
           <div
-            className="rounded-3xl overflow-hidden flex items-end justify-center"
             style={{
+              position: "relative",
+              overflow: "hidden",
+              borderRadius: "32px",
               background: "linear-gradient(19.5deg, rgb(225,240,242) 8%, rgb(248,247,247) 48%, rgb(232,240,252) 96%)",
               minHeight: "480px",
             }}
@@ -18,23 +20,40 @@ export function CreditScore() {
               src={imgQR}
               alt="Scan to download Buffer"
               style={{
-                width: "60%",
-                maxWidth: "280px",
-                display: "block",
+                position: "absolute",
+                top: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                height: "92%",
+                width: "auto",
                 objectFit: "contain",
-                borderRadius: "16px",
-                margin: "auto auto 40px",
               }}
             />
           </div>
 
-          {/* RIGHT: icon chip + heading + description */}
+          {/* RIGHT: AI badge + heading + description */}
           <div className="space-y-5 px-4 md:px-8">
-            {/* Credit card icon chip */}
-            <div className="inline-flex items-center justify-center bg-black text-white w-10 h-10 rounded-lg">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+            {/* AI powered badge */}
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "12px 22px",
+                borderRadius: "9999px",
+                background: "#000",
+                color: "#fff",
+                fontSize: "18px",
+                fontWeight: 600,
+                lineHeight: 1,
+                marginBottom: "28px",
+              }}
+            >
+              {/* Sparkle / AI icon */}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L13.09 8.26L19 6L14.74 10.91L21 12L14.74 13.09L19 18L13.09 15.74L12 22L10.91 15.74L5 18L9.26 13.09L3 12L9.26 10.91L5 6L10.91 8.26L12 2Z"/>
               </svg>
+              powered by AI
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
