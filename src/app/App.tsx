@@ -4,7 +4,6 @@ import { Partners } from './components/Partners';
 import { PayLessSection } from './components/PayLessSection';
 import { Features } from './components/Features';
 import { CreditScore } from './components/CreditScore';
-import { PersonalManager } from './components/PersonalManager';
 import { NoHiddenFees } from './components/NoHiddenFees';
 import { LateProtection } from './components/LateProtection';
 import { HowItWorks } from './components/HowItWorks';
@@ -23,7 +22,6 @@ export default function App() {
         <PayLessSection />
         <Features />
         <CreditScore />
-        <PersonalManager />
         <NoHiddenFees />
         <LateProtection />
         <HowItWorks />
