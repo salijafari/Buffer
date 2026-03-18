@@ -39,4 +39,4 @@ Allow: /
 User-agent: LinkedInBot
 Allow: /
 
-Sitemap: https://TODO_DOMAIN.com/sitemap.xml
+Sitemap: https://mybuffer.ca/sitemap.xml

@@ -150,7 +150,7 @@ const calculatorJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "Buffer Credit Card Payoff Calculator",
-  "url": "https://TODO_DOMAIN.com/payoff-calculator",
+  "url": "https://mybuffer.ca/payoff-calculator",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Web",
   "description": "Free calculator that shows how long it will take to pay off your credit card debt, how much interest you will pay, and how much you can save with Buffer's lower interest rate.",
@@ -162,7 +162,7 @@ const calculatorJsonLd = {
   "provider": {
     "@type": "Organization",
     "name": "Buffer",
-    "url": "https://TODO_DOMAIN.com/"
+    "url": "https://mybuffer.ca/"
   }
 };
 
@@ -170,7 +170,7 @@ export default function PayoffCalculator() {
   useSeoMeta({
     title: "Credit Card Payoff Calculator – Buffer | Canada",
     description: "Free credit card payoff calculator. Enter your balance, APR, and monthly payment to see your debt-free date, total interest, and how much you save with Buffer.",
-    canonical: "https://TODO_DOMAIN.com/payoff-calculator",
+    canonical: "https://mybuffer.ca/payoff-calculator",
   });
 
   // Inject page-specific JSON-LD

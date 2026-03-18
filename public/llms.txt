@@ -4,8 +4,8 @@
 
 ## Pages
 
-- [Home](https://TODO_DOMAIN.com/): Buffer's main landing page explaining how the product reduces credit card interest, improves credit scores, and accelerates debt payoff for Canadians.
-- [Credit Card Payoff Calculator](https://TODO_DOMAIN.com/payoff-calculator): Free interactive tool that calculates how long it will take to pay off credit card debt, total interest paid, and how much users can save by switching to Buffer's lower interest rate.
+- [Home](https://mybuffer.ca/): Buffer's main landing page explaining how the product reduces credit card interest, improves credit scores, and accelerates debt payoff for Canadians.
+- [Credit Card Payoff Calculator](https://mybuffer.ca/payoff-calculator): Free interactive tool that calculates how long it will take to pay off credit card debt, total interest paid, and how much users can save by switching to Buffer's lower interest rate.
 
 ## Key Facts
 
