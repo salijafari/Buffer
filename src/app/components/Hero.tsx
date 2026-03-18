@@ -1,21 +1,46 @@
+import { useState, useRef } from "react";
 import imgPhone from "@/assets/HeroSectionImage2.png";
 import imgAppleIcon from "@/assets/9bacaaf934ba616b78ec2d4b9d012296ff799217.png";
 
+function AndroidIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <path d="M17.523 15.341C17.14 15.341 16.83 15.03 16.83 14.648V8.875c0-.382.31-.693.693-.693.382 0 .693.311.693.693v5.773c0 .382-.311.693-.693.693zm-11.046 0c-.382 0-.693-.311-.693-.693V8.875c0-.382.311-.693.693-.693.383 0 .693.311.693.693v5.773c0 .382-.31.693-.693.693zM8.22 3.136l-.96-.96a.347.347 0 0 0-.49.49l1.02 1.02A5.535 5.535 0 0 0 6.41 6.75h11.18A5.535 5.535 0 0 0 16.21 3.686l1.02-1.02a.347.347 0 0 0-.49-.49l-.96.96A5.504 5.504 0 0 0 12 2a5.504 5.504 0 0 0-3.78 1.136zM10.04 5.25a.46.46 0 1 1 0-.92.46.46 0 0 1 0 .92zm3.92 0a.46.46 0 1 1 0-.92.46.46 0 0 1 0 .92zM6.41 7.444v8.648a1.5 1.5 0 0 0 1.5 1.5h.59v2.66a.923.923 0 1 0 1.846 0v-2.66h3.308v2.66a.923.923 0 1 0 1.846 0v-2.66h.59a1.5 1.5 0 0 0 1.5-1.5V7.444H6.41z"/>
+    </svg>
+  );
+}
+
 export function Hero() {
+  const [showToast, setShowToast] = useState(false);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleComingSoon() {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setShowToast(true);
+    toastTimer.current = setTimeout(() => setShowToast(false), 2000);
+  }
+
   return (
     <section className="relative overflow-hidden bg-white pt-4 pb-0">
+      {/* "Coming soon" toast */}
+      {showToast && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-[#0f1923] text-white text-sm font-medium px-5 py-2.5 rounded-full shadow-lg pointer-events-none select-none">
+          coming soon
+        </div>
+      )}
+
       <div className="container mx-auto max-w-7xl px-5">
         {/* Desktop: two-column grid. Mobile: single column with phone first */}
         <div className="flex flex-col md:grid md:grid-cols-2 md:gap-8">
 
           {/* MOBILE-ONLY: Phone visual (shown before headline on mobile) */}
-          <div className="block md:hidden relative w-full mt-4 mb-6">
+          <div className="block md:hidden relative w-full mt-2 mb-4">
             <div
               className="relative mx-auto overflow-hidden rounded-[28px]"
               style={{
                 background: "linear-gradient(244.609deg, rgb(200,224,243) 0%, rgb(211,235,231) 100%)",
                 maxWidth: "100%",
-                paddingTop: "16px",
+                paddingTop: "12px",
               }}
             >
               <img
@@ -23,8 +48,8 @@ export function Hero() {
                 alt="Buffer App"
                 className="block mx-auto"
                 style={{
-                  width: "75%",
-                  maxWidth: "320px",
+                  width: "65%",
+                  maxWidth: "260px",
                   height: "auto",
                   objectFit: "contain",
                 }}
@@ -33,7 +58,7 @@ export function Hero() {
           </div>
 
           {/* LEFT on desktop / below phone on mobile: heading + description + buttons */}
-          <div className="space-y-5 md:space-y-7 pt-2 md:pt-10 pb-8 md:pb-20">
+          <div className="space-y-4 md:space-y-6 pt-1 md:pt-8 lg:pt-10 pb-6 md:pb-12 lg:pb-20">
             {/* QR Code — hidden on mobile */}
             <svg className="hidden md:block" width="117" height="117" viewBox="0 0 117 117" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="117" height="117" rx="8" fill="white" stroke="#E5E7EB" strokeWidth="2"/>
@@ -79,35 +104,49 @@ export function Hero() {
               <rect x="101" y="101" width="6" height="6" fill="#111827"/>
             </svg>
 
-            <h1 className="text-[40px] md:text-[44px] lg:text-[52px] font-bold leading-[0.95] tracking-[-0.03em]">
+            <h1 className="text-[36px] md:text-[44px] lg:text-[52px] font-bold leading-[0.95] tracking-[-0.03em]">
               Debt That Pays<br />Itself Down
             </h1>
 
-            <p className="text-[16px] md:text-[18px] text-black leading-[1.55] md:leading-[30px] max-w-[445px]">
+            <p className="text-[15px] md:text-[18px] text-black leading-[1.5] md:leading-[30px] max-w-[445px]">
               Automatically reduce the interest on your cards and loans, accelerate your payoff timeline, strengthen your credit profile, and free up more of your paycheque every month.
             </p>
 
-            <div className="flex flex-col gap-3 w-full md:w-auto md:items-start">
-              <button className="flex items-center justify-center gap-3 bg-[#081419] text-white w-full md:w-auto px-6 py-3.5 md:py-3 rounded-[14px] md:rounded-[8px] hover:bg-gray-800 transition text-[16px] md:text-[17px]">
-                <img src={imgAppleIcon} alt="Apple" className="w-5 h-auto" />
-                <span>App Store</span>
-              </button>
-              <button className="bg-[#081419] text-white w-full md:w-auto px-6 py-3.5 md:py-3 rounded-[14px] md:rounded-[8px] hover:bg-gray-800 transition text-[16px] md:text-[17px]">
-                Android
-              </button>
-              <button className="border border-black text-black w-full md:w-auto px-6 py-3.5 md:py-3 rounded-[14px] md:rounded-[8px] hover:bg-gray-50 transition text-[16px] md:text-[17px]">
+            {/* CTAs: primary Web button + compact iOS/Android icons inline */}
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <button className="border border-black text-black flex-1 md:flex-none px-5 py-3 md:py-3 rounded-[14px] md:rounded-[8px] hover:bg-gray-50 transition text-[15px] md:text-[17px] font-medium whitespace-nowrap">
                 Web Sign-up / Login
+              </button>
+
+              {/* iOS icon */}
+              <button
+                onClick={handleComingSoon}
+                title="iOS – coming soon"
+                aria-label="iOS – coming soon"
+                className="w-11 h-11 flex items-center justify-center rounded-[10px] md:rounded-[8px] bg-[#081419] text-white hover:bg-gray-800 active:scale-95 transition flex-shrink-0"
+              >
+                <img src={imgAppleIcon} alt="iOS" className="w-5 h-5" />
+              </button>
+
+              {/* Android icon */}
+              <button
+                onClick={handleComingSoon}
+                title="Android – coming soon"
+                aria-label="Android – coming soon"
+                className="w-11 h-11 flex items-center justify-center rounded-[10px] md:rounded-[8px] bg-[#081419] text-white hover:bg-gray-800 active:scale-95 transition flex-shrink-0"
+              >
+                <AndroidIcon />
               </button>
             </div>
           </div>
 
           {/* RIGHT: Phone — desktop only */}
-          <div className="hidden md:block relative" style={{ minHeight: "540px" }}>
+          <div className="hidden md:block relative" style={{ minHeight: "460px" }}>
             <div
               className="absolute inset-x-0 bottom-0 rounded-3xl"
               style={{
                 background: "linear-gradient(244.609deg, rgb(200,224,243) 0%, rgb(211,235,231) 100%)",
-                height: "400px",
+                height: "360px",
               }}
             />
             <img
@@ -117,7 +156,7 @@ export function Hero() {
                 position: "absolute",
                 bottom: "0",
                 right: "-40px",
-                height: "520px",
+                height: "clamp(400px, 42vw, 520px)",
                 width: "auto",
                 maxWidth: "none",
                 zIndex: 10,

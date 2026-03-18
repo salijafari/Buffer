@@ -12,13 +12,16 @@ import { FAQ } from './components/FAQ';
 import { JoinNow } from './components/JoinNow';
 import { Footer } from './components/Footer';
 
+// Set to true to re-enable the partner logo strip below the hero
+const SHOW_PARTNERS = false;
+
 export default function App() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <main>
         <Hero />
-        <Partners />
+        {SHOW_PARTNERS && <Partners />}
         <PayLessSection />
         <Features />
         <CreditScore />
