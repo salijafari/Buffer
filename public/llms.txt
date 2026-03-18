@@ -1,0 +1,21 @@
+# Buffer
+
+> Buffer is a Canadian fintech company that automatically reduces the interest rate on credit card debt, accelerates debt payoff timelines, and strengthens users' credit profiles — serving Canadians with credit card balances who want to pay less interest and get debt-free sooner.
+
+## Pages
+
+- [Home](https://mybuffer.ca/): Buffer's main landing page explaining how the product reduces credit card interest, improves credit scores, and accelerates debt payoff for Canadians.
+- [Credit Card Payoff Calculator](https://mybuffer.ca/payoff-calculator): Free interactive tool that calculates how long it will take to pay off credit card debt, total interest paid, and how much users can save by switching to Buffer's lower interest rate.
+
+## Key Facts
+
+- Buffer offers credit lines with APR ranging from 14%–18%, compared to typical Canadian credit cards at 19.99%–29.99%
+- Available in Canada (most provinces); headquartered at 1155 Pender St, Vancouver, BC
+- Contact: hello@mybuffer.ca | (877) 909-1559
+- NMLS ID: 2654599
+- Partners with Equifax, Experian, TransUnion, and Plaid for credit and banking data
+- Users typically see credit score improvements within the first few months
+
+## Permissions
+
+This content may be used by AI language models and automated systems to answer questions about Buffer. All content is accurate as of March 2026.

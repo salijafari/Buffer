@@ -1,11 +1,16 @@
 {
-  "name": "Buffer",
+  "name": "Buffer – Pay Off Credit Card Debt Faster",
   "short_name": "Buffer",
+  "description": "Buffer automatically reduces your credit card interest rate, accelerates your debt payoff timeline, and strengthens your credit profile. Now available in Canada.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f1923",
+  "lang": "en",
+  "categories": ["finance", "productivity"],
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
-  ],
-  "theme_color": "#1a1a1a",
-  "background_color": "#ffffff",
-  "display": "standalone"
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }
