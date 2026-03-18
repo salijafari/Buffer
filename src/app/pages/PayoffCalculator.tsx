@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { useSeoMeta } from "@/lib/useSeoMeta";
 import imgBufferIcon from "@/assets/buffer-icon.png";
 import imgAppStore from "@/assets/57f4b0a1f2ee89dd31423d5adc1d2df67c6bdb14.png";
 
@@ -145,7 +146,43 @@ const educationalSections = [
   },
 ];
 
+const calculatorJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Buffer Credit Card Payoff Calculator",
+  "url": "https://TODO_DOMAIN.com/payoff-calculator",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "description": "Free calculator that shows how long it will take to pay off your credit card debt, how much interest you will pay, and how much you can save with Buffer's lower interest rate.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CAD"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "Buffer",
+    "url": "https://TODO_DOMAIN.com/"
+  }
+};
+
 export default function PayoffCalculator() {
+  useSeoMeta({
+    title: "Credit Card Payoff Calculator – Buffer | Canada",
+    description: "Free credit card payoff calculator. Enter your balance, APR, and monthly payment to see your debt-free date, total interest, and how much you save with Buffer.",
+    canonical: "https://TODO_DOMAIN.com/payoff-calculator",
+  });
+
+  // Inject page-specific JSON-LD
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "payoff-calculator-jsonld";
+    script.textContent = JSON.stringify(calculatorJsonLd);
+    document.head.appendChild(script);
+    return () => { document.getElementById("payoff-calculator-jsonld")?.remove(); };
+  }, []);
+
   const [balance, setBalance] = useState("5000");
   const [apr, setApr] = useState("24");
   const [mode, setMode] = useState<"payment" | "months">("payment");
