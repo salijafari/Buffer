@@ -80,6 +80,12 @@ export function OnboardingFlow() {
   }
 
   function handleFinish() {
+    // TODO (onboarding_completed integration): When this buffer-app is connected to Clerk,
+    // call the Clerk Backend API (or a /api/complete-onboarding server action) here to set
+    // user.unsafeMetadata.onboarding_completed = true on the Clerk user record.
+    // The marketing SPA's /onboarding route reads this flag to distinguish new vs returning
+    // users and route them accordingly (see src/app/pages/Onboarding.tsx in the SPA).
+
     // Route based on outcome — never a rejection screen
     if (eligibility === 'A') router.push('/dashboard');
     else router.push('/dashboard'); // Outcome B still routes to dashboard, credit builder tab visible
