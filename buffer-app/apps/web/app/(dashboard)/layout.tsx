@@ -17,9 +17,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen bg-[#0F1117]">
+      {/* Skip nav for keyboard users (WCAG 2.4.1) */}
+      <a href="#main-content" className="skip-nav">Skip to content</a>
+
       {/* ── Sidebar (≥1024px) ─────────────────────────────────────────── */}
       <nav
-        className="hidden lg:flex flex-col w-[220px] min-h-screen bg-[#1A1D27] border-r border-white/8 fixed left-0 top-0 bottom-0 z-50 py-8 px-4"
+        className="hidden lg:flex flex-col w-[220px] min-h-screen bg-[#1A1F2E] border-r border-[#2A3040] fixed left-0 top-0 bottom-0 z-50 py-8 px-4"
         aria-label="Main navigation"
       >
         {/* Logo */}
@@ -51,13 +54,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </nav>
 
       {/* ── Main content ──────────────────────────────────────────────── */}
-      <main className="flex-1 lg:ml-[220px] pb-20 lg:pb-0 min-h-screen">
+      <main id="main-content" className="flex-1 lg:ml-[220px] pb-20 lg:pb-0 min-h-screen" tabIndex={-1}>
         {children}
       </main>
 
       {/* ── Bottom bar (<1024px) ──────────────────────────────────────── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#1A1D27] border-t border-white/8 z-50 flex items-center justify-around px-2"
+        className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#1A1F2E] border-t border-[#2A3040] z-50 flex items-center justify-around px-2 pb-safe"
         aria-label="Main navigation"
       >
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {

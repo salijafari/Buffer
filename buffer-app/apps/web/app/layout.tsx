@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { SwRegistration } from '../src/components/ui/SwRegistration';
 
 const inter = Inter({
   subsets:  ['latin'],
@@ -16,11 +17,11 @@ export const metadata: Metadata = {
   manifest:    '/manifest.json',
   appleWebApp: {
     capable:       true,
-    statusBarStyle:'black-translucent',
+    statusBarStyle: 'black-translucent',
     title:         'Buffer',
   },
   icons: {
-    icon:  [
+    icon: [
       { url: '/icons/icon-32.png',  sizes: '32x32',   type: 'image/png' },
       { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
     ],
@@ -29,17 +30,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor:    '#00C9A7',
-  width:         'device-width',
-  initialScale:  1,
-  viewportFit:   'cover',
+  themeColor:   '#00C9A7',
+  width:        'device-width',
+  initialScale: 1,
+  viewportFit:  'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        {/* Preload JetBrains Mono for financial figures */}
+        {/* Preload JetBrains Mono for all financial figures */}
         <link
           rel="preload"
           href="https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4xD-IQ.woff2"
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-[#0F1117] text-white antialiased">
         {children}
+        <SwRegistration />
       </body>
     </html>
   );
