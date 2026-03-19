@@ -3,3 +3,7 @@ dist/
 .env
 .env.local
 .env.*.local
+buffer-app/node_modules/
+buffer-app/apps/web/.next/
+buffer-app/apps/web/node_modules/
+buffer-app/packages/*/node_modules/

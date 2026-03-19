@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Custom Properties (design tokens) ─────────────────────────────── */
+:root {
+  --color-primary:        #00C9A7;
+  --color-primary-hover:  #00B496;
+  --color-primary-dim:    rgba(0, 201, 167, 0.12);
+  --color-bg-primary:     #0F1117;
+  --color-bg-surface:     #1A1F2E;
+  --color-bg-elevated:    #22293A;
+  --color-text-primary:   #FFFFFF;
+  --color-text-secondary: #8B9CB6;
+  --color-text-muted:     #4A5568;
+  --color-text-disabled:  #3D4A5C;
+  --color-border:         #2A3040;
+  --color-success:        #00C9A7;
+  --color-warning:        #F59E0B;
+  --color-critical:       #FF6B6B;
+  --color-info:           #60A5FA;
+  --color-chart-f1:       #FF6B6B;
+  --color-chart-f2:       #F59E0B;
+  --color-chart-f3:       #00C9A7;
+  --font-mono:            'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --shadow-card:          0 4px 24px rgba(0,0,0,0.40);
+  --shadow-modal:         0 8px 48px rgba(0,0,0,0.60);
+}
+
+/* ─── Skip navigation link (WCAG 2.1 AA) ─────────────────────────────────── */
+.skip-nav {
+  position:   absolute;
+  left:       -9999px;
+  z-index:    9999;
+  padding:    0.5rem 1rem;
+  background: var(--color-primary);
+  color:      #0F1117;
+  font-weight:600;
+  border-radius: 0 0 8px 0;
+}
+.skip-nav:focus {
+  left: 0;
+  top:  0;
+}
+
+/* ─── Financial figures — monospace always ───────────────────────────────── */
+.financial {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Skeleton shimmer ───────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1A1F2E 25%,
+    #22293A 50%,
+    #1A1F2E 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* ─── Scrollbar styling (webkit) ─────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.12); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:   0.01ms !important;
+    transition-duration:  0.01ms !important;
+    scroll-behavior:      auto !important;
+  }
+  .skeleton { animation: none; background: #1A1F2E; }
+}
+
+/* ─── Focus visible (WCAG 2.1 SC 2.4.7) ─────────────────────────────────── */
+:focus-visible {
+  outline:        2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius:  4px;
+}
+
+/* Remove default focus ring — we use focus-visible only */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─── Input date picker dark mode fix ────────────────────────────────────── */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.6);
+  cursor: pointer;
+}
+
+/* ─── Custom range slider track ──────────────────────────────────────────── */
+input[type="range"] {
+  accent-color: var(--color-primary);
+}
+
+/* ─── Prevent layout shift on number inputs ─────────────────────────────── */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+/* ─── Prevent text selection on interactive elements ─────────────────────── */
+button, [role="button"], [role="tab"], [role="switch"] {
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── Safe area insets (iPhone notch / Dynamic Island) ───────────────────── */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0); }
+.pt-safe { padding-top:    env(safe-area-inset-top,    0); }
