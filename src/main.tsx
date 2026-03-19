@@ -8,8 +8,23 @@ import OnboardingFlow from "./app/pages/OnboardingFlow.tsx";
 import Dashboard from "./app/pages/Dashboard.tsx";
 import "./styles/index.css";
 
+const signUpForceRedirectUrl =
+  import.meta.env.VITE_CLERK_SIGN_UP_FORCE_REDIRECT_URL ?? "/onboarding/flow";
+const signUpFallbackRedirectUrl =
+  import.meta.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL ?? "/onboarding/flow";
+const signInForceRedirectUrl =
+  import.meta.env.VITE_CLERK_SIGN_IN_FORCE_REDIRECT_URL ?? "/dashboard";
+const signInFallbackRedirectUrl =
+  import.meta.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? "/dashboard";
+
 createRoot(document.getElementById("root")!).render(
-  <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+  <ClerkProvider
+    publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
+    signUpForceRedirectUrl={signUpForceRedirectUrl}
+    signUpFallbackRedirectUrl={signUpFallbackRedirectUrl}
+    signInForceRedirectUrl={signInForceRedirectUrl}
+    signInFallbackRedirectUrl={signInFallbackRedirectUrl}
+  >
     <BrowserRouter>
       <Routes>
         {/* Public marketing routes */}
