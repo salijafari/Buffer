@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Custom Properties (design tokens) ─────────────────────────────── */
+:root {
+  --color-primary:        #00C9A7;
+  --color-primary-dim:    rgba(0, 201, 167, 0.12);
+  --color-bg-primary:     #0F1117;
+  --color-bg-surface:     #1A1D27;
+  --color-bg-elevated:    #21253A;
+  --color-text-primary:   #FFFFFF;
+  --color-text-secondary: #A0A8B8;
+  --color-text-muted:     #6B7280;
+  --color-success:        #22C55E;
+  --color-warning:        #F59E0B;
+  --color-critical:       #EF4444;
+  --color-info:           #3B82F6;
+  --color-border:         rgba(255,255,255,0.08);
+  --font-mono:            'JetBrains Mono', 'IBM Plex Mono', monospace;
+  --shadow-card:          0 4px 24px rgba(0,0,0,0.40);
+  --shadow-modal:         0 8px 48px rgba(0,0,0,0.60);
+}
+
+/* ─── Financial figures — monospace always ───────────────────────────────── */
+.financial {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Skeleton shimmer ───────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1A1D27 25%,
+    #21253A 50%,
+    #1A1D27 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* ─── Scrollbar styling (webkit) ─────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:   0.01ms !important;
+    transition-duration:  0.01ms !important;
+  }
+  .skeleton { animation: none; background: #1A1D27; }
+}
+
+/* ─── Focus visible ──────────────────────────────────────────────────────── */
+:focus-visible {
+  outline:        2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius:  4px;
+}
+
+/* ─── Prevent text selection on interactive elements ────────────────────── */
+button, [role="button"] { user-select: none; }
