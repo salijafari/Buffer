@@ -1,0 +1,4 @@
+# Node 20 (see .nvmrc) ships with npm 10.x. Do not add npm-9_x here — it mismatches
+# the Node line and can shadow or conflict with the bundled npm.
+[phases.setup]
+nixPkgs = ["nodejs_20"]
