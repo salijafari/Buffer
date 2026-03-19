@@ -4,12 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
+// Route groups like (dashboard) are transparent — they don't appear in the URL.
+// /app/(dashboard)/payoff/page.tsx  →  URL: /payoff
+// /app/(dashboard)/dashboard/page.tsx  →  URL: /dashboard
 const NAV_ITEMS = [
-  { href: '/dashboard',        label: 'Home',    icon: HomeIcon    },
-  { href: '/dashboard/payoff', label: 'Payoff',  icon: PayoffIcon  },
-  { href: '/dashboard/ai',     label: 'AI',      icon: AiIcon      },
-  { href: '/dashboard/credit', label: 'Credit',  icon: CreditIcon  },
-  { href: '/dashboard/account',label: 'Account', icon: AccountIcon },
+  { href: '/dashboard', label: 'Home',    icon: HomeIcon    },
+  { href: '/payoff',    label: 'Payoff',  icon: PayoffIcon  },
+  { href: '/ai',        label: 'AI',      icon: AiIcon      },
+  { href: '/credit',    label: 'Credit',  icon: CreditIcon  },
+  { href: '/account',   label: 'Account', icon: AccountIcon },
 ] as const;
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

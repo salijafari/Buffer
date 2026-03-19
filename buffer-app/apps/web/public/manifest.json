@@ -29,15 +29,6 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/dashboard.png",
-      "type": "image/png",
-      "sizes": "390x844",
-      "form_factor": "narrow",
-      "label": "Buffer Dashboard — debt-free date and progress"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Payoff Planner",

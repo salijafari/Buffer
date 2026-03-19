@@ -151,11 +151,14 @@ export class BufferWsClient {
       // onclose fires after onerror — reconnect handled there
     };
 
-    // Pause reconnection when tab is hidden
-    document.addEventListener('visibilitychange', this.handleVisibility);
+    // Pause reconnection when tab is hidden (browser-only API)
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', this.handleVisibility);
+    }
   }
 
   private handleVisibility = () => {
+    if (typeof document === 'undefined') return;
     if (document.visibilityState === 'visible' && this.state === 'disconnected') {
       this.retryCount = 0;
       this.doConnect();
@@ -184,7 +187,9 @@ export class BufferWsClient {
     if (this.reconnectTimer) { clearTimeout(this.reconnectTimer);  this.reconnectTimer = null; }
     if (this.pingTimer)      { clearInterval(this.pingTimer);       this.pingTimer = null; }
     this.clearPongTimer();
-    document.removeEventListener('visibilitychange', this.handleVisibility);
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.handleVisibility);
+    }
   }
 
   private clearPongTimer() {

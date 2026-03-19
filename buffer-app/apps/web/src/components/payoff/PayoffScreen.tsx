@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { DebtFreeChart } from '../charts/DebtFreeChart';
+import { FINANCE } from '@buffer/core/src/constants';
 import type { TimelineOutput, CardData, SimulationResult } from '../../types/timeline';
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
@@ -191,7 +192,7 @@ export function PayoffScreen() {
 
   const handlePaymentChange = useCallback((payment: number) => {
     setAdjustedPayment(payment);
-    const newF3 = calcFuture3Only(totalDebt, 0.1499, payment);
+    const newF3 = calcFuture3Only(totalDebt, FINANCE.BUFFER_APR_DEFAULT, payment);
     setTimeline(prev => ({ ...prev, future3: newF3 }));
   }, [totalDebt]);
 
