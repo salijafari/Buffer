@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router";
 import imgPhone from "@/assets/HeroSectionImage2.png";
 import imgAppleIcon from "@/assets/9bacaaf934ba616b78ec2d4b9d012296ff799217.png";
 
@@ -11,6 +12,7 @@ function AndroidIcon() {
 }
 
 export function Hero() {
+  const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -114,8 +116,10 @@ export function Hero() {
 
             {/* CTAs: primary Web button + compact iOS/Android icons inline */}
             <div className="flex items-center gap-3 w-full md:w-auto">
-              <button className="border border-black text-black flex-1 md:flex-none px-5 py-3 md:py-3 rounded-[14px] md:rounded-[8px] hover:bg-gray-50 transition text-[15px] md:text-[17px] font-medium whitespace-nowrap">
-                Web Sign-up / Login
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="border border-black text-black flex-1 md:flex-none px-5 py-3 md:py-3 rounded-[14px] md:rounded-[8px] hover:bg-gray-50 transition text-[15px] md:text-[17px] font-medium whitespace-nowrap">
+                Get Started
               </button>
 
               {/* iOS icon */}
