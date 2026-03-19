@@ -37,7 +37,7 @@ createRoot(document.getElementById("root")!).render(
         {/* Onboarding wizard: 7-step KYC → eligibility → PAD flow */}
         <Route path="/onboarding/flow" element={<OnboardingFlow />} />
 
-        {/* Dashboard: home, payoff, AI, credit, account tabs */}
+        {/* Dashboard: overview, payoff planner, credit builder, AI assistant, account */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/payoff" element={<Dashboard />} />
         <Route path="/dashboard/ai" element={<Dashboard />} />
