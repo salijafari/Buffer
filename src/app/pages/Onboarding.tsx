@@ -18,17 +18,10 @@ export default function Onboarding() {
     if (!isSignedIn || !user) return;
 
     // Rule 2: an authenticated user must never see the welcome/entry screen.
-    // Rule 3: new user (onboarding_completed not yet true) → send to onboarding flow.
-    // Rule 4: returning user (onboarding_completed === true) → send to dashboard.
-    //
-    // NOTE: The full multi-step onboarding flow lives in the buffer-app (separate Next.js
-    // deployment). Until the two apps share an origin or VITE_APP_URL is wired up, both
-    // new and returning users land at '/' (the marketing home, which is also the auth
-    // session holder). The conditional is already wired for when the buffer-app URL is known:
-    //   completed → navigate('/dashboard')
-    //   !completed → navigate('/onboarding-flow/step-1')  ← set VITE_APP_URL to buffer-app origin
+    // Rule 3: new user (onboarding_completed not yet true) → onboarding wizard step 1.
+    // Rule 4: returning user (onboarding_completed === true) → dashboard.
     const completed = user.unsafeMetadata?.onboarding_completed === true;
-    navigate(completed ? '/' : '/', { replace: true });
+    navigate(completed ? '/dashboard' : '/onboarding/flow', { replace: true });
   }, [isLoaded, userLoaded, isSignedIn, user, navigate]);
 
   return (
