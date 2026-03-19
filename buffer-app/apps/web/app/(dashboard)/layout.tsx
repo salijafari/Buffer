@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
@@ -8,29 +9,36 @@ import clsx from 'clsx';
 // /app/(dashboard)/payoff/page.tsx  →  URL: /payoff
 // /app/(dashboard)/dashboard/page.tsx  →  URL: /dashboard
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Home',    icon: HomeIcon    },
-  { href: '/payoff',    label: 'Payoff',  icon: PayoffIcon  },
-  { href: '/ai',        label: 'AI',      icon: AiIcon      },
-  { href: '/credit',    label: 'Credit',  icon: CreditIcon  },
-  { href: '/account',   label: 'Account', icon: AccountIcon },
+  { href: '/dashboard', label: 'Overview',       icon: HomeIcon    },
+  { href: '/payoff',    label: 'My Timeline',    icon: PayoffIcon  },
+  { href: '/credit',    label: 'Credit Builder', icon: CreditIcon  },
+  { href: '/ai',        label: 'AI Assistant',   icon: AiIcon      },
+  { href: '/account',   label: 'Account',        icon: AccountIcon },
 ] as const;
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-[#0F1117]">
+    <div className="flex min-h-screen bg-[#F8FAFC]">
       {/* Skip nav for keyboard users (WCAG 2.4.1) */}
       <a href="#main-content" className="skip-nav">Skip to content</a>
 
       {/* ── Sidebar (≥1024px) ─────────────────────────────────────────── */}
       <nav
-        className="hidden lg:flex flex-col w-[220px] min-h-screen bg-[#1A1F2E] border-r border-[#2A3040] fixed left-0 top-0 bottom-0 z-50 py-8 px-4"
+        className="hidden lg:flex flex-col w-[220px] min-h-screen bg-white border-r border-[#E2E8F0] fixed left-0 top-0 bottom-0 z-50 py-8 px-4"
         aria-label="Main navigation"
       >
         {/* Logo */}
         <div className="mb-10 px-2">
-          <span className="text-white font-bold text-xl tracking-tight">Buffer</span>
+          <Image
+            src="/buffer-logo.png"
+            alt="Buffer"
+            width={760}
+            height={190}
+            priority
+            className="h-10 w-full object-contain object-left"
+          />
         </div>
 
         <div className="flex flex-col gap-1 flex-1">
@@ -44,7 +52,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   'flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-150',
                   active
                     ? 'bg-[#00C9A7]/12 text-[#00C9A7]'
-                    : 'text-[#A0A8B8] hover:bg-white/5 hover:text-white',
+                    : 'text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]',
                 )}
                 aria-current={active ? 'page' : undefined}
               >
@@ -58,12 +66,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* ── Main content ──────────────────────────────────────────────── */}
       <main id="main-content" className="flex-1 lg:ml-[220px] pb-20 lg:pb-0 min-h-screen" tabIndex={-1}>
+        <header className="lg:hidden sticky top-0 z-40 bg-white border-b border-[#E2E8F0] px-4 py-3">
+          <Image
+            src="/buffer-logo.png"
+            alt="Buffer"
+            width={760}
+            height={190}
+            priority
+            className="h-8 w-full max-w-[180px] object-contain object-left"
+          />
+        </header>
         {children}
       </main>
 
       {/* ── Bottom bar (<1024px) ──────────────────────────────────────── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#1A1F2E] border-t border-[#2A3040] z-50 flex items-center justify-around px-2 pb-safe"
+        className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-[#E2E8F0] z-50 flex items-center justify-around px-2 pb-safe"
         aria-label="Main navigation"
       >
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -74,7 +92,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               href={href}
               className={clsx(
                 'flex flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center px-2 rounded-xl transition-all duration-150',
-                active ? 'text-[#00C9A7]' : 'text-[#A0A8B8]',
+                active ? 'text-[#00C9A7]' : 'text-[#64748B]',
               )}
               aria-current={active ? 'page' : undefined}
               aria-label={label}

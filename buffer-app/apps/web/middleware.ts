@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
+const devBypassAuth =
+  process.env.NODE_ENV === 'development' && process.env.DEV_BYPASS_AUTH === 'true';
+
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/payoff(.*)',
@@ -13,6 +16,10 @@ const isProtectedRoute = createRouteMatcher([
 const isAuthRoute = createRouteMatcher(['/login(.*)', '/signup(.*)', '/auth(.*)']);
 
 export default clerkMiddleware(async (auth, request) => {
+  if (devBypassAuth) {
+    return NextResponse.next();
+  }
+
   const { userId } = await auth();
   const { pathname } = request.nextUrl;
 

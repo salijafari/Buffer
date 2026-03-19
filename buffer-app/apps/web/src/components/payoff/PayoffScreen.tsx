@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { DebtFreeChart } from '../charts/DebtFreeChart';
-import { FINANCE } from '@buffer/core/src/constants';
+import { FINANCE } from '@/lib/finance';
 import type { TimelineOutput, CardData, SimulationResult } from '../../types/timeline';
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
@@ -118,21 +118,21 @@ function TransferModal({
       aria-modal="true"
       aria-labelledby="transfer-title"
     >
-      <div className="bg-[#1A1F2E] rounded-2xl w-full max-w-sm p-6 flex flex-col gap-5">
+      <div className="bg-white rounded-2xl w-full max-w-sm p-6 flex flex-col gap-5">
         <div>
-          <h2 id="transfer-title" className="text-white text-lg font-bold">Confirm Payment</h2>
-          <p className="text-[#8B9CB6] text-sm mt-1">
+          <h2 id="transfer-title" className="text-[#0F172A] text-lg font-bold">Confirm Payment</h2>
+          <p className="text-[#475569] text-sm mt-1">
             This will initiate a transfer from your connected bank via PAD.
           </p>
         </div>
 
-        <div className="bg-[#0F1117] rounded-xl p-4 flex flex-col gap-3">
+        <div className="bg-[#F8FAFC] rounded-xl p-4 flex flex-col gap-3">
           <Row label="From" value="Royal Bank of Canada ••••7823" />
           <Row label="To" value={`${card.name} ••••${card.last4}`} />
-          <div className="border-t border-[#2A3040] pt-3">
+          <div className="border-t border-[#E2E8F0] pt-3">
             <Row label="Amount" value={fmt$(amount, 2)} bold />
           </div>
-          <p className="text-[#4A5568] text-xs">
+          <p className="text-[#64748B] text-xs">
             Funds typically arrive in 1–2 business days. Subject to PAD agreement terms.
           </p>
         </div>
@@ -141,7 +141,7 @@ function TransferModal({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-3 rounded-xl border border-[#2A3040] text-[#8B9CB6] text-sm font-medium hover:bg-[#22293A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
+            className="flex-1 py-3 rounded-xl border border-[#E2E8F0] text-[#475569] text-sm font-medium hover:bg-[#F1F5F9] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
           >
             Cancel
           </button>
@@ -166,8 +166,8 @@ function TransferModal({
 function Row({ label, value, bold = false }: { label: string; value: string; bold?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-[#4A5568] text-sm">{label}</span>
-      <span className={['text-sm font-mono', bold ? 'text-white font-bold' : 'text-[#8B9CB6]'].join(' ')}>
+      <span className="text-[#64748B] text-sm">{label}</span>
+      <span className={['text-sm font-mono', bold ? 'text-[#0F172A] font-bold' : 'text-[#475569]'].join(' ')}>
         {value}
       </span>
     </div>
@@ -246,13 +246,13 @@ export function PayoffScreen() {
 
       {/* Header */}
       <div>
-        <h1 className="text-white text-2xl font-bold">Payoff Planner</h1>
-        <p className="text-[#8B9CB6] text-sm mt-1">Accelerate your path to debt freedom</p>
+        <h1 className="text-[#0F172A] text-2xl font-bold">Payoff Planner</h1>
+        <p className="text-[#475569] text-sm mt-1">Accelerate your path to debt freedom</p>
       </div>
 
       {/* ── Debt-Free Chart ──────────────────────────────────────────────── */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5" aria-labelledby="chart-heading">
-        <h2 id="chart-heading" className="text-[#8B9CB6] text-sm font-medium mb-4">Debt-Free Timeline</h2>
+      <section className="bg-white rounded-2xl p-5" aria-labelledby="chart-heading">
+        <h2 id="chart-heading" className="text-[#475569] text-sm font-medium mb-4">Debt-Free Timeline</h2>
         <DebtFreeChart
           future1={timeline.future1}
           future2={timeline.future2}
@@ -265,15 +265,15 @@ export function PayoffScreen() {
           sliderDefault={timeline.recommendedPayment}
         />
         {timeline.aprFallbackApplied && (
-          <p className="text-[#4A5568] text-xs mt-3">
+          <p className="text-[#64748B] text-xs mt-3">
             * We used the Bank of Canada average card rate (21.14%) for one or more cards where the APR was unavailable.
           </p>
         )}
       </section>
 
       {/* ── Automation Controls ──────────────────────────────────────────── */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5" aria-labelledby="auto-heading">
-        <h2 id="auto-heading" className="text-[#8B9CB6] text-sm font-medium mb-3">Auto-Pay</h2>
+      <section className="bg-white rounded-2xl p-5" aria-labelledby="auto-heading">
+        <h2 id="auto-heading" className="text-[#475569] text-sm font-medium mb-3">Auto-Pay</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {([
             { mode: 'off',         label: 'Off' },
@@ -290,7 +290,7 @@ export function PayoffScreen() {
                 'py-2.5 rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]',
                 autoMode === mode
                   ? 'bg-[#00C9A7] text-[#0F1117]'
-                  : 'bg-[#0F1117] text-[#8B9CB6] hover:bg-[#22293A]',
+                  : 'bg-[#F8FAFC] text-[#475569] hover:bg-[#F1F5F9]',
               ].join(' ')}
             >
               {label}
@@ -298,20 +298,20 @@ export function PayoffScreen() {
           ))}
         </div>
         {autoMode !== 'off' && (
-          <p className="text-[#4A5568] text-xs mt-3">
+          <p className="text-[#64748B] text-xs mt-3">
             Auto-pay is <strong className="text-[#00C9A7]">{autoMode}</strong>. Buffer will initiate transfers via your PAD on the 1st of each month. You&apos;ll receive a notification 3 days before each debit.
           </p>
         )}
       </section>
 
       {/* ── Manual Transfer ──────────────────────────────────────────────── */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5" aria-labelledby="transfer-heading">
-        <h2 id="transfer-heading" className="text-[#8B9CB6] text-sm font-medium mb-3">Make a Payment</h2>
+      <section className="bg-white rounded-2xl p-5" aria-labelledby="transfer-heading">
+        <h2 id="transfer-heading" className="text-[#475569] text-sm font-medium mb-3">Make a Payment</h2>
 
         <form onSubmit={handleTransferSubmit} noValidate className="flex flex-col gap-4">
           {/* Card select */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[#4A5568] text-xs font-medium">Pay to card</label>
+            <label className="text-[#64748B] text-xs font-medium">Pay to card</label>
             <div className="flex flex-col gap-2">
               {MOCK_CARDS.map(card => (
                 <button
@@ -323,19 +323,19 @@ export function PayoffScreen() {
                     'flex items-center gap-3 p-3 rounded-xl border transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]',
                     selectedCard?.id === card.id
                       ? 'border-[#00C9A7] bg-[#00C9A7]/10'
-                      : 'border-[#2A3040] hover:border-[#3D4A5C]',
+                      : 'border-[#E2E8F0] hover:border-[#3D4A5C]',
                   ].join(' ')}
                 >
                   <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                    style={{ backgroundColor: card.color ?? '#2A3040' }}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[#0F172A] text-xs font-bold flex-shrink-0"
+                    style={{ backgroundColor: card.color ?? '#94A3B8' }}
                     aria-hidden="true"
                   >
                     {card.institution.slice(0, 2)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm truncate">{card.name}</p>
-                    <p className="text-[#4A5568] text-xs font-mono">
+                    <p className="text-[#0F172A] text-sm truncate">{card.name}</p>
+                    <p className="text-[#64748B] text-xs font-mono">
                       ••••{card.last4} · {fmt$(card.balance)} balance
                     </p>
                   </div>
@@ -351,11 +351,11 @@ export function PayoffScreen() {
 
           {/* Amount input */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="transfer-amount" className="text-[#4A5568] text-xs font-medium">
+            <label htmlFor="transfer-amount" className="text-[#64748B] text-xs font-medium">
               Amount (CAD)
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#4A5568] text-sm font-mono" aria-hidden="true">$</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B] text-sm font-mono" aria-hidden="true">$</span>
               <input
                 id="transfer-amount"
                 type="number"
@@ -366,9 +366,9 @@ export function PayoffScreen() {
                 onChange={e => { setTransferAmount(e.target.value); setTransferAmountErr(''); }}
                 placeholder="0.00"
                 className={[
-                  'w-full bg-[#0F1117] text-white text-sm font-mono rounded-xl pl-7 pr-4 py-3 border outline-none transition-colors placeholder:text-[#3D4A5C]',
+                  'w-full bg-[#F8FAFC] text-[#0F172A] text-sm font-mono rounded-xl pl-7 pr-4 py-3 border outline-none transition-colors placeholder:text-[#94A3B8]',
                   'focus:border-[#00C9A7] focus:ring-2 focus:ring-[#00C9A7]/20',
-                  transferAmountErr ? 'border-red-500' : 'border-[#2A3040]',
+                  transferAmountErr ? 'border-red-500' : 'border-[#E2E8F0]',
                 ].join(' ')}
                 aria-describedby={transferAmountErr ? 'amount-err' : undefined}
                 aria-invalid={!!transferAmountErr}

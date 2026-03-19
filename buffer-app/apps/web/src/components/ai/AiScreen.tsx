@@ -90,14 +90,14 @@ function ProactiveCardItem({
 
   return (
     <article
-      className="bg-[#1A1F2E] rounded-xl p-4 border-l-2 flex gap-3"
+      className="bg-white rounded-xl p-4 border-l-2 flex gap-3"
       style={{ borderLeftColor: borderColor }}
       aria-label={`${card.type}: ${card.title}`}
     >
       <span className="text-lg flex-shrink-0 mt-0.5" aria-hidden="true">{icon}</span>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-semibold">{card.title}</p>
-        <p className="text-[#8B9CB6] text-xs mt-1 leading-relaxed">{card.body}</p>
+        <p className="text-[#0F172A] text-sm font-semibold">{card.title}</p>
+        <p className="text-[#475569] text-xs mt-1 leading-relaxed">{card.body}</p>
         {card.cta && card.ctaHref && (
           <a
             href={card.ctaHref}
@@ -111,7 +111,7 @@ function ProactiveCardItem({
         type="button"
         onClick={() => onDismiss(card.id)}
         aria-label={`Dismiss ${card.title}`}
-        className="text-[#4A5568] hover:text-[#8B9CB6] transition-colors flex-shrink-0 mt-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7] rounded"
+        className="text-[#64748B] hover:text-[#475569] transition-colors flex-shrink-0 mt-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7] rounded"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"/>
@@ -140,7 +140,7 @@ function MessageBubble({ msg }: { msg: Message }) {
           'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed',
           isUser
             ? 'bg-[#00C9A7] text-[#0F1117] font-medium rounded-br-sm'
-            : 'bg-[#1A1F2E] text-white rounded-bl-sm',
+            : 'bg-white text-[#0F172A] rounded-bl-sm',
         ].join(' ')}
         role={!isUser ? 'article' : undefined}
         aria-label={!isUser ? `Buffer AI: ${msg.text}` : undefined}
@@ -216,10 +216,10 @@ export function AiScreen() {
       aria-label="Buffer AI assistant"
     >
       {/* Header */}
-      <div className="px-4 pt-5 pb-3 border-b border-[#2A3040] flex-shrink-0 flex items-center justify-between">
+      <div className="px-4 pt-5 pb-3 border-b border-[#E2E8F0] flex-shrink-0 flex items-center justify-between">
         <div>
-          <h1 className="text-white text-xl font-bold">Buffer AI</h1>
-          <p className="text-[#4A5568] text-xs mt-0.5">Personalized financial guidance</p>
+          <h1 className="text-[#0F172A] text-xl font-bold">Buffer AI</h1>
+          <p className="text-[#64748B] text-xs mt-0.5">Personalized financial guidance</p>
         </div>
         {hasProactive && (
           <button
@@ -234,8 +234,8 @@ export function AiScreen() {
 
       {/* Proactive cards */}
       {hasProactive && showProactive && (
-        <div className="px-4 py-3 border-b border-[#2A3040] flex-shrink-0 flex flex-col gap-2 max-h-72 overflow-y-auto">
-          <p className="text-[#4A5568] text-xs font-medium mb-0.5">Insights for you</p>
+        <div className="px-4 py-3 border-b border-[#E2E8F0] flex-shrink-0 flex flex-col gap-2 max-h-72 overflow-y-auto">
+          <p className="text-[#64748B] text-xs font-medium mb-0.5">Insights for you</p>
           {proactive.map(card => (
             <ProactiveCardItem key={card.id} card={card} onDismiss={dismissCard} />
           ))}
@@ -261,12 +261,12 @@ export function AiScreen() {
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
             </div>
-            <div className="bg-[#1A1F2E] rounded-2xl rounded-bl-sm px-4 py-3" aria-live="assertive" aria-label="Buffer AI is thinking">
+            <div className="bg-white rounded-2xl rounded-bl-sm px-4 py-3" aria-live="assertive" aria-label="Buffer AI is thinking">
               <span className="flex gap-1" aria-hidden="true">
                 {[0, 1, 2].map(i => (
                   <span
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-[#4A5568] animate-bounce"
+                    className="w-1.5 h-1.5 rounded-full bg-[#64748B] animate-bounce"
                     style={{ animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
@@ -281,14 +281,14 @@ export function AiScreen() {
       {/* Suggested prompts (show when no user messages yet) */}
       {messages.length === 1 && (
         <div className="px-4 pb-2 flex flex-col gap-2 flex-shrink-0">
-          <p className="text-[#4A5568] text-xs">Try asking:</p>
+          <p className="text-[#64748B] text-xs">Try asking:</p>
           <div className="flex flex-wrap gap-2">
             {SUGGESTED.map(s => (
               <button
                 key={s}
                 type="button"
                 onClick={() => sendMessage(s)}
-                className="text-xs bg-[#1A1F2E] border border-[#2A3040] rounded-full px-3 py-1.5 text-[#8B9CB6] hover:border-[#00C9A7]/40 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
+                className="text-xs bg-white border border-[#E2E8F0] rounded-full px-3 py-1.5 text-[#475569] hover:border-[#00C9A7]/40 hover:text-[#0F172A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
               >
                 {s}
               </button>
@@ -298,7 +298,7 @@ export function AiScreen() {
       )}
 
       {/* Input */}
-      <div className="px-4 pb-safe pb-6 pt-3 border-t border-[#2A3040] flex-shrink-0">
+      <div className="px-4 pb-safe pb-6 pt-3 border-t border-[#E2E8F0] flex-shrink-0">
         <div className="flex gap-2 items-end">
           <textarea
             ref={inputRef}
@@ -313,7 +313,7 @@ export function AiScreen() {
             onKeyDown={handleKeyDown}
             placeholder="Ask anything about your finances…"
             aria-label="Message input"
-            className="flex-1 bg-[#1A1F2E] text-white text-sm rounded-xl px-4 py-3 border border-[#2A3040] outline-none focus:border-[#00C9A7] focus:ring-2 focus:ring-[#00C9A7]/20 placeholder:text-[#3D4A5C] transition-colors resize-none overflow-hidden min-h-[44px]"
+            className="flex-1 bg-white text-[#0F172A] text-sm rounded-xl px-4 py-3 border border-[#E2E8F0] outline-none focus:border-[#00C9A7] focus:ring-2 focus:ring-[#00C9A7]/20 placeholder:text-[#94A3B8] transition-colors resize-none overflow-hidden min-h-[44px]"
           />
           <button
             type="button"
@@ -328,7 +328,7 @@ export function AiScreen() {
             </svg>
           </button>
         </div>
-        <p className="text-[#2A3040] text-xs mt-2 text-center">
+        <p className="text-[#64748B] text-xs mt-2 text-center">
           AI responses are for informational purposes only, not financial advice.
         </p>
       </div>

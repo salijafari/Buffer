@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import type { SimulationResult } from '../../../types/timeline';
+import type { SimulationResult } from '../../types/timeline';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

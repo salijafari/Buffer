@@ -105,7 +105,7 @@ function ScoreGauge({ score }: { score: number }) {
         <path
           d={arc(startAngle, startAngle + totalSweep)}
           fill="none"
-          stroke="#2A3040"
+          stroke="#E2E8F0"
           strokeWidth="10"
           strokeLinecap="round"
         />
@@ -138,18 +138,18 @@ function ScoreGauge({ score }: { score: number }) {
           y1={cy}
           x2={needleTip.x}
           y2={needleTip.y}
-          stroke="white"
+          stroke="#0F172A"
           strokeWidth="2.5"
           strokeLinecap="round"
         />
-        <circle cx={cx} cy={cy} r="5" fill="white" />
+        <circle cx={cx} cy={cy} r="5" fill="#0F172A" />
 
         {/* Score label */}
         <text
           x={cx}
           y={cy - 16}
           textAnchor="middle"
-          fill="white"
+          fill="#0F172A"
           fontSize="24"
           fontWeight="700"
           fontFamily="JetBrains Mono, monospace"
@@ -162,7 +162,7 @@ function ScoreGauge({ score }: { score: number }) {
       <p className="text-sm font-semibold" style={{ color: band.color }}>{band.label}</p>
 
       {/* Range ticks */}
-      <div className="flex justify-between w-full max-w-[220px] px-2 text-[10px] text-[#4A5568] font-mono">
+      <div className="flex justify-between w-full max-w-[220px] px-2 text-[10px] text-[#64748B] font-mono">
         <span>{SCORE_MIN}</span>
         <span>{SCORE_MAX}</span>
       </div>
@@ -179,8 +179,8 @@ function HistoryTooltip({ active, payload, label }: {
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#1A1F2E] border border-[#2A3040] rounded-xl px-3 py-2 text-xs">
-      <p className="text-[#8B9CB6]">{label}</p>
+    <div className="bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs">
+      <p className="text-[#475569]">{label}</p>
       <p className="text-[#00C9A7] font-bold font-mono">{payload[0].value}</p>
     </div>
   );
@@ -195,8 +195,8 @@ function GraduationPath({ score }: { score: number }) {
   const graduated = score >= TARGET;
 
   return (
-    <div className="bg-[#1A1F2E] rounded-2xl p-5" aria-labelledby="graduation-heading">
-      <h2 id="graduation-heading" className="text-[#8B9CB6] text-sm font-medium mb-3">
+    <div className="bg-white rounded-2xl p-5" aria-labelledby="graduation-heading">
+      <h2 id="graduation-heading" className="text-[#475569] text-sm font-medium mb-3">
         {graduated ? 'Credit Line Unlocked' : 'Path to Credit Line'}
       </h2>
 
@@ -210,16 +210,16 @@ function GraduationPath({ score }: { score: number }) {
       ) : (
         <>
           <div className="flex justify-between text-xs mb-2">
-            <span className="text-[#4A5568]">Current: <span className="text-white font-mono">{score}</span></span>
-            <span className="text-[#4A5568]">Target: <span className="text-[#00C9A7] font-mono">{TARGET}+</span></span>
+            <span className="text-[#64748B]">Current: <span className="text-[#0F172A] font-mono">{score}</span></span>
+            <span className="text-[#64748B]">Target: <span className="text-[#00C9A7] font-mono">{TARGET}+</span></span>
           </div>
-          <div className="h-2 bg-[#2A3040] rounded-full overflow-hidden mb-2">
+          <div className="h-2 bg-[#E2E8F0] rounded-full overflow-hidden mb-2">
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{ width: `${pct}%`, backgroundColor: '#00C9A7' }}
             />
           </div>
-          <p className="text-[#4A5568] text-xs">
+          <p className="text-[#64748B] text-xs">
             {remaining} points to go · Typically {Math.ceil(remaining / 5)}–{Math.ceil(remaining / 3)} months with on-time payments
           </p>
         </>
@@ -243,9 +243,9 @@ export function CreditScreen() {
   if (!isLoaded) {
     return (
       <div className="flex flex-col gap-4 px-4 py-5 max-w-2xl mx-auto w-full" aria-busy="true" aria-label="Loading credit data">
-        <div className="h-8 w-32 rounded-lg bg-[#1A1F2E] animate-pulse" />
-        <div className="h-52 rounded-2xl bg-[#1A1F2E] animate-pulse" />
-        <div className="h-24 rounded-2xl bg-[#1A1F2E] animate-pulse" />
+        <div className="h-8 w-32 rounded-lg bg-white animate-pulse" />
+        <div className="h-52 rounded-2xl bg-white animate-pulse" />
+        <div className="h-24 rounded-2xl bg-white animate-pulse" />
       </div>
     );
   }
@@ -253,27 +253,27 @@ export function CreditScreen() {
   return (
     <div className="flex flex-col gap-4 px-4 py-5 max-w-2xl mx-auto w-full pb-24 lg:pb-6">
       <div>
-        <h1 className="text-white text-2xl font-bold">Credit</h1>
-        <p className="text-[#8B9CB6] text-sm mt-1">Track and grow your credit score</p>
+        <h1 className="text-[#0F172A] text-2xl font-bold">Credit</h1>
+        <p className="text-[#475569] text-sm mt-1">Track and grow your credit score</p>
       </div>
 
       {/* Score Card */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5 flex flex-col items-center gap-4" aria-label="Credit score summary">
+      <section className="bg-white rounded-2xl p-5 flex flex-col items-center gap-4" aria-label="Credit score summary">
         <ScoreGauge score={score.score} />
         <div className="flex gap-6 text-center">
           <div>
-            <p className="text-[#4A5568] text-xs">Bureau</p>
-            <p className="text-white text-sm font-medium capitalize">{score.bureau}</p>
+            <p className="text-[#64748B] text-xs">Bureau</p>
+            <p className="text-[#0F172A] text-sm font-medium capitalize">{score.bureau}</p>
           </div>
           <div>
-            <p className="text-[#4A5568] text-xs">Updated</p>
-            <p className="text-white text-sm font-medium">
+            <p className="text-[#64748B] text-xs">Updated</p>
+            <p className="text-[#0F172A] text-sm font-medium">
               {new Date(score.reportDate).toLocaleDateString('en-CA', { month: 'short', year: 'numeric' })}
             </p>
           </div>
           <div>
-            <p className="text-[#4A5568] text-xs">Next update</p>
-            <p className="text-white text-sm font-medium">Apr 2026</p>
+            <p className="text-[#64748B] text-xs">Next update</p>
+            <p className="text-[#0F172A] text-sm font-medium">Apr 2026</p>
           </div>
         </div>
       </section>
@@ -282,7 +282,7 @@ export function CreditScreen() {
       <GraduationPath score={score.score} />
 
       {/* Tab bar */}
-      <div className="flex gap-1 bg-[#1A1F2E] rounded-xl p-1" role="tablist" aria-label="Credit sections">
+      <div className="flex gap-1 bg-white rounded-xl p-1" role="tablist" aria-label="Credit sections">
         {([
           { id: 'overview',   label: 'History' },
           { id: 'tradelines', label: 'Trade Lines' },
@@ -297,7 +297,7 @@ export function CreditScreen() {
             onClick={() => setActiveTab(tab.id)}
             className={[
               'flex-1 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]',
-              activeTab === tab.id ? 'bg-[#0F1117] text-white' : 'text-[#4A5568] hover:text-[#8B9CB6]',
+              activeTab === tab.id ? 'bg-[#F8FAFC] text-[#0F172A]' : 'text-[#64748B] hover:text-[#475569]',
             ].join(' ')}
           >
             {tab.label}
@@ -311,21 +311,21 @@ export function CreditScreen() {
           id="tabpanel-overview"
           role="tabpanel"
           aria-label="Score history"
-          className="bg-[#1A1F2E] rounded-2xl p-5"
+          className="bg-white rounded-2xl p-5"
         >
-          <h2 className="text-[#8B9CB6] text-sm font-medium mb-4">6-Month Score Trend</h2>
+          <h2 className="text-[#475569] text-sm font-medium mb-4">6-Month Score Trend</h2>
           <div className="h-36">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={score.history} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A3040" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: '#4A5568', fontSize: 10 }}
+                  tick={{ fill: '#64748B', fontSize: 10 }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  tick={{ fill: '#4A5568', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}
+                  tick={{ fill: '#64748B', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}
                   tickLine={false}
                   axisLine={false}
                   domain={['dataMin - 20', 'dataMax + 20']}
@@ -349,9 +349,9 @@ export function CreditScreen() {
               <div key={r.label} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
-                  <span className="text-[#8B9CB6] text-xs">{r.label}</span>
+                  <span className="text-[#475569] text-xs">{r.label}</span>
                 </div>
-                <span className="text-[#4A5568] text-xs font-mono">{r.min}–{r.max}</span>
+                <span className="text-[#64748B] text-xs font-mono">{r.min}–{r.max}</span>
               </div>
             ))}
           </div>
@@ -367,29 +367,29 @@ export function CreditScreen() {
           className="flex flex-col gap-3"
         >
           {MOCK_TRADELINES.map(tl => (
-            <div key={tl.id} className="bg-[#1A1F2E] rounded-xl p-4">
+            <div key={tl.id} className="bg-white rounded-xl p-4">
               <div className="flex items-start justify-between gap-2 mb-2">
-                <p className="text-white text-sm font-medium">{tl.type}</p>
+                <p className="text-[#0F172A] text-sm font-medium">{tl.type}</p>
                 <span className={[
                   'text-xs rounded-full px-2 py-0.5 font-medium flex-shrink-0',
                   tl.status === 'active'
                     ? 'bg-[#00C9A7]/10 text-[#00C9A7]'
-                    : 'bg-[#2A3040] text-[#4A5568]',
+                    : 'bg-[#E2E8F0] text-[#64748B]',
                 ].join(' ')}>
                   {tl.status === 'active' ? 'Buffer' : 'External'}
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-xs">
                 <div>
-                  <p className="text-[#4A5568]">Reported to</p>
-                  <p className="text-[#8B9CB6] mt-0.5">{tl.reportedTo}</p>
+                  <p className="text-[#64748B]">Reported to</p>
+                  <p className="text-[#475569] mt-0.5">{tl.reportedTo}</p>
                 </div>
                 <div>
-                  <p className="text-[#4A5568]">Since</p>
-                  <p className="text-[#8B9CB6] mt-0.5">{tl.since}</p>
+                  <p className="text-[#64748B]">Since</p>
+                  <p className="text-[#475569] mt-0.5">{tl.since}</p>
                 </div>
                 <div>
-                  <p className="text-[#4A5568]">Payment</p>
+                  <p className="text-[#64748B]">Payment</p>
                   <p className="text-[#00C9A7] mt-0.5">{tl.payment}</p>
                 </div>
               </div>
@@ -404,17 +404,17 @@ export function CreditScreen() {
           id="tabpanel-budget"
           role="tabpanel"
           aria-label="Monthly budget breakdown"
-          className="bg-[#1A1F2E] rounded-2xl p-5"
+          className="bg-white rounded-2xl p-5"
         >
-          <h2 className="text-[#8B9CB6] text-sm font-medium mb-4">Monthly Spending</h2>
+          <h2 className="text-[#475569] text-sm font-medium mb-4">Monthly Spending</h2>
           <div className="flex flex-col gap-3">
             {MOCK_BUDGET.map(item => (
               <div key={item.category}>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-[#8B9CB6]">{item.category}</span>
-                  <span className="text-white font-mono">{fmt$(item.amount)}</span>
+                  <span className="text-[#475569]">{item.category}</span>
+                  <span className="text-[#0F172A] font-mono">{fmt$(item.amount)}</span>
                 </div>
-                <div className="h-1.5 bg-[#2A3040] rounded-full overflow-hidden">
+                <div className="h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -423,13 +423,13 @@ export function CreditScreen() {
                     }}
                   />
                 </div>
-                <p className="text-[#4A5568] text-xs mt-0.5 text-right">{item.pct}% of income</p>
+                <p className="text-[#64748B] text-xs mt-0.5 text-right">{item.pct}% of income</p>
               </div>
             ))}
           </div>
-          <div className="mt-4 pt-4 border-t border-[#2A3040] flex justify-between">
-            <span className="text-[#8B9CB6] text-sm">Total tracked</span>
-            <span className="text-white font-bold font-mono">
+          <div className="mt-4 pt-4 border-t border-[#E2E8F0] flex justify-between">
+            <span className="text-[#475569] text-sm">Total tracked</span>
+            <span className="text-[#0F172A] font-bold font-mono">
               {fmt$(MOCK_BUDGET.reduce((s, i) => s + i.amount, 0))}
             </span>
           </div>
