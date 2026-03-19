@@ -16,7 +16,7 @@ function Toggle({
 }) {
   return (
     <label htmlFor={id} className="flex items-center justify-between cursor-pointer">
-      <span className="text-[#8B9CB6] text-sm">{label}</span>
+      <span className="text-[#475569] text-sm">{label}</span>
       <button
         id={id}
         role="switch"
@@ -26,7 +26,7 @@ function Toggle({
         onClick={() => onChange(!checked)}
         className={[
           'relative w-11 h-6 rounded-full transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]',
-          checked ? 'bg-[#00C9A7]' : 'bg-[#2A3040]',
+          checked ? 'bg-[#00C9A7]' : 'bg-[#CBD5E1]',
         ].join(' ')}
       >
         <span
@@ -46,9 +46,9 @@ function BackButton({ onClick }: { onClick: () => void }) {
       type="button"
       onClick={onClick}
       aria-label="Go back"
-      className="w-9 h-9 rounded-xl bg-[#1A1F2E] flex items-center justify-center hover:bg-[#22293A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
+      className="w-9 h-9 rounded-xl bg-white flex items-center justify-center hover:bg-[#F1F5F9] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
     </button>
@@ -88,7 +88,7 @@ function InputField({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-[#8B9CB6] text-sm font-medium">{label}</label>
+      <label htmlFor={id} className="text-[#475569] text-sm font-medium">{label}</label>
       <input
         id={id}
         type={type}
@@ -96,7 +96,7 @@ function InputField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         autoComplete={autoComplete}
-        className="bg-[#0F1117] text-white text-sm rounded-xl px-4 py-3 border border-[#2A3040] outline-none focus:border-[#00C9A7] focus:ring-2 focus:ring-[#00C9A7]/20 transition-colors placeholder:text-[#3D4A5C]"
+        className="bg-[#F8FAFC] text-[#0F172A] text-sm rounded-xl px-4 py-3 border border-[#E2E8F0] outline-none focus:border-[#00C9A7] focus:ring-2 focus:ring-[#00C9A7]/20 transition-colors placeholder:text-[#94A3B8]"
       />
     </div>
   );
@@ -124,7 +124,7 @@ function ProfileSection({ onBack }: { onBack: () => void }) {
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <BackButton onClick={onBack} />
-        <h1 className="text-white text-xl font-bold">Profile</h1>
+        <h1 className="text-[#0F172A] text-xl font-bold">Profile</h1>
       </div>
 
       {/* Avatar */}
@@ -190,12 +190,12 @@ function NotificationsSection({ onBack }: { onBack: () => void }) {
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <BackButton onClick={onBack} />
-        <h1 className="text-white text-xl font-bold">Notifications</h1>
+        <h1 className="text-[#0F172A] text-xl font-bold">Notifications</h1>
       </div>
 
       {groups.map(group => (
-        <section key={group.title} className="bg-[#1A1F2E] rounded-2xl p-4 flex flex-col gap-4">
-          <p className="text-[#4A5568] text-xs font-semibold uppercase tracking-widest">{group.title}</p>
+        <section key={group.title} className="bg-white rounded-2xl p-4 flex flex-col gap-4">
+          <p className="text-[#64748B] text-xs font-semibold uppercase tracking-widest">{group.title}</p>
           {group.items.map(item => (
             <Toggle key={item.id} id={item.id} label={item.label} checked={item.checked} onChange={item.onChange} />
           ))}
@@ -229,12 +229,12 @@ function SecuritySection({ onBack }: { onBack: () => void }) {
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <BackButton onClick={onBack} />
-        <h1 className="text-white text-xl font-bold">Security</h1>
+        <h1 className="text-[#0F172A] text-xl font-bold">Security</h1>
       </div>
 
       {/* Password change */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5 flex flex-col gap-4">
-        <p className="text-[#4A5568] text-xs font-semibold uppercase tracking-widest">Change Password</p>
+      <section className="bg-white rounded-2xl p-5 flex flex-col gap-4">
+        <p className="text-[#64748B] text-xs font-semibold uppercase tracking-widest">Change Password</p>
         <InputField label="Current password" id="cpw" type="password" value={currentPw} onChange={setCurrentPw} autoComplete="current-password" />
         <InputField label="New password"     id="npw" type="password" value={newPw}     onChange={setNewPw}     autoComplete="new-password" />
         <InputField label="Confirm new"      id="cnf" type="password" value={confirmPw} onChange={setConfirmPw} autoComplete="new-password" />
@@ -249,9 +249,9 @@ function SecuritySection({ onBack }: { onBack: () => void }) {
       </section>
 
       {/* Passkey */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5 flex flex-col gap-3">
-        <p className="text-[#4A5568] text-xs font-semibold uppercase tracking-widest">Passkey</p>
-        <p className="text-[#8B9CB6] text-sm">Sign in with Face ID, Touch ID, or Windows Hello — no password needed.</p>
+      <section className="bg-white rounded-2xl p-5 flex flex-col gap-3">
+        <p className="text-[#64748B] text-xs font-semibold uppercase tracking-widest">Passkey</p>
+        <p className="text-[#475569] text-sm">Sign in with Face ID, Touch ID, or Windows Hello — no password needed.</p>
         <button
           type="button"
           className="flex items-center gap-2 text-sm text-[#00C9A7] font-medium hover:underline focus-visible:outline-none focus-visible:underline"
@@ -267,7 +267,7 @@ function SecuritySection({ onBack }: { onBack: () => void }) {
       </section>
 
       {/* 2FA */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5">
+      <section className="bg-white rounded-2xl p-5">
         <Toggle
           id="2fa"
           label="Two-factor authentication (TOTP)"
@@ -275,7 +275,7 @@ function SecuritySection({ onBack }: { onBack: () => void }) {
           onChange={setTwoFa}
         />
         {twoFa && (
-          <p className="text-[#4A5568] text-xs mt-3">
+          <p className="text-[#64748B] text-xs mt-3">
             Scan the QR code in your authenticator app. TOTP setup available in next release.
           </p>
         )}
@@ -291,18 +291,18 @@ function SubscriptionSection({ onBack }: { onBack: () => void }) {
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <BackButton onClick={onBack} />
-        <h1 className="text-white text-xl font-bold">Subscription</h1>
+        <h1 className="text-[#0F172A] text-xl font-bold">Subscription</h1>
       </div>
 
       {/* Current plan */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5 flex flex-col gap-4">
+      <section className="bg-white rounded-2xl p-5 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <p className="text-[#4A5568] text-xs font-semibold uppercase tracking-widest">Current Plan</p>
+          <p className="text-[#64748B] text-xs font-semibold uppercase tracking-widest">Current Plan</p>
           <span className="text-xs bg-[#00C9A7]/10 text-[#00C9A7] rounded-full px-2.5 py-0.5 font-medium">Active</span>
         </div>
         <div>
-          <p className="text-white text-2xl font-bold">Buffer Pro</p>
-          <p className="text-[#8B9CB6] text-sm mt-0.5 font-mono">$14.99/month</p>
+          <p className="text-[#0F172A] text-2xl font-bold">Buffer Pro</p>
+          <p className="text-[#475569] text-sm mt-0.5 font-mono">$14.99/month</p>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
           {[
@@ -312,17 +312,17 @@ function SubscriptionSection({ onBack }: { onBack: () => void }) {
             { label: 'Credit Builder',   value: 'Included'        },
           ].map(item => (
             <div key={item.label}>
-              <p className="text-[#4A5568] text-xs">{item.label}</p>
-              <p className="text-white font-medium mt-0.5">{item.value}</p>
+              <p className="text-[#64748B] text-xs">{item.label}</p>
+              <p className="text-[#0F172A] font-medium mt-0.5">{item.value}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* PAD summary */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-5">
-        <p className="text-[#4A5568] text-xs font-semibold uppercase tracking-widest mb-3">PAD Agreement</p>
-        <p className="text-[#8B9CB6] text-xs leading-relaxed">
+      <section className="bg-white rounded-2xl p-5">
+        <p className="text-[#64748B] text-xs font-semibold uppercase tracking-widest mb-3">PAD Agreement</p>
+        <p className="text-[#475569] text-xs leading-relaxed">
           You have authorized Buffer Financial Inc. to debit your RBC account ending in 7823 for $14.99 monthly. To cancel, provide 30 days&apos; written notice to{' '}
           <a href="mailto:support@mybuffer.ca" className="text-[#00C9A7]">support@mybuffer.ca</a>.
           Payments Canada Rule H1 applies.
@@ -338,7 +338,7 @@ function SubscriptionSection({ onBack }: { onBack: () => void }) {
         {cancelling ? 'Opening cancellation…' : 'Cancel Subscription'}
       </PrimaryButton>
       {cancelling && (
-        <p className="text-[#4A5568] text-xs text-center">
+        <p className="text-[#64748B] text-xs text-center">
           Your account will remain active for 30 days after notice. Check your email for next steps.
         </p>
       )}
@@ -360,7 +360,7 @@ function SupportSection({ onBack }: { onBack: () => void }) {
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <BackButton onClick={onBack} />
-        <h1 className="text-white text-xl font-bold">Help & Support</h1>
+        <h1 className="text-[#0F172A] text-xl font-bold">Help & Support</h1>
       </div>
 
       {/* Quick actions */}
@@ -374,28 +374,28 @@ function SupportSection({ onBack }: { onBack: () => void }) {
           <a
             key={item.label}
             href={item.href}
-            className="bg-[#1A1F2E] rounded-xl p-4 flex items-center gap-3 hover:bg-[#22293A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
+            className="bg-white rounded-xl p-4 flex items-center gap-3 hover:bg-[#F1F5F9] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
           >
             <span className="text-xl" aria-hidden="true">{item.icon}</span>
-            <span className="text-[#8B9CB6] text-sm">{item.label}</span>
+            <span className="text-[#475569] text-sm">{item.label}</span>
           </a>
         ))}
       </div>
 
       {/* FAQs */}
-      <section className="bg-[#1A1F2E] rounded-2xl overflow-hidden divide-y divide-[#2A3040]" aria-label="Frequently asked questions">
-        <p className="px-5 py-3 text-[#4A5568] text-xs font-semibold uppercase tracking-widest">FAQs</p>
+      <section className="bg-white rounded-2xl overflow-hidden divide-y divide-[#E2E8F0]" aria-label="Frequently asked questions">
+        <p className="px-5 py-3 text-[#64748B] text-xs font-semibold uppercase tracking-widest">FAQs</p>
         {FAQs.map((faq, i) => (
           <div key={i}>
             <button
               type="button"
               onClick={() => setOpenFaq(openFaq === i ? null : i)}
               aria-expanded={openFaq === i}
-              className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-[#22293A] transition-colors focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
+              className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-[#F1F5F9] transition-colors focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
             >
-              <span className="text-white text-sm font-medium pr-4">{faq.q}</span>
+              <span className="text-[#0F172A] text-sm font-medium pr-4">{faq.q}</span>
               <svg
-                width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A5568"
+                width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B"
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                 className={['transition-transform flex-shrink-0', openFaq === i ? 'rotate-180' : ''].join(' ')}
                 aria-hidden="true"
@@ -405,14 +405,14 @@ function SupportSection({ onBack }: { onBack: () => void }) {
             </button>
             {openFaq === i && (
               <div className="px-5 pb-4">
-                <p className="text-[#8B9CB6] text-sm leading-relaxed">{faq.a}</p>
+                <p className="text-[#475569] text-sm leading-relaxed">{faq.a}</p>
               </div>
             )}
           </div>
         ))}
       </section>
 
-      <p className="text-center text-[#2A3040] text-xs">Buffer v0.1.0 · mybuffer.ca</p>
+      <p className="text-center text-[#64748B] text-xs">Buffer v0.1.0 · mybuffer.ca</p>
     </div>
   );
 }
@@ -486,27 +486,27 @@ export function AccountScreen() {
           A
         </div>
         <div>
-          <p className="text-white font-semibold text-lg">Alex Chen</p>
-          <p className="text-[#4A5568] text-sm">alex.chen@example.com</p>
+          <p className="text-[#0F172A] font-semibold text-lg">Alex Chen</p>
+          <p className="text-[#64748B] text-sm">alex.chen@example.com</p>
         </div>
       </div>
 
       {/* Menu */}
       <nav aria-label="Account sections">
-        <ul className="bg-[#1A1F2E] rounded-2xl overflow-hidden divide-y divide-[#2A3040]">
+        <ul className="bg-white rounded-2xl overflow-hidden divide-y divide-[#E2E8F0]">
           {menuItems.map(item => (
             <li key={item.id}>
               <button
                 type="button"
                 onClick={() => setSection(item.id)}
-                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-[#22293A] transition-colors text-left focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
+                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-[#F1F5F9] transition-colors text-left focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
               >
-                <span className="text-[#4A5568]" aria-hidden="true">{item.icon}</span>
+                <span className="text-[#64748B]" aria-hidden="true">{item.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium">{item.label}</p>
-                  <p className="text-[#4A5568] text-xs">{item.desc}</p>
+                  <p className="text-[#0F172A] text-sm font-medium">{item.label}</p>
+                  <p className="text-[#64748B] text-xs">{item.desc}</p>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A5568" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <polyline points="9 18 15 12 9 6"/>
                 </svg>
               </button>
@@ -525,7 +525,7 @@ export function AccountScreen() {
         {loggingOut ? 'Signing out…' : 'Sign Out'}
       </button>
 
-      <p className="text-center text-[#2A3040] text-xs">Buffer v0.1.0 · mybuffer.ca</p>
+      <p className="text-center text-[#64748B] text-xs">Buffer v0.1.0 · mybuffer.ca</p>
     </div>
   );
 }

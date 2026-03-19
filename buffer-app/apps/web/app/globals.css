@@ -124,3 +124,8 @@ button, [role="button"], [role="tab"], [role="switch"] {
 /* ─── Safe area insets (iPhone notch / Dynamic Island) ───────────────────── */
 .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0); }
 .pt-safe { padding-top:    env(safe-area-inset-top,    0); }
+
+/* Hide Next.js dev overlay portal in local preview. */
+nextjs-portal {
+  display: none !important;
+}

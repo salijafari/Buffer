@@ -118,29 +118,29 @@ export function HomeScreen() {
     >
       {/* ── Debt-Free Hero ──────────────────────────────────────────────── */}
       <section
-        className="bg-gradient-to-br from-[#00C9A7]/15 via-[#1A1F2E] to-[#0F1117] border border-[#00C9A7]/20 rounded-2xl p-5"
+        className="bg-gradient-to-br from-[#00C9A7]/12 via-white to-[#F0FDFA] border border-[#99F6E4] rounded-2xl p-5"
         aria-labelledby="hero-heading"
       >
         <p id="hero-heading" className="text-[#00C9A7] text-xs font-bold uppercase tracking-widest mb-1">
           Debt-Free Date
         </p>
-        <p className="text-white text-3xl font-bold">
+        <p className="text-[#0F172A] text-3xl font-bold">
           {fmtDate(timeline.future3!.debtFreeDate)}
         </p>
-        <p className="text-[#8B9CB6] text-sm mt-1">
+        <p className="text-[#475569] text-sm mt-1">
           {timeline.future3!.monthsToZero} months ·{' '}
           <span className="text-[#00C9A7]">{fmt$(timeline.interestSavings)}</span> interest saved
         </p>
 
         <div className="mt-4">
-          <div className="flex justify-between text-xs text-[#4A5568] mb-1.5">
+          <div className="flex justify-between text-xs text-[#64748B] mb-1.5">
             <span>Today</span>
             <span className="text-[#00C9A7]">
               {Math.round((timeline.future3!.monthsToZero / timeline.future1.monthsToZero) * 100 - 100 + 100)}% faster
             </span>
             <span>Debt-free</span>
           </div>
-          <div className="h-1.5 bg-[#2A3040] rounded-full overflow-hidden">
+          <div className="h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-[#00C9A7] to-[#00C9A7]/60 rounded-full"
               style={{ width: '3%' }}
@@ -157,16 +157,16 @@ export function HomeScreen() {
 
       {/* ── Net Worth + Credit Score ─────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-[#1A1F2E] rounded-2xl p-4" aria-label={`Net worth: ${fmt$(netWorth)}`}>
-          <p className="text-[#4A5568] text-xs mb-1">Net Worth</p>
+        <div className="bg-white rounded-2xl p-4" aria-label={`Net worth: ${fmt$(netWorth)}`}>
+          <p className="text-[#64748B] text-xs mb-1">Net Worth</p>
           <p className={['text-xl font-bold font-mono tabular-nums', netWorth < 0 ? 'text-[#FF6B6B]' : 'text-[#00C9A7]'].join(' ')}>
             {fmt$(netWorth)}
           </p>
-          <p className="text-[#4A5568] text-xs mt-1">{fmt$(totalDebt)} debt</p>
+          <p className="text-[#64748B] text-xs mt-1">{fmt$(totalDebt)} debt</p>
         </div>
 
-        <div className="bg-[#1A1F2E] rounded-2xl p-4" aria-label={`Credit score ${score.score}, ${scoreLabel(score.band)}`}>
-          <p className="text-[#4A5568] text-xs mb-1">Credit Score</p>
+        <div className="bg-white rounded-2xl p-4" aria-label={`Credit score ${score.score}, ${scoreLabel(score.band)}`}>
+          <p className="text-[#64748B] text-xs mb-1">Credit Score</p>
           <p className="text-xl font-bold font-mono tabular-nums" style={{ color: scoreColor(score.band) }}>
             {score.score}
           </p>
@@ -177,28 +177,28 @@ export function HomeScreen() {
       </div>
 
       {/* ── Buffer Credit Line ──────────────────────────────────────────── */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-4" aria-labelledby="credit-line-heading">
+      <section className="bg-white rounded-2xl p-4" aria-labelledby="credit-line-heading">
         <div className="flex items-center justify-between mb-3">
-          <p id="credit-line-heading" className="text-[#8B9CB6] text-sm font-medium">Buffer Credit Line</p>
+          <p id="credit-line-heading" className="text-[#475569] text-sm font-medium">Buffer Credit Line</p>
           <span className="text-xs bg-[#00C9A7]/10 text-[#00C9A7] rounded-full px-2.5 py-0.5 font-medium">
             Active
           </span>
         </div>
         <div className="flex items-baseline gap-2">
-          <p className="text-white text-2xl font-bold font-mono tabular-nums">$5,000</p>
-          <p className="text-[#4A5568] text-sm">available</p>
+          <p className="text-[#0F172A] text-2xl font-bold font-mono tabular-nums">$5,000</p>
+          <p className="text-[#64748B] text-sm">available</p>
         </div>
-        <div className="mt-2 h-1.5 bg-[#2A3040] rounded-full overflow-hidden">
+        <div className="mt-2 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
           <div className="h-full bg-[#00C9A7] rounded-full" style={{ width: '0%' }} />
         </div>
-        <p className="text-[#4A5568] text-xs mt-1.5">$0 used · 14.99% APR</p>
+        <p className="text-[#64748B] text-xs mt-1.5">$0 used · 14.99% APR</p>
       </section>
 
       {/* ── Cards Feed ─────────────────────────────────────────────────── */}
       <section aria-labelledby="cards-heading">
         <div className="flex items-center justify-between mb-3">
-          <h2 id="cards-heading" className="text-[#8B9CB6] text-sm font-medium">Your Cards</h2>
-          <p className="text-[#4A5568] text-xs font-mono">{fmt$(totalDebt)} total · {utilPct(totalDebt, totalLimit)}% util</p>
+          <h2 id="cards-heading" className="text-[#475569] text-sm font-medium">Your Cards</h2>
+          <p className="text-[#64748B] text-xs font-mono">{fmt$(totalDebt)} total · {utilPct(totalDebt, totalLimit)}% util</p>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -208,12 +208,12 @@ export function HomeScreen() {
             return (
               <article
                 key={card.id}
-                className="bg-[#1A1F2E] rounded-xl p-4 flex items-center gap-3"
+                className="bg-white rounded-xl p-4 flex items-center gap-3"
                 aria-label={`${card.name}: ${fmt$(card.balance)} balance, ${util}% utilization`}
               >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                  style={{ backgroundColor: card.color ?? '#2A3040' }}
+                  style={{ backgroundColor: card.color ?? '#94A3B8' }}
                   aria-hidden="true"
                 >
                   {card.institution.slice(0, 2)}
@@ -221,19 +221,19 @@ export function HomeScreen() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-2">
-                    <p className="text-white text-sm font-medium truncate">{card.name}</p>
-                    <p className="text-white text-sm font-bold font-mono tabular-nums flex-shrink-0">
+                    <p className="text-[#0F172A] text-sm font-medium truncate">{card.name}</p>
+                    <p className="text-[#0F172A] text-sm font-bold font-mono tabular-nums flex-shrink-0">
                       {fmt$(card.balance)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 mt-1.5">
-                    <div className="flex-1 h-1 bg-[#2A3040] rounded-full overflow-hidden">
+                    <div className="flex-1 h-1 bg-[#E2E8F0] rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{ width: `${util}%`, backgroundColor: utilBarColor }}
                       />
                     </div>
-                    <p className="text-[#4A5568] text-xs flex-shrink-0">
+                    <p className="text-[#64748B] text-xs flex-shrink-0">
                       {util}%
                     </p>
                   </div>
@@ -245,21 +245,21 @@ export function HomeScreen() {
       </section>
 
       {/* ── Rewards ──────────────────────────────────────────────────────── */}
-      <section className="bg-[#1A1F2E] rounded-2xl p-4 flex items-center gap-4" aria-label="Rewards: 1,250 points">
+      <section className="bg-white rounded-2xl p-4 flex items-center gap-4" aria-label="Rewards: 1,250 points">
         <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/10 flex items-center justify-center flex-shrink-0">
           <span className="text-xl" aria-hidden="true">⭐</span>
         </div>
         <div className="flex-1">
-          <p className="text-[#4A5568] text-xs">Rewards Points</p>
-          <p className="text-white font-bold font-mono tabular-nums text-lg">1,250 pts</p>
+          <p className="text-[#64748B] text-xs">Rewards Points</p>
+          <p className="text-[#0F172A] font-bold font-mono tabular-nums text-lg">1,250 pts</p>
         </div>
-        <p className="text-[#4A5568] text-xs">≈ $12.50</p>
+        <p className="text-[#64748B] text-xs">≈ $12.50</p>
       </section>
 
       {/* ── AI Banner ────────────────────────────────────────────────────── */}
       <a
         href="/ai"
-        className="bg-[#1A1F2E] border border-[#2A3040] rounded-2xl p-4 flex items-center gap-4 hover:border-[#00C9A7]/30 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
+        className="bg-white border border-[#E2E8F0] rounded-2xl p-4 flex items-center gap-4 hover:border-[#00C9A7]/30 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
         aria-label="Open Buffer AI assistant"
       >
         <div className="w-10 h-10 rounded-xl bg-[#00C9A7]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00C9A7]/20 transition-colors">
@@ -268,12 +268,12 @@ export function HomeScreen() {
           </svg>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-white text-sm font-medium">Ask Buffer AI</p>
-          <p className="text-[#4A5568] text-xs mt-0.5 truncate">
+          <p className="text-[#0F172A] text-sm font-medium">Ask Buffer AI</p>
+          <p className="text-[#64748B] text-xs mt-0.5 truncate">
             &ldquo;How can I pay off my TD card faster?&rdquo;
           </p>
         </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A5568" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="group-hover:stroke-[#00C9A7] transition-colors flex-shrink-0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="group-hover:stroke-[#00C9A7] transition-colors flex-shrink-0">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </a>
@@ -286,14 +286,14 @@ export function HomeScreen() {
 function SkeletonHome() {
   return (
     <div className="flex flex-col gap-4 px-4 py-5 max-w-2xl mx-auto w-full" aria-busy="true" aria-label="Loading dashboard">
-      <div className="skeleton h-36 rounded-2xl bg-[#1A1F2E] animate-pulse" />
+      <div className="skeleton h-36 rounded-2xl bg-white animate-pulse" />
       <div className="grid grid-cols-2 gap-3">
-        <div className="skeleton h-20 rounded-2xl bg-[#1A1F2E] animate-pulse" />
-        <div className="skeleton h-20 rounded-2xl bg-[#1A1F2E] animate-pulse" />
+        <div className="skeleton h-20 rounded-2xl bg-white animate-pulse" />
+        <div className="skeleton h-20 rounded-2xl bg-white animate-pulse" />
       </div>
-      <div className="skeleton h-24 rounded-2xl bg-[#1A1F2E] animate-pulse" />
+      <div className="skeleton h-24 rounded-2xl bg-white animate-pulse" />
       {[1, 2, 3].map(i => (
-        <div key={i} className="skeleton h-16 rounded-xl bg-[#1A1F2E] animate-pulse" />
+        <div key={i} className="skeleton h-16 rounded-xl bg-white animate-pulse" />
       ))}
     </div>
   );
