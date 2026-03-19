@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type Fields = {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
-  phone: string;
   password: string;
+  confirmPassword: string;
 };
 type FieldErrors = Partial<Record<keyof Fields | 'form', string>>;
 
@@ -32,33 +32,23 @@ const STRENGTH_COLOR = [
   'bg-[#00C9A7]',
 ] as const;
 
-/** Canadian phone: (416) 555-1234 */
-function formatPhone(raw: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 10);
-  if (digits.length <= 3) return digits;
-  if (digits.length <= 6) return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
-}
-
 function validate(fields: Fields): FieldErrors {
   const errs: FieldErrors = {};
-  if (!fields.firstName.trim()) errs.firstName = 'First name is required';
-  if (!fields.lastName.trim())  errs.lastName  = 'Last name is required';
+  if (!fields.name.trim()) errs.name = 'Name is required';
   if (!fields.email)                                        errs.email = 'Email is required';
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) errs.email = 'Enter a valid email address';
-  const phone = fields.phone.replace(/\D/g, '');
-  if (!phone)         errs.phone = 'Phone number is required';
-  else if (phone.length !== 10) errs.phone = 'Enter a 10-digit Canadian phone number';
   if (!fields.password)             errs.password = 'Password is required';
   else if (fields.password.length < 8) errs.password = 'Password must be at least 8 characters';
   else if (passwordStrength(fields.password) < 2) errs.password = 'Choose a stronger password';
+  if (!fields.confirmPassword) errs.confirmPassword = 'Please confirm your password';
+  else if (fields.confirmPassword !== fields.password) errs.confirmPassword = 'Passwords do not match';
   return errs;
 }
 
 export function SignUpScreen() {
   const router = useRouter();
   const [fields, setFields] = useState<Fields>({
-    firstName: '', lastName: '', email: '', phone: '', password: '',
+    name: '', email: '', password: '', confirmPassword: '',
   });
   const [touched, setTouched] = useState<Partial<Record<keyof Fields, boolean>>>({});
   const [showPw, setShowPw]   = useState(false);
@@ -80,16 +70,32 @@ export function SignUpScreen() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     // Mark all touched
-    setTouched({ firstName: true, lastName: true, email: true, phone: true, password: true });
+    setTouched({ name: true, email: true, password: true, confirmPassword: true });
     if (Object.keys(allErrors).length > 0) return;
     setFormError('');
     setLoading(true);
     try {
-      // TODO: replace with api.auth.signUp({ ...fields })
-      await new Promise(r => setTimeout(r, 800));
-      router.push('/onboarding');
-    } catch {
-      setFormError('Something went wrong. Please try again.');
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: fields.name,
+          email: fields.email,
+          password: fields.password,
+          confirmPassword: fields.confirmPassword,
+        }),
+      });
+
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFormError(payload.error ?? 'Something went wrong. Please try again.');
+        return;
+      }
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      setFormError(message);
     } finally {
       setLoading(false);
     }
@@ -129,44 +135,24 @@ export function SignUpScreen() {
             </div>
           )}
 
-          {/* Name row */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="firstName" className="text-[#8B9CB6] text-sm font-medium">First name</label>
-              <input
-                id="firstName"
-                type="text"
-                autoComplete="given-name"
-                value={fields.firstName}
-                onChange={e => set('firstName', e.target.value)}
-                onBlur={() => touch('firstName')}
-                aria-invalid={!!(touched.firstName && allErrors.firstName)}
-                aria-describedby={touched.firstName && allErrors.firstName ? 'fn-err' : undefined}
-                placeholder="Alex"
-                className={fieldClass('firstName')}
-              />
-              {touched.firstName && allErrors.firstName && (
-                <p id="fn-err" role="alert" className="text-red-400 text-xs">{allErrors.firstName}</p>
-              )}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="lastName" className="text-[#8B9CB6] text-sm font-medium">Last name</label>
-              <input
-                id="lastName"
-                type="text"
-                autoComplete="family-name"
-                value={fields.lastName}
-                onChange={e => set('lastName', e.target.value)}
-                onBlur={() => touch('lastName')}
-                aria-invalid={!!(touched.lastName && allErrors.lastName)}
-                aria-describedby={touched.lastName && allErrors.lastName ? 'ln-err' : undefined}
-                placeholder="Chen"
-                className={fieldClass('lastName')}
-              />
-              {touched.lastName && allErrors.lastName && (
-                <p id="ln-err" role="alert" className="text-red-400 text-xs">{allErrors.lastName}</p>
-              )}
-            </div>
+          {/* Name */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="name" className="text-[#8B9CB6] text-sm font-medium">Name</label>
+            <input
+              id="name"
+              type="text"
+              autoComplete="name"
+              value={fields.name}
+              onChange={e => set('name', e.target.value)}
+              onBlur={() => touch('name')}
+              aria-invalid={!!(touched.name && allErrors.name)}
+              aria-describedby={touched.name && allErrors.name ? 'name-err' : undefined}
+              placeholder="Alex Chen"
+              className={fieldClass('name')}
+            />
+            {touched.name && allErrors.name && (
+              <p id="name-err" role="alert" className="text-red-400 text-xs">{allErrors.name}</p>
+            )}
           </div>
 
           {/* Email */}
@@ -190,30 +176,7 @@ export function SignUpScreen() {
             )}
           </div>
 
-          {/* Phone */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="phone" className="text-[#8B9CB6] text-sm font-medium">
-              Phone <span className="text-[#4A5568] font-normal">(Canadian number)</span>
-            </label>
-            <input
-              id="phone"
-              type="tel"
-              autoComplete="tel"
-              inputMode="tel"
-              value={fields.phone}
-              onChange={e => set('phone', formatPhone(e.target.value))}
-              onBlur={() => touch('phone')}
-              aria-invalid={!!(touched.phone && allErrors.phone)}
-              aria-describedby={touched.phone && allErrors.phone ? 'phone-err' : undefined}
-              placeholder="(416) 555-1234"
-              className={fieldClass('phone')}
-            />
-            {touched.phone && allErrors.phone && (
-              <p id="phone-err" role="alert" className="text-red-400 text-xs">{allErrors.phone}</p>
-            )}
-          </div>
-
-          {/* Password */}
+          {/* Password + confirm */}
           <div className="flex flex-col gap-1.5">
             <label htmlFor="password" className="text-[#8B9CB6] text-sm font-medium">Password</label>
             <div className="relative">
@@ -261,6 +224,24 @@ export function SignUpScreen() {
               <p role="alert" className="text-red-400 text-xs">{allErrors.password}</p>
             )}
           </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="confirmPassword" className="text-[#8B9CB6] text-sm font-medium">Confirm password</label>
+            <input
+              id="confirmPassword"
+              type={showPw ? 'text' : 'password'}
+              autoComplete="new-password"
+              value={fields.confirmPassword}
+              onChange={e => set('confirmPassword', e.target.value)}
+              onBlur={() => touch('confirmPassword')}
+              aria-invalid={!!(touched.confirmPassword && allErrors.confirmPassword)}
+              aria-describedby={touched.confirmPassword && allErrors.confirmPassword ? 'cp-err' : undefined}
+              placeholder="Re-enter your password"
+              className={fieldClass('confirmPassword')}
+            />
+            {touched.confirmPassword && allErrors.confirmPassword && (
+              <p id="cp-err" role="alert" className="text-red-400 text-xs">{allErrors.confirmPassword}</p>
+            )}
+          </div>
 
           {/* Terms */}
           <p className="text-[#4A5568] text-xs leading-relaxed">
@@ -286,7 +267,7 @@ export function SignUpScreen() {
 
         <p className="text-center text-[#4A5568] text-sm mt-8">
           Already have an account?{' '}
-          <a href="/login" className="text-[#00C9A7] hover:underline">Sign in</a>
+          <Link href="/login" className="text-[#00C9A7] hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

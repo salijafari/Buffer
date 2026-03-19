@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type FieldError = { email?: string; password?: string; form?: string };
 
@@ -46,11 +47,22 @@ export function SignInScreen() {
     setErrors({});
     setLoading(true);
     try {
-      // TODO: replace with api.auth.signIn({ email, password })
-      await new Promise(r => setTimeout(r, 800));
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErrors({ form: payload.error ?? 'Invalid email or password. Please try again.' });
+        return;
+      }
       router.push('/dashboard');
-    } catch {
-      setErrors({ form: 'Invalid email or password. Please try again.' });
+      router.refresh();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Invalid email or password. Please try again.';
+      setErrors({ form: message });
     } finally {
       setLoading(false);
     }
@@ -115,10 +127,10 @@ export function SignInScreen() {
               <label htmlFor="password" className="text-[#8B9CB6] text-sm font-medium">Password</label>
               <button
                 type="button"
-                onClick={() => router.push('/forgot-password')}
+                onClick={() => router.push('/signup')}
                 className="text-[#00C9A7] text-xs hover:underline focus-visible:outline-none focus-visible:underline"
               >
-                Forgot password?
+                Need an account?
               </button>
             </div>
             <div className="relative">
@@ -172,27 +184,10 @@ export function SignInScreen() {
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 h-px bg-[#2A3040]" />
-          <span className="text-[#4A5568] text-xs">or</span>
-          <div className="flex-1 h-px bg-[#2A3040]" />
-        </div>
-
-        {/* Passkey / Biometric */}
-        <button
-          type="button"
-          className="w-full flex items-center justify-center gap-2 border border-[#2A3040] rounded-xl py-3 text-[#8B9CB6] text-sm hover:border-[#3D4A5C] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00C9A7]"
-          onClick={() => {/* TODO: WebAuthn passkey flow */}}
-        >
-          <PasskeyIcon />
-          Sign in with Passkey
-        </button>
-
         {/* Sign-up link */}
         <p className="text-center text-[#4A5568] text-sm mt-8">
           Don&apos;t have an account?{' '}
-          <a href="/signup" className="text-[#00C9A7] hover:underline">Create one</a>
+          <Link href="/signup" className="text-[#00C9A7] hover:underline">Create one</Link>
         </p>
       </div>
     </div>
@@ -207,13 +202,3 @@ function SpinnerIcon() {
   );
 }
 
-function PasskeyIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="8" cy="8" r="4"/>
-      <path d="M16 19v-2a4 4 0 0 0-4-4H4a4 4 0 0 0-4 4v2"/>
-      <line x1="19" y1="8" x2="19" y2="14"/>
-      <line x1="22" y1="11" x2="16" y2="11"/>
-    </svg>
-  );
-}
