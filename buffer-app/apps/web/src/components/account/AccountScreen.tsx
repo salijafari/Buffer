@@ -422,6 +422,19 @@ function SupportSection({ onBack }: { onBack: () => void }) {
 export function AccountScreen() {
   const [section, setSection] = useState<Section>('main');
   const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      router.push('/login');
+      router.refresh();
+      setLoggingOut(false);
+    }
+  }
 
   const menuItems: {
     label: string; id: Section; desc: string;
@@ -505,10 +518,11 @@ export function AccountScreen() {
       {/* Sign out */}
       <button
         type="button"
-        onClick={() => router.push('/login')}
-        className="w-full text-red-400 text-sm font-medium py-3 rounded-xl border border-red-500/20 hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+        onClick={handleLogout}
+        disabled={loggingOut}
+        className="w-full text-red-400 text-sm font-medium py-3 rounded-xl border border-red-500/20 hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        Sign Out
+        {loggingOut ? 'Signing out…' : 'Sign Out'}
       </button>
 
       <p className="text-center text-[#2A3040] text-xs">Buffer v0.1.0 · mybuffer.ca</p>

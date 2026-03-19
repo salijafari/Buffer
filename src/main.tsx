@@ -18,14 +18,14 @@ const signInFallbackRedirectUrl =
   import.meta.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? "/dashboard";
 
 createRoot(document.getElementById("root")!).render(
-  <ClerkProvider
-    publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-    signUpForceRedirectUrl={signUpForceRedirectUrl}
-    signUpFallbackRedirectUrl={signUpFallbackRedirectUrl}
-    signInForceRedirectUrl={signInForceRedirectUrl}
-    signInFallbackRedirectUrl={signInFallbackRedirectUrl}
-  >
-    <BrowserRouter>
+  <BrowserRouter>
+    <ClerkProvider
+      publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
+      signUpForceRedirectUrl={signUpForceRedirectUrl}
+      signUpFallbackRedirectUrl={signUpFallbackRedirectUrl}
+      signInForceRedirectUrl={signInForceRedirectUrl}
+      signInFallbackRedirectUrl={signInFallbackRedirectUrl}
+    >
       <Routes>
         {/* Public marketing routes */}
         <Route path="/" element={<App />} />
@@ -44,6 +44,6 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/dashboard/credit" element={<Dashboard />} />
         <Route path="/dashboard/account" element={<Dashboard />} />
       </Routes>
-    </BrowserRouter>
-  </ClerkProvider>
+    </ClerkProvider>
+  </BrowserRouter>
 );
