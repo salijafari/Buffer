@@ -19,7 +19,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { keyframes } from "@mui/material/styles";
-import { Bell, CreditCard, Home, LineChart, Sparkles, User } from "lucide-react";
+import { Bell, CreditCard, Home, LineChart, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { HomeScreen, HomeRightRail } from "../dashboard/components/home/HomeScreen";
@@ -385,11 +385,14 @@ function DashboardContent() {
       <AppBar position="sticky" sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}>
         <Toolbar
           sx={{
-            maxWidth: 672,
             width: "100%",
-            mx: "auto",
+            maxWidth: "100%",
+            mx: 0,
             minHeight: 56,
             px: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             gap: 1,
           }}
         >
@@ -397,10 +400,10 @@ function DashboardContent() {
             sx={{
               height: 32,
               minWidth: 0,
-              flex: 1,
-              maxWidth: "min(200px, 55vw)",
+              flex: "1 1 auto",
               display: "flex",
               alignItems: "center",
+              justifyContent: "flex-start",
             }}
           >
             <Box
@@ -412,13 +415,18 @@ function DashboardContent() {
                 display: "block",
                 height: 32,
                 width: "auto",
-                maxWidth: "100%",
+                maxWidth: "min(200px, 55vw)",
                 objectFit: "contain",
                 objectPosition: "left center",
               }}
             />
           </Box>
-          <IconButton onClick={() => void navigate("/dashboard/account")} aria-label="Open account">
+          <IconButton
+            onClick={() => void navigate("/dashboard/account")}
+            aria-label="Open account"
+            edge="end"
+            sx={{ flexShrink: 0, ml: "auto" }}
+          >
             <Avatar sx={{ width: 34, height: 34, bgcolor: "primary.main", color: "primary.contrastText", fontWeight: 700 }}>A</Avatar>
           </IconButton>
         </Toolbar>
@@ -456,7 +464,8 @@ function DashboardContent() {
           borderTop: 1,
           borderColor: "divider",
           pb: "max(8px, env(safe-area-inset-bottom, 0px))",
-          pt: 0.5,
+          pt: 1,
+          px: 1,
         }}
       >
         <BottomNavigation
@@ -467,22 +476,37 @@ function DashboardContent() {
             if (tab) void navigate(tab.path);
           }}
           sx={{
-            bgcolor: "background.paper",
+            bgcolor: "transparent",
+            width: "100%",
             height: "auto",
-            minHeight: 56,
+            minHeight: 60,
+            justifyContent: "stretch",
+            gap: 1.25,
+            py: 0.5,
             "& .MuiBottomNavigationAction-root": {
+              flex: "1 1 0",
               minWidth: 0,
-              maxWidth: "20%",
-              py: 0.5,
-              px: 0.25,
-              gap: 0.4,
+              maxWidth: "none",
+              py: 0.75,
+              px: 0.75,
+              gap: 0.45,
+              borderRadius: 2,
+              border: "1px solid transparent",
+              bgcolor: "transparent",
+              transition: "background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
+              "&.Mui-selected": {
+                bgcolor: "rgba(0, 201, 167, 0.12)",
+                borderColor: "rgba(0, 201, 167, 0.42)",
+                boxShadow: "inset 0 0 0 1px rgba(0, 201, 167, 0.18)",
+              },
             },
             "& .MuiBottomNavigationAction-label": {
-              fontSize: { xs: "0.62rem", sm: "0.7rem" },
-              lineHeight: 1.15,
+              fontSize: { xs: "0.65rem", sm: "0.72rem" },
+              lineHeight: 1.2,
               whiteSpace: "normal",
               mt: 0.35,
-              "&.Mui-selected": { fontSize: { xs: "0.62rem", sm: "0.7rem" } },
+              px: 0.25,
+              "&.Mui-selected": { fontSize: { xs: "0.65rem", sm: "0.72rem" } },
             },
           }}
         >
