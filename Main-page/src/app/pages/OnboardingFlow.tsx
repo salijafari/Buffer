@@ -1,17 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { useUser } from "@clerk/react";
+import { useAuth } from "@clerk/react";
 import {
-  Alert,
   Box,
   Button,
-  Checkbox,
   CircularProgress,
   FormControl,
-  FormControlLabel,
-  FormHelperText,
-  InputLabel,
-  LinearProgress,
   MenuItem,
   Paper,
   Select,
@@ -19,828 +13,523 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import bufferLogoTransparent from "@/assets/Buffer Logo Transparent.png";
+import { ChevronLeft, Check } from "lucide-react";
 import { MaterialShell } from "../material/MaterialShell";
+import {
+  CANADIAN_PROVINCES,
+  type AcquisitionSource,
+  type InterestSelection,
+  type UserOnboardingProfile,
+} from "../lib/onboardingProfile";
+import { postOnboardingComplete, saveOnboardingProfile } from "../lib/onboardingApi";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+type StepId = 1 | 2 | 3 | 4 | 5;
 
-type Province = {
-  code: string;
-  name: string;
-  creditLineEnabled: boolean;
-};
+const TOTAL_STEPS = 5;
 
-const PROVINCES: Province[] = [
-  { code: "AB", name: "Alberta", creditLineEnabled: true },
-  { code: "BC", name: "British Columbia", creditLineEnabled: true },
-  { code: "MB", name: "Manitoba", creditLineEnabled: true },
-  { code: "NB", name: "New Brunswick", creditLineEnabled: false },
-  { code: "NL", name: "Newfoundland", creditLineEnabled: false },
-  { code: "NS", name: "Nova Scotia", creditLineEnabled: false },
-  { code: "NT", name: "Northwest Territories", creditLineEnabled: false },
-  { code: "NU", name: "Nunavut", creditLineEnabled: false },
-  { code: "ON", name: "Ontario", creditLineEnabled: true },
-  { code: "PE", name: "Prince Edward Island", creditLineEnabled: false },
-  { code: "QC", name: "Quebec", creditLineEnabled: true },
-  { code: "SK", name: "Saskatchewan", creditLineEnabled: true },
-  { code: "YT", name: "Yukon", creditLineEnabled: false },
+const INTEREST_OPTIONS: { value: InterestSelection; label: string }[] = [
+  { value: "refinance_credit_card_balance", label: "Refinance credit card balance for lower interest rate" },
+  { value: "build_credit_faster", label: "Building credit faster" },
+  { value: "ai_debt_management_recommendation", label: "Get AI recommendation for my debt management" },
+  { value: "none_of_the_above", label: "None of the above" },
 ];
 
-type KycData = {
-  address: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  dob: string;
-  idType: "passport" | "drivers_license" | "pr_card" | "";
-  idFile: File | null;
+const ACQUISITION_OPTIONS: { value: AcquisitionSource; label: string }[] = [
+  { value: "facebook", label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "app_store", label: "App Store" },
+  { value: "google", label: "Google" },
+  { value: "reddit", label: "Reddit" },
+  { value: "youtube", label: "YouTube" },
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "other", label: "Other" },
+];
+
+type OnboardingDraft = {
+  interest_selection: InterestSelection | null;
+  interest_custom_text: string;
+  province_code: string;
+  province_name: string;
+  credit_score_input: string;
+  annual_pre_tax_income_input: string;
+  heard_about_us: AcquisitionSource | null;
+  heard_about_us_other: string;
 };
 
-type EligibilityOutcome = "A" | "B" | "C" | null;
+const DEFAULT_DRAFT: OnboardingDraft = {
+  interest_selection: null,
+  interest_custom_text: "",
+  province_code: "",
+  province_name: "",
+  credit_score_input: "",
+  annual_pre_tax_income_input: "",
+  heard_about_us: null,
+  heard_about_us_other: "",
+};
 
-const STEPS = [
-  { id: 1, label: "Identity" },
-  { id: 2, label: "Province" },
-  { id: 3, label: "Bank" },
-  { id: 4, label: "Verify" },
-  { id: 5, label: "Eligibility" },
-  { id: 6, label: "Credit Builder" },
-  { id: 7, label: "Setup" },
-] as const;
+function digitsOnly(value: string): string {
+  return value.replace(/\D/g, "");
+}
 
-// ─── Root component ───────────────────────────────────────────────────────────
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat("en-CA").format(value);
+}
 
-function OnboardingFlowContent() {
+function parseOptionalNumber(value: string): number | null {
+  const cleaned = digitsOnly(value);
+  if (!cleaned) return null;
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function mapStep(value: number): StepId {
+  if (value <= 1) return 1;
+  if (value === 2) return 2;
+  if (value === 3) return 3;
+  if (value === 4) return 4;
+  return 5;
+}
+
+function draftFromProfile(profile: UserOnboardingProfile): OnboardingDraft {
+  return {
+    interest_selection: profile.interest_selection,
+    interest_custom_text: profile.interest_custom_text,
+    province_code: profile.province_code,
+    province_name: profile.province_name,
+    credit_score_input: profile.credit_score ? String(profile.credit_score) : "",
+    annual_pre_tax_income_input: profile.annual_pre_tax_income ? formatNumber(profile.annual_pre_tax_income) : "",
+    heard_about_us: profile.heard_about_us,
+    heard_about_us_other: profile.heard_about_us_other,
+  };
+}
+
+export type OnboardingFlowProps = {
+  profile: UserOnboardingProfile | null;
+  onRetryBootstrap: () => void;
+  onCompletedNavigate?: () => void;
+};
+
+function OnboardingFlowContent({ profile, onRetryBootstrap, onCompletedNavigate }: OnboardingFlowProps) {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { getToken } = useAuth();
 
-  const [step, setStep] = useState(1);
-  const [kyc, setKyc] = useState<KycData>({
-    address: "",
-    city: "",
-    province: "",
-    postalCode: "",
-    dob: "",
-    idType: "",
-    idFile: null,
-  });
-  const [plaidConnected, setPlaidConnected] = useState(false);
-  const [verifyLoading, setVerifyLoading] = useState(false);
-  const [eligibility, setEligibility] = useState<EligibilityOutcome>(null);
-  const [padAccepted, setPadAccepted] = useState(false);
-  const [cbAcknowledged, setCbAcknowledged] = useState(false);
-  const [finishing, setFinishing] = useState(false);
+  const [step, setStep] = useState<StepId>(() => (profile ? mapStep(profile.onboarding_step || 1) : 1));
+  const [draft, setDraft] = useState<OnboardingDraft>(() => (profile ? draftFromProfile(profile) : DEFAULT_DRAFT));
+  const [saving, setSaving] = useState(false);
+  const [fieldError, setFieldError] = useState<string>("");
 
-  function next() {
-    setStep((s) => Math.min(s + 1, 7));
-  }
-
-  async function runEligibility() {
-    setVerifyLoading(true);
-    await new Promise((r) => setTimeout(r, 2000));
-    const province = PROVINCES.find((p) => p.code === kyc.province);
-    setEligibility(province?.creditLineEnabled ? "A" : "B");
-    setVerifyLoading(false);
-    next();
-  }
-
-  async function handleFinish() {
-    setFinishing(true);
-    if (user) {
-      await user.update({ unsafeMetadata: { onboarding_completed: true } });
+  const canContinue = useMemo(() => {
+    if (step === 1) {
+      if (!draft.interest_selection) return false;
+      if (draft.interest_selection === "none_of_the_above") {
+        return draft.interest_custom_text.trim().length > 0;
+      }
+      return true;
     }
-    navigate("/dashboard", { replace: true });
+
+    if (step === 2) {
+      return CANADIAN_PROVINCES.some((p) => p.code === draft.province_code);
+    }
+
+    if (step === 3) {
+      const score = parseOptionalNumber(draft.credit_score_input);
+      return score !== null && score >= 300 && score <= 900;
+    }
+
+    if (step === 4) {
+      const income = parseOptionalNumber(draft.annual_pre_tax_income_input);
+      return income !== null && income > 0;
+    }
+
+    if (step === 5) {
+      if (!draft.heard_about_us) return false;
+      if (draft.heard_about_us === "other") return draft.heard_about_us_other.trim().length > 0;
+      return true;
+    }
+
+    return false;
+  }, [step, draft]);
+
+  const subtitle = useMemo(() => {
+    if (step === 1) return "Select one option";
+    if (step === 2) return "Choose your Canadian province or territory";
+    if (step === 3) return "Your response is only used to offer the most relevant products.";
+    if (step === 4) return "Your response is only used to offer the most relevant products.";
+    return "Select one option";
+  }, [step]);
+
+  async function persist(forStep: StepId) {
+    const selectedProvince = CANADIAN_PROVINCES.find((p) => p.code === draft.province_code);
+    const payload = {
+      onboarding_step: forStep,
+      interest_selection: draft.interest_selection,
+      interest_custom_text: draft.interest_selection === "none_of_the_above" ? draft.interest_custom_text.trim() : "",
+      province_code: selectedProvince?.code ?? "",
+      province_name: selectedProvince?.name ?? "",
+      credit_score: parseOptionalNumber(draft.credit_score_input),
+      annual_pre_tax_income: parseOptionalNumber(draft.annual_pre_tax_income_input),
+      heard_about_us: draft.heard_about_us,
+      heard_about_us_other: draft.heard_about_us === "other" ? draft.heard_about_us_other.trim() : "",
+    };
+
+    const token = await getToken();
+    if (!token) throw new Error("Missing auth token");
+
+    await saveOnboardingProfile(token, payload);
   }
 
-  const progress = (step / STEPS.length) * 100;
+  async function onNext() {
+    if (saving || !canContinue) return;
+    setFieldError("");
+
+    if (step === 3) {
+      const score = parseOptionalNumber(draft.credit_score_input);
+      if (score === null || score < 300 || score > 900) {
+        setFieldError("Enter a credit score between 300 and 900.");
+        return;
+      }
+    }
+
+    setSaving(true);
+    try {
+      if (step < 5) {
+        const nextStep = (step + 1) as StepId;
+        await persist(nextStep);
+        setStep(nextStep);
+      } else {
+        await persist(5);
+        const token = await getToken();
+        if (!token) throw new Error("Missing auth token");
+        await postOnboardingComplete(token);
+        onCompletedNavigate?.();
+        navigate("/dashboard", { replace: true });
+      }
+    } catch {
+      setFieldError("We couldn't save your progress. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function onBack() {
+    if (saving) return;
+    setFieldError("");
+    setStep((current) => (current > 1 ? ((current - 1) as StepId) : current));
+  }
+
+  if (!profile) {
+    return (
+      <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", bgcolor: "#F3F4F6", px: 2 }}>
+        <Paper elevation={0} sx={{ p: 3, maxWidth: 480, borderRadius: 3 }}>
+          <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
+            Profile not found
+          </Typography>
+          <Typography sx={{ color: "text.secondary", mb: 2 }}>
+            We couldn&apos;t load your onboarding profile from the server. Check that the API is running, then try again.
+          </Typography>
+          <Button variant="contained" onClick={onRetryBootstrap} sx={{ textTransform: "none" }}>
+            Retry
+          </Button>
+        </Paper>
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", display: "flex", flexDirection: "column" }}>
-      <Box component="header" sx={{ px: 2, pt: 3, pb: 2, maxWidth: 512, mx: "auto", width: "100%" }}>
-        <Box
-          sx={{
-            height: 32,
-            minWidth: 0,
-            maxWidth: "min(220px, 70vw)",
-            display: "flex",
-            alignItems: "center",
-            mb: 2,
-          }}
-        >
-          <Box
-            component="img"
-            src={bufferLogoTransparent}
-            alt="Buffer"
-            decoding="async"
-            sx={{
-              display: "block",
-              height: 32,
-              width: "auto",
-              maxWidth: "100%",
-              objectFit: "contain",
-              objectPosition: "left center",
-            }}
-          />
+    <Box sx={{ minHeight: "100vh", bgcolor: "#F3F4F6", display: "flex", justifyContent: "center", px: { xs: 2, sm: 3, md: 4 }, py: { xs: 2, sm: 3, md: 5 } }}>
+      <Paper
+        elevation={0}
+        sx={{
+          width: "100%",
+          maxWidth: { xs: 560, md: 760, lg: 900 },
+          minHeight: { xs: "calc(100vh - 16px)", sm: 760, md: 700 },
+          borderRadius: { xs: 4, md: 5 },
+          bgcolor: "#F3F4F6",
+          p: { xs: 2, sm: 3, md: 4 },
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ pt: 0.5 }}>
+          <Button
+            variant="text"
+            onClick={onBack}
+            disabled={step === 1 || saving}
+            sx={{ minWidth: 32, p: 0.25, color: "#1F2937" }}
+            aria-label="Go back"
+          >
+            <ChevronLeft size={24} />
+          </Button>
+
+          <Stack direction="row" spacing={0.75} sx={{ flex: 1 }}>
+            {Array.from({ length: TOTAL_STEPS }).map((_, index) => {
+              const active = index + 1 <= step;
+              return (
+                <Box
+                  key={index}
+                  sx={{
+                    height: 5,
+                    borderRadius: 999,
+                    flex: 1,
+                    bgcolor: active ? "#111827" : "#D1D5DB",
+                  }}
+                />
+              );
+            })}
+          </Stack>
+        </Stack>
+
+        <Box sx={{ pt: { xs: 1.5, sm: 2 }, pb: 0.5 }}>
+          <Typography variant="h4" sx={{ fontSize: { xs: "2rem", sm: "2.2rem" }, fontWeight: 700, color: "#111827", letterSpacing: "-0.02em", mb: 1.25 }}>
+            {step === 1 && "What interests you most?"}
+            {step === 2 && "What's your province of residence?"}
+            {step === 3 && "What's your credit score?"}
+            {step === 4 && "What's your annual pre-tax income?"}
+            {step === 5 && "How did you hear about us?"}
+          </Typography>
+          <Typography sx={{ color: "#6B7280", fontSize: { xs: "1rem", sm: "1.06rem" } }}>{subtitle}</Typography>
         </Box>
 
-        <LinearProgress
-          variant="determinate"
-          value={progress}
-          sx={{
-            height: 6,
-            borderRadius: 999,
-            bgcolor: "grey.200",
-            "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: "primary.main" },
-          }}
-          aria-valuenow={step}
-          aria-valuemin={1}
-          aria-valuemax={STEPS.length}
-          aria-label="Onboarding progress"
-        />
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: { xs: 380, sm: 420, md: 440 } }}>
+          <Box>
+            {step === 1 && (
+              <Stack spacing={1.25}>
+                {INTEREST_OPTIONS.map((option) => {
+                  const selected = draft.interest_selection === option.value;
+                  return (
+                    <SelectableRow
+                      key={option.value}
+                      selected={selected}
+                      onClick={() => {
+                        setDraft((prev) => ({ ...prev, interest_selection: option.value }));
+                        setFieldError("");
+                      }}
+                      label={option.label}
+                    />
+                  );
+                })}
 
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-          Step {step} of {STEPS.length} — {STEPS[step - 1].label}
-        </Typography>
-      </Box>
+                {draft.interest_selection === "none_of_the_above" ? (
+                  <TextField
+                    value={draft.interest_custom_text}
+                    onChange={(e) => setDraft((prev) => ({ ...prev, interest_custom_text: e.target.value.slice(0, 120) }))}
+                    placeholder="Tell us what you're looking for"
+                    fullWidth
+                    size="small"
+                    sx={{
+                      mt: 0.5,
+                      "& .MuiOutlinedInput-root": { bgcolor: "#FFFFFF", borderRadius: 2 },
+                    }}
+                  />
+                ) : null}
+              </Stack>
+            )}
 
-      <Box component="main" sx={{ flex: 1, px: 2, pb: 4, maxWidth: 512, mx: "auto", width: "100%" }}>
-        {step === 1 && <StepKyc kyc={kyc} setKyc={setKyc} onNext={next} />}
-        {step === 2 && <StepProvince kyc={kyc} setKyc={setKyc} onNext={next} />}
-        {step === 3 && (
-          <StepPlaid connected={plaidConnected} onConnect={() => setPlaidConnected(true)} onNext={next} />
-        )}
-        {step === 4 && <StepVerify loading={verifyLoading} onRun={runEligibility} />}
-        {step === 5 && <StepEligibility outcome={eligibility} onNext={next} />}
-        {step === 6 && (
-          <StepCreditBuilder
-            acknowledged={cbAcknowledged}
-            onAcknowledge={() => setCbAcknowledged(true)}
-            onNext={next}
-          />
-        )}
-        {step === 7 && (
-          <StepPad
-            accepted={padAccepted}
-            onAccept={() => setPadAccepted(true)}
-            onFinish={handleFinish}
-            finishing={finishing}
-          />
-        )}
-      </Box>
+            {step === 2 && (
+              <FormControl fullWidth>
+                <Select
+                  value={draft.province_code}
+                  displayEmpty
+                  onChange={(e) => {
+                    const province = CANADIAN_PROVINCES.find((p) => p.code === String(e.target.value));
+                    setDraft((prev) => ({
+                      ...prev,
+                      province_code: province?.code ?? "",
+                      province_name: province?.name ?? "",
+                    }));
+                    setFieldError("");
+                  }}
+                  sx={{ bgcolor: "#FFFFFF", borderRadius: 2, minHeight: 56 }}
+                >
+                  <MenuItem value="" disabled>
+                    Select province or territory
+                  </MenuItem>
+                  {CANADIAN_PROVINCES.map((province) => (
+                    <MenuItem key={province.code} value={province.code}>
+                      {province.code} - {province.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            {step === 3 && (
+              <TextField
+                value={draft.credit_score_input}
+                onChange={(e) => {
+                  setDraft((prev) => ({ ...prev, credit_score_input: digitsOnly(e.target.value).slice(0, 3) }));
+                  setFieldError("");
+                }}
+                placeholder="For example: 670"
+                fullWidth
+                inputProps={{ inputMode: "numeric" }}
+                sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#FFFFFF", borderRadius: 2 } }}
+              />
+            )}
+
+            {step === 4 && (
+              <TextField
+                value={draft.annual_pre_tax_income_input}
+                onChange={(e) => {
+                  const raw = digitsOnly(e.target.value).slice(0, 8);
+                  setDraft((prev) => ({
+                    ...prev,
+                    annual_pre_tax_income_input: raw ? formatNumber(Number(raw)) : "",
+                  }));
+                  setFieldError("");
+                }}
+                placeholder="For example: $100,000"
+                fullWidth
+                inputProps={{ inputMode: "numeric" }}
+                sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#FFFFFF", borderRadius: 2 } }}
+              />
+            )}
+
+            {step === 5 && (
+              <Stack spacing={1.25}>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: { xs: "repeat(3, minmax(0, 1fr))", md: "repeat(3, minmax(0, 1fr))" },
+                    gap: 1.25,
+                  }}
+                >
+                  {ACQUISITION_OPTIONS.map((option) => {
+                    const selected = draft.heard_about_us === option.value;
+                    return (
+                      <Paper
+                        key={option.value}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => {
+                          setDraft((prev) => ({ ...prev, heard_about_us: option.value }));
+                          setFieldError("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setDraft((prev) => ({ ...prev, heard_about_us: option.value }));
+                            setFieldError("");
+                          }
+                        }}
+                        elevation={0}
+                        sx={{
+                          p: { xs: 1.5, sm: 2 },
+                          minHeight: { xs: 92, sm: 104 },
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: selected ? "#0284C7" : "#E5E7EB",
+                          bgcolor: selected ? "rgba(2,132,199,0.08)" : "#EEF0F2",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          textAlign: "center",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <Typography sx={{ fontSize: { xs: "0.95rem", sm: "1rem" }, color: "#1F2937", fontWeight: 500 }}>
+                          {option.label}
+                        </Typography>
+                      </Paper>
+                    );
+                  })}
+                </Box>
+
+                {draft.heard_about_us === "other" ? (
+                  <TextField
+                    value={draft.heard_about_us_other}
+                    onChange={(e) => setDraft((prev) => ({ ...prev, heard_about_us_other: e.target.value.slice(0, 120) }))}
+                    placeholder="Please tell us"
+                    fullWidth
+                    size="small"
+                    sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#FFFFFF", borderRadius: 2 } }}
+                  />
+                ) : null}
+              </Stack>
+            )}
+
+            {fieldError ? (
+              <Typography sx={{ mt: 1.25, color: "error.main", fontSize: "0.9rem" }}>{fieldError}</Typography>
+            ) : null}
+          </Box>
+
+          <Box sx={{ pt: 3, pb: { xs: 1, md: 0 } }}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => void onNext()}
+              disabled={!canContinue || saving}
+              sx={{
+                minHeight: 52,
+                borderRadius: 2,
+                fontSize: "1.15rem",
+                textTransform: "none",
+                bgcolor: "#0E2430",
+                "&:hover": { bgcolor: "#0B1D27" },
+                "&.Mui-disabled": { bgcolor: "#9CA3AF", color: "#F3F4F6" },
+              }}
+            >
+              {saving ? <CircularProgress size={20} color="inherit" /> : "Next"}
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
     </Box>
   );
 }
 
-export default function OnboardingFlow() {
+function SelectableRow({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
+  return (
+    <Paper
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      elevation={0}
+      sx={{
+        p: { xs: 1.5, sm: 1.75 },
+        borderRadius: 2,
+        border: "1px solid",
+        borderColor: selected ? "#111827" : "#E5E7EB",
+        bgcolor: "#EEF0F2",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 1,
+        cursor: "pointer",
+      }}
+    >
+      <Typography sx={{ color: "#1F2937", fontSize: { xs: "1.02rem", sm: "1.05rem" }, lineHeight: 1.35 }}>{label}</Typography>
+      <Box
+        sx={{
+          width: 28,
+          height: 28,
+          borderRadius: 1.25,
+          border: "1px solid",
+          borderColor: selected ? "#111827" : "#D1D5DB",
+          bgcolor: selected ? "#111827" : "#F9FAFB",
+          display: "grid",
+          placeItems: "center",
+          flexShrink: 0,
+        }}
+      >
+        {selected ? <Check size={16} color="#FFFFFF" /> : null}
+      </Box>
+    </Paper>
+  );
+}
+
+export default function OnboardingFlow(props: OnboardingFlowProps) {
   return (
     <MaterialShell>
-      <OnboardingFlowContent />
+      <OnboardingFlowContent {...props} />
     </MaterialShell>
-  );
-}
-
-// ─── Step 1: KYC ─────────────────────────────────────────────────────────────
-
-function StepKyc({
-  kyc,
-  setKyc,
-  onNext,
-}: {
-  kyc: KycData;
-  setKyc: React.Dispatch<React.SetStateAction<KycData>>;
-  onNext: () => void;
-}) {
-  const [errors, setErrors] = useState<Partial<Record<keyof KycData, string>>>({});
-
-  function set(key: keyof KycData, value: string | File | null) {
-    setKyc((prev) => ({ ...prev, [key]: value }));
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0] ?? null;
-    if (file && file.size > 10 * 1024 * 1024) {
-      setErrors((prev) => ({ ...prev, idFile: "File must be under 10 MB" }));
-      return;
-    }
-    set("idFile", file);
-    setErrors((prev) => ({ ...prev, idFile: undefined }));
-  }
-
-  function handleNext() {
-    const errs: typeof errors = {};
-    if (!kyc.address.trim()) errs.address = "Required";
-    if (!kyc.city.trim()) errs.city = "Required";
-    if (!kyc.postalCode.trim()) errs.postalCode = "Required";
-    if (!kyc.dob) {
-      errs.dob = "Required";
-    } else {
-      const age = (Date.now() - new Date(kyc.dob).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
-      if (age < 18) errs.dob = "You must be at least 18 years old";
-    }
-    if (!kyc.idType) errs.idType = "Required";
-    if (!kyc.idFile) errs.idFile = "Please upload your ID document";
-    setErrors(errs);
-    if (Object.keys(errs).length === 0) onNext();
-  }
-
-  return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
-          Verify your identity
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Required by Canadian financial regulations. Your information is encrypted and never sold.
-        </Typography>
-      </Box>
-
-      <Alert severity="info" icon={<LockIcon />} sx={{ alignItems: "flex-start" }}>
-        <Typography variant="body2" fontWeight={600}>
-          Your data is protected
-        </Typography>
-        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
-          256-bit encryption · SOC 2 Type II · PIPEDA compliant · No SIN collected
-        </Typography>
-      </Alert>
-
-      <TextField
-        label="Street address"
-        autoComplete="street-address"
-        value={kyc.address}
-        onChange={(e) => set("address", e.target.value)}
-        placeholder="123 Main St"
-        error={Boolean(errors.address)}
-        helperText={errors.address}
-        fullWidth
-      />
-
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-        <TextField
-          label="City"
-          autoComplete="address-level2"
-          value={kyc.city}
-          onChange={(e) => set("city", e.target.value)}
-          placeholder="Vancouver"
-          error={Boolean(errors.city)}
-          helperText={errors.city}
-          fullWidth
-        />
-        <TextField
-          label="Postal code"
-          autoComplete="postal-code"
-          inputProps={{ inputMode: "text" }}
-          value={kyc.postalCode}
-          onChange={(e) =>
-            set(
-              "postalCode",
-              e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6),
-            )
-          }
-          placeholder="V6B1A1"
-          error={Boolean(errors.postalCode)}
-          helperText={errors.postalCode}
-          fullWidth
-        />
-      </Stack>
-
-      <TextField
-        label="Date of birth"
-        type="date"
-        autoComplete="bday"
-        value={kyc.dob}
-        onChange={(e) => set("dob", e.target.value)}
-        InputLabelProps={{ shrink: true }}
-        inputProps={{ max: new Date(Date.now() - 18 * 365.25 * 86400000).toISOString().split("T")[0] }}
-        error={Boolean(errors.dob)}
-        helperText={errors.dob}
-        fullWidth
-      />
-
-      <FormControl fullWidth error={Boolean(errors.idType)}>
-        <InputLabel id="id-type-label">ID document type</InputLabel>
-        <Select
-          labelId="id-type-label"
-          label="ID document type"
-          value={kyc.idType}
-          onChange={(e) => set("idType", e.target.value as KycData["idType"])}
-        >
-          <MenuItem value="">
-            <em>Select document…</em>
-          </MenuItem>
-          <MenuItem value="passport">Canadian Passport</MenuItem>
-          <MenuItem value="drivers_license">Driver&apos;s License</MenuItem>
-          <MenuItem value="pr_card">Permanent Resident Card</MenuItem>
-        </Select>
-        {errors.idType ? <FormHelperText>{errors.idType}</FormHelperText> : null}
-      </FormControl>
-
-      <Box>
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          Upload document <Typography component="span" variant="caption">(JPG, PNG or PDF, max 10 MB)</Typography>
-        </Typography>
-        <Paper
-          variant="outlined"
-          component="label"
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 1,
-            py: 3,
-            cursor: "pointer",
-            borderStyle: "dashed",
-            borderColor: errors.idFile ? "error.main" : "divider",
-            "&:hover": { borderColor: "primary.light" },
-          }}
-        >
-          <input type="file" accept="image/jpeg,image/png,application/pdf" onChange={handleFileChange} hidden />
-          <UploadIcon />
-          <Typography variant="body2" color="text.secondary">
-            {kyc.idFile ? kyc.idFile.name : "Tap to upload"}
-          </Typography>
-          {kyc.idFile ? (
-            <Typography variant="caption" color="text.disabled">
-              {(kyc.idFile.size / 1024).toFixed(0)} KB
-            </Typography>
-          ) : null}
-        </Paper>
-        {errors.idFile ? (
-          <FormHelperText error sx={{ mx: 1.75 }}>
-            {errors.idFile}
-          </FormHelperText>
-        ) : null}
-      </Box>
-
-      <Typography variant="caption" color="text.secondary">
-        <strong>Important:</strong> Buffer never collects your Social Insurance Number (SIN). Only the documents listed above are accepted.
-      </Typography>
-
-      <PrimaryButton onClick={handleNext}>Continue</PrimaryButton>
-    </Stack>
-  );
-}
-
-// ─── Step 2: Province ─────────────────────────────────────────────────────────
-
-function StepProvince({
-  kyc,
-  setKyc,
-  onNext,
-}: {
-  kyc: KycData;
-  setKyc: React.Dispatch<React.SetStateAction<KycData>>;
-  onNext: () => void;
-}) {
-  const [error, setError] = useState("");
-  const selected = PROVINCES.find((p) => p.code === kyc.province);
-
-  function handleNext() {
-    if (!kyc.province) {
-      setError("Please select your province");
-      return;
-    }
-    setError("");
-    onNext();
-  }
-
-  return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
-          Where are you located?
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Buffer is available across Canada. Some features vary by province.
-        </Typography>
-      </Box>
-
-      <FormControl fullWidth error={Boolean(error)}>
-        <InputLabel id="province-label">Province or territory</InputLabel>
-        <Select
-          labelId="province-label"
-          label="Province or territory"
-          value={kyc.province}
-          onChange={(e) => {
-            setKyc((prev) => ({ ...prev, province: e.target.value }));
-            setError("");
-          }}
-        >
-          <MenuItem value="">
-            <em>Select province…</em>
-          </MenuItem>
-          {PROVINCES.map((p) => (
-            <MenuItem key={p.code} value={p.code}>
-              {p.name}
-            </MenuItem>
-          ))}
-        </Select>
-        {error ? <FormHelperText>{error}</FormHelperText> : null}
-      </FormControl>
-
-      {selected ? (
-        <Alert severity={selected.creditLineEnabled ? "success" : "warning"}>
-          {selected.creditLineEnabled ? (
-            <>
-              <Typography variant="body2" fontWeight={600}>
-                Buffer Credit Line available in {selected.name}
-              </Typography>
-              <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                You can access all Buffer features including the revolving credit line.
-              </Typography>
-            </>
-          ) : (
-            <>
-              <Typography variant="body2" fontWeight={600}>
-                Credit Line coming soon to {selected.name}
-              </Typography>
-              <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                You&apos;ll be enrolled in Credit Builder to start improving your score right away.
-              </Typography>
-            </>
-          )}
-        </Alert>
-      ) : null}
-
-      <PrimaryButton onClick={handleNext}>Continue</PrimaryButton>
-    </Stack>
-  );
-}
-
-// ─── Step 3: Plaid ────────────────────────────────────────────────────────────
-
-function StepPlaid({
-  connected,
-  onConnect,
-  onNext,
-}: {
-  connected: boolean;
-  onConnect: () => void;
-  onNext: () => void;
-}) {
-  const [loading, setLoading] = useState(false);
-
-  async function handleConnect() {
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    onConnect();
-    setLoading(false);
-  }
-
-  return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
-          Connect your bank
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Buffer uses Plaid to securely read your income and transaction history. We never store your credentials.
-        </Typography>
-      </Box>
-
-      <Stack spacing={1.5}>
-        {[
-          { icon: "🔒", title: "Read-only access", desc: "Buffer can never move money without your PAD authorization." },
-          { icon: "🏦", title: "Bank-grade encryption", desc: "Plaid is trusted by millions of Canadians and used by major banks." },
-          { icon: "🗑️", title: "Delete anytime", desc: "Revoke access instantly from your account settings." },
-        ].map((item) => (
-          <Paper key={item.title} variant="outlined" sx={{ p: 2, display: "flex", gap: 1.5 }}>
-            <Typography sx={{ fontSize: "1.25rem", lineHeight: 1 }} aria-hidden>
-              {item.icon}
-            </Typography>
-            <Box>
-              <Typography variant="body2" fontWeight={600}>
-                {item.title}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.25 }}>
-                {item.desc}
-              </Typography>
-            </Box>
-          </Paper>
-        ))}
-      </Stack>
-
-      {connected ? (
-        <Alert severity="success" icon={<CheckCircleIcon />}>
-          Bank account connected
-        </Alert>
-      ) : null}
-
-      {!connected ? (
-        <PrimaryButton onClick={handleConnect} disabled={loading}>
-          {loading ? (
-            <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
-              <CircularProgress size={18} color="inherit" />
-              <span>Connecting…</span>
-            </Stack>
-          ) : (
-            "Connect with Plaid"
-          )}
-        </PrimaryButton>
-      ) : (
-        <PrimaryButton onClick={onNext}>Continue</PrimaryButton>
-      )}
-    </Stack>
-  );
-}
-
-// ─── Step 4: Verify ───────────────────────────────────────────────────────────
-
-function StepVerify({ loading, onRun }: { loading: boolean; onRun: () => void }) {
-  return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
-          Verify income &amp; credit
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          We&apos;ll run a <strong>soft credit pull</strong> (never affects your score) and verify your income from connected accounts.
-        </Typography>
-      </Box>
-
-      <Stack spacing={1.5}>
-        {[
-          { label: "Soft credit check", note: "Equifax & TransUnion · No score impact" },
-          { label: "Income verification", note: "Analysing 90 days of transactions" },
-          { label: "Debt analysis", note: "Existing balances & interest rates" },
-        ].map((item) => (
-          <Paper key={item.label} variant="outlined" sx={{ px: 2, py: 1.5, display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                flexShrink: 0,
-                bgcolor: loading ? "primary.main" : "grey.300",
-                animation: loading ? "pulse 1.5s ease-in-out infinite" : "none",
-                "@keyframes pulse": {
-                  "0%, 100%": { opacity: 1 },
-                  "50%": { opacity: 0.4 },
-                },
-              }}
-            />
-            <Box>
-              <Typography variant="body2" fontWeight={600}>
-                {item.label}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {item.note}
-              </Typography>
-            </Box>
-          </Paper>
-        ))}
-      </Stack>
-
-      <PrimaryButton onClick={onRun} disabled={loading}>
-        {loading ? (
-          <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
-            <CircularProgress size={18} color="inherit" />
-            <span>Analysing…</span>
-          </Stack>
-        ) : (
-          "Run Verification"
-        )}
-      </PrimaryButton>
-    </Stack>
-  );
-}
-
-// ─── Step 5: Eligibility ──────────────────────────────────────────────────────
-
-function StepEligibility({ outcome, onNext }: { outcome: EligibilityOutcome; onNext: () => void }) {
-  if (!outcome) return null;
-  const isA = outcome === "A";
-
-  return (
-    <Stack spacing={3}>
-      <Paper
-        variant="outlined"
-        sx={{
-          p: 3,
-          textAlign: "center",
-          borderColor: isA ? "primary.light" : "warning.light",
-          bgcolor: isA ? (t) => `${t.palette.primary.main}12` : (t) => `${t.palette.warning.main}12`,
-        }}
-      >
-        <Typography sx={{ fontSize: "2.25rem" }} aria-hidden>
-          {isA ? "🎉" : "🌱"}
-        </Typography>
-        <Typography variant="h5" fontWeight={700} sx={{ mt: 1 }}>
-          {isA ? "You're approved!" : "Let's build your credit first"}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, lineHeight: 1.6 }}>
-          {isA
-            ? "You qualify for a Buffer Credit Line. We'll set up your account so you can start paying down debt faster."
-            : "Based on your credit profile, we'll enrol you in Credit Builder — a proven path to improve your score and unlock the full credit line."}
-        </Typography>
-      </Paper>
-
-      {!isA ? (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="body2" fontWeight={600} gutterBottom>
-            Your Credit Builder path
-          </Typography>
-          <Stack component="ol" spacing={1} sx={{ m: 0, pl: 2 }}>
-            {[
-              "Monthly on-time payments build positive history",
-              "Score typically improves in 3–6 months",
-              "Automatically graduates to full Credit Line when eligible",
-            ].map((item, i) => (
-              <Typography key={i} component="li" variant="body2" color="text.secondary">
-                {item}
-              </Typography>
-            ))}
-          </Stack>
-        </Paper>
-      ) : null}
-
-      <PrimaryButton onClick={onNext}>{isA ? "Set up my account" : "Start Credit Builder"}</PrimaryButton>
-    </Stack>
-  );
-}
-
-// ─── Step 6: Credit Builder ───────────────────────────────────────────────────
-
-function StepCreditBuilder({
-  acknowledged,
-  onAcknowledge,
-  onNext,
-}: {
-  acknowledged: boolean;
-  onAcknowledge: () => void;
-  onNext: () => void;
-}) {
-  return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
-          About Credit Builder
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Please read this important information before proceeding.
-        </Typography>
-      </Box>
-
-      <Paper
-        variant="outlined"
-        sx={{
-          p: 2.5,
-          maxHeight: 256,
-          overflowY: "auto",
-          bgcolor: "grey.50",
-        }}
-      >
-        <Stack spacing={2}>
-          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            <strong>What is Credit Builder?</strong> Buffer Credit Builder is a secured credit facility that reports monthly payments to Equifax and TransUnion. Each on-time payment adds a positive trade line to your credit report.
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            <strong>How it works:</strong> A small monthly amount (as low as $10) is held in a secured account. This amount is reported as a credit obligation and paid monthly, building your history. No interest is charged on the secured portion.
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            <strong>Fees:</strong> Buffer charges a flat monthly subscription fee (see your plan details). There are no hidden fees. The secured deposit is returned if you close your account in good standing.
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            <strong>Cancellation:</strong> You may cancel Credit Builder with 30 days&apos; written notice. PAD payments during the notice period will continue. See your Pre-Authorized Debit agreement for full terms.
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            <strong>Credit impact:</strong> Late or missed payments will be reported negatively. Buffer is not responsible for changes to your credit score. Past results do not guarantee future score improvements.
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            <strong>Graduation:</strong> When your score meets the threshold for your province, Buffer will notify you and automatically offer a transition to the full Credit Line. You are not obligated to accept.
-          </Typography>
-        </Stack>
-      </Paper>
-
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={acknowledged}
-            onChange={(e) => {
-              if (e.target.checked) onAcknowledge();
-            }}
-            color="primary"
-          />
-        }
-        label="I have read and understood the Credit Builder terms, including the 30-day cancellation notice requirement."
-      />
-
-      <PrimaryButton onClick={onNext} disabled={!acknowledged}>
-        I understand — Continue
-      </PrimaryButton>
-    </Stack>
-  );
-}
-
-// ─── Step 7: PAD ──────────────────────────────────────────────────────────────
-
-function StepPad({
-  accepted,
-  onAccept,
-  onFinish,
-  finishing,
-}: {
-  accepted: boolean;
-  onAccept: () => void;
-  onFinish: () => void;
-  finishing: boolean;
-}) {
-  return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
-          Authorize payments
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Set up Pre-Authorized Debit (PAD) to automate your monthly Buffer payments.
-        </Typography>
-      </Box>
-
-      <Paper variant="outlined" sx={{ p: 2.5, bgcolor: "grey.50" }}>
-        <Stack spacing={1.5}>
-          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            <strong>Pre-Authorized Debit Agreement</strong>
-            <br />
-            By accepting, you authorize Buffer Financial Inc. to debit your connected bank account for the agreed monthly amount on the payment date each month. This PAD is for <strong>personal use</strong>.
-          </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            <strong>Your rights:</strong> You have the right to cancel this PAD agreement at any time with a minimum of <strong>30 days&apos; written notice</strong> before the next scheduled debit. Contact support@mybuffer.ca.
-          </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-            For reimbursement of debits made in error, contact us within 90 days. This PAD is governed by the Payments Canada Rule H1. Powered by VoPay.
-          </Typography>
-        </Stack>
-      </Paper>
-
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={accepted}
-            onChange={(e) => {
-              if (e.target.checked) onAccept();
-            }}
-            color="primary"
-          />
-        }
-        label="I authorize Buffer Financial Inc. to debit my account as described above and confirm I have read the PAD agreement including the 30-day cancellation notice requirement."
-      />
-
-      <PrimaryButton onClick={onFinish} disabled={!accepted || finishing}>
-        {finishing ? (
-          <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
-            <CircularProgress size={18} color="inherit" />
-            <span>Setting up your account…</span>
-          </Stack>
-        ) : (
-          "Authorize & Finish Setup"
-        )}
-      </PrimaryButton>
-    </Stack>
-  );
-}
-
-// ─── Shared atoms ─────────────────────────────────────────────────────────────
-
-function PrimaryButton({
-  children,
-  onClick,
-  disabled = false,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <Button variant="contained" color="primary" size="large" fullWidth onClick={onClick} disabled={disabled} sx={{ mt: 1, py: 1.5 }}>
-      {children}
-    </Button>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
-
-function CheckCircleIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-  );
-}
-
-function UploadIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <polyline points="16 16 12 12 8 16" />
-      <line x1="12" y1="12" x2="12" y2="21" />
-      <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-    </svg>
   );
 }

@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model UserOnboardingProfile {
+  id                  String   @id @default(cuid())
+  clerkUserId         String   @unique @map("clerk_user_id")
+  email               String?  @map("email")
+  firstName           String?  @map("first_name")
+  lastName            String?  @map("last_name")
+  onboardingCompleted Boolean  @default(false) @map("onboarding_completed")
+  onboardingStep      Int      @default(1) @map("onboarding_step")
+  interestSelection   String?  @map("interest_selection")
+  interestCustomText  String?  @map("interest_custom_text")
+  provinceCode        String?  @map("province_code")
+  provinceName        String?  @map("province_name")
+  creditScore         Int?     @map("credit_score")
+  annualPreTaxIncome  Int?     @map("annual_pre_tax_income")
+  heardAboutUs        String?  @map("heard_about_us")
+  heardAboutUsOther   String?  @map("heard_about_us_other")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@index([onboardingCompleted, onboardingStep])
+  @@index([provinceCode])
+  @@index([heardAboutUs])
+  @@map("user_onboarding_profiles")
+}

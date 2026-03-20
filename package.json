@@ -1,0 +1,11 @@
+{
+  "name": "buffer-root",
+  "private": true,
+  "scripts": {
+    "dev:web": "npm --prefix \"Main-page\" run dev -- --open",
+    "dev:api": "npm --prefix \"Main-page\" run dev:api",
+    "build": "npm --prefix \"Main-page\" run build",
+    "prisma:migrate": "npm --prefix \"Main-page\" run prisma:migrate",
+    "prisma:generate": "npm --prefix \"Main-page\" run prisma:generate"
+  }
+}
