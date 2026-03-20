@@ -1,4 +1,14 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  Avatar,
+  Box,
+  Card,
+  CardContent,
+  LinearProgress,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import type { TimelineOutput, CardData, CreditScore } from "../../types/timeline";
 
 const MOCK_TIMELINE: TimelineOutput = {
@@ -113,75 +123,148 @@ export function HomeScreen() {
   if (!isLoaded) return <SkeletonHome />;
 
   return (
-    <div className="flex flex-col gap-4 px-4 py-5 max-w-2xl mx-auto w-full pb-24 lg:pb-6" role="main" aria-label="Dashboard home">
-      <section className="bg-gradient-to-br from-[#00C9A7]/12 via-white to-[#F0FDFA] border border-[#99F6E4] rounded-2xl p-5">
-        <p className="text-[#00C9A7] text-xs font-bold uppercase tracking-widest mb-1">Debt-Free Date</p>
-        <p className="text-[#0F172A] text-3xl font-bold">{fmtDate(timeline.future3!.debtFreeDate)}</p>
-        <p className="text-[#475569] text-sm mt-1">
-          {timeline.future3!.monthsToZero} months · <span className="text-[#00C9A7]">{fmtCurrency(timeline.interestSavings)}</span> interest saved
-        </p>
-      </section>
+    <Stack
+      component="main"
+      role="main"
+      aria-label="Dashboard home"
+      spacing={2}
+      sx={{ px: 2, py: 2.5, maxWidth: 672, mx: "auto", width: "100%", pb: { xs: 3, sm: 3 } }}
+    >
+      <Card
+        variant="outlined"
+        sx={{
+          background: (t) =>
+            `linear-gradient(135deg, ${t.palette.primary.main}14 0%, ${t.palette.background.paper} 45%, #F0FDFA 100%)`,
+          borderColor: "rgba(0, 201, 167, 0.35)",
+        }}
+      >
+        <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
+          <Typography variant="caption" fontWeight={700} letterSpacing={2} color="primary.main" display="block" gutterBottom>
+            DEBT-FREE DATE
+          </Typography>
+          <Typography variant="h4" fontWeight={700} color="text.primary">
+            {fmtDate(timeline.future3!.debtFreeDate)}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            {timeline.future3!.monthsToZero} months ·{" "}
+            <Box component="span" sx={{ color: "primary.main", fontWeight: 600 }}>
+              {fmtCurrency(timeline.interestSavings)}
+            </Box>{" "}
+            interest saved
+          </Typography>
+        </CardContent>
+      </Card>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-2xl p-4">
-          <p className="text-[#64748B] text-xs mb-1">Net Worth</p>
-          <p className={["text-xl font-bold font-mono tabular-nums", netWorth < 0 ? "text-[#FF6B6B]" : "text-[#00C9A7]"].join(" ")}>{fmtCurrency(netWorth)}</p>
-          <p className="text-[#64748B] text-xs mt-1">{fmtCurrency(totalDebt)} debt</p>
-        </div>
-        <div className="bg-white rounded-2xl p-4">
-          <p className="text-[#64748B] text-xs mb-1">Credit Score</p>
-          <p className="text-xl font-bold font-mono tabular-nums" style={{ color: scoreColor(score.band) }}>{score.score}</p>
-          <p className="text-xs mt-1" style={{ color: scoreColor(score.band) }}>{scoreLabel(score.band)} · via {score.bureau}</p>
-        </div>
-      </div>
+      <Stack direction="row" spacing={1.5} useFlexGap flexWrap="wrap">
+        <Card variant="outlined" sx={{ flex: 1, minWidth: 140 }}>
+          <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+            <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+              Net Worth
+            </Typography>
+            <Typography
+              variant="h6"
+              fontWeight={700}
+              fontFamily="ui-monospace, monospace"
+              color={netWorth < 0 ? "error.main" : "primary.main"}
+            >
+              {fmtCurrency(netWorth)}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+              {fmtCurrency(totalDebt)} debt
+            </Typography>
+          </CardContent>
+        </Card>
+        <Card variant="outlined" sx={{ flex: 1, minWidth: 140 }}>
+          <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+            <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+              Credit Score
+            </Typography>
+            <Typography variant="h6" fontWeight={700} fontFamily="ui-monospace, monospace" sx={{ color: scoreColor(score.band) }}>
+              {score.score}
+            </Typography>
+            <Typography variant="caption" sx={{ mt: 0.5, display: "block", color: scoreColor(score.band) }}>
+              {scoreLabel(score.band)} · via {score.bureau}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Stack>
 
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[#475569] text-sm font-medium">Your Cards</h2>
-          <p className="text-[#64748B] text-xs font-mono">{fmtCurrency(totalDebt)} total · {utilPct(totalDebt, totalLimit)}% util</p>
-        </div>
-        <div className="flex flex-col gap-2">
+      <Box>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+          <Typography variant="body2" fontWeight={500} color="text.secondary">
+            Your Cards
+          </Typography>
+          <Typography variant="caption" fontFamily="ui-monospace, monospace" color="text.secondary">
+            {fmtCurrency(totalDebt)} total · {utilPct(totalDebt, totalLimit)}% util
+          </Typography>
+        </Stack>
+        <Stack spacing={1}>
           {cards.map((card) => {
             const util = utilPct(card.balance, card.limit);
             const utilBarColor = util > 80 ? "#FF6B6B" : util > 50 ? "#F59E0B" : "#00C9A7";
             return (
-              <article key={card.id} className="bg-white rounded-xl p-4 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ backgroundColor: card.color ?? "#94A3B8" }}>
-                  {card.institution.slice(0, 2)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <p className="text-[#0F172A] text-sm font-medium truncate">{card.name}</p>
-                    <p className="text-[#0F172A] text-sm font-bold font-mono tabular-nums flex-shrink-0">{fmtCurrency(card.balance)}</p>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <div className="flex-1 h-1 bg-[#E2E8F0] rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${util}%`, backgroundColor: utilBarColor }} />
-                    </div>
-                    <p className="text-[#64748B] text-xs flex-shrink-0">{util}%</p>
-                  </div>
-                </div>
-              </article>
+              <Card key={card.id} variant="outlined" component="article">
+                <CardContent sx={{ py: 2, px: 2, "&:last-child": { pb: 2 }, display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Avatar
+                    variant="rounded"
+                    sx={{
+                      width: 36,
+                      height: 36,
+                      bgcolor: card.color ?? "#94A3B8",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {card.institution.slice(0, 2)}
+                  </Avatar>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Stack direction="row" alignItems="baseline" justifyContent="space-between" gap={1}>
+                      <Typography variant="body2" fontWeight={600} noWrap>
+                        {card.name}
+                      </Typography>
+                      <Typography variant="body2" fontWeight={700} fontFamily="ui-monospace, monospace" sx={{ flexShrink: 0 }}>
+                        {fmtCurrency(card.balance)}
+                      </Typography>
+                    </Stack>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 0.75 }}>
+                      <LinearProgress
+                        variant="determinate"
+                        value={Math.min(100, util)}
+                        sx={{
+                          flex: 1,
+                          height: 6,
+                          borderRadius: 999,
+                          bgcolor: "grey.200",
+                          "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: utilBarColor },
+                        }}
+                      />
+                      <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0, minWidth: 32 }}>
+                        {util}%
+                      </Typography>
+                    </Stack>
+                  </Box>
+                </CardContent>
+              </Card>
             );
           })}
-        </div>
-      </section>
-    </div>
+        </Stack>
+      </Box>
+    </Stack>
   );
 }
 
 function SkeletonHome() {
   return (
-    <div className="flex flex-col gap-4 px-4 py-5 max-w-2xl mx-auto w-full" aria-busy="true" aria-label="Loading dashboard">
-      <div className="h-36 rounded-2xl bg-white animate-pulse" />
-      <div className="grid grid-cols-2 gap-3">
-        <div className="h-20 rounded-2xl bg-white animate-pulse" />
-        <div className="h-20 rounded-2xl bg-white animate-pulse" />
-      </div>
-      <div className="h-24 rounded-2xl bg-white animate-pulse" />
+    <Stack spacing={2} sx={{ px: 2, py: 2.5, maxWidth: 672, mx: "auto" }} aria-busy="true" aria-label="Loading dashboard">
+      <Skeleton variant="rounded" height={144} />
+      <Stack direction="row" spacing={1.5}>
+        <Skeleton variant="rounded" height={88} sx={{ flex: 1 }} />
+        <Skeleton variant="rounded" height={88} sx={{ flex: 1 }} />
+      </Stack>
+      <Skeleton variant="rounded" height={96} />
       {[1, 2, 3].map((i) => (
-        <div key={i} className="h-16 rounded-xl bg-white animate-pulse" />
+        <Skeleton key={i} variant="rounded" height={64} />
       ))}
-    </div>
+    </Stack>
   );
 }

@@ -1,4 +1,16 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  IconButton,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { SendHorizontal } from "lucide-react";
 
 type Role = "user" | "assistant";
 interface Message {
@@ -28,11 +40,25 @@ function getSimulatedResponse(userText: string): string {
 function MessageBubble({ msg }: { msg: Message }) {
   const isUser = msg.role === "user";
   return (
-    <div className={["flex gap-2", isUser ? "justify-end" : "justify-start"].join(" ")}>
-      <div className={["max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed", isUser ? "bg-[#00C9A7] text-[#0F1117]" : "bg-white text-[#0F172A]"].join(" ")}>
-        {msg.text}
-      </div>
-    </div>
+    <Stack direction="row" justifyContent={isUser ? "flex-end" : "flex-start"}>
+      <Paper
+        elevation={0}
+        sx={{
+          maxWidth: "80%",
+          px: 2,
+          py: 1.25,
+          borderRadius: 3,
+          bgcolor: isUser ? "primary.main" : "background.paper",
+          color: isUser ? "primary.contrastText" : "text.primary",
+          border: isUser ? "none" : 1,
+          borderColor: "divider",
+        }}
+      >
+        <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+          {msg.text}
+        </Typography>
+      </Paper>
+    </Stack>
   );
 }
 
@@ -66,48 +92,90 @@ export function AiScreen() {
   );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] lg:h-screen max-w-2xl mx-auto w-full">
-      <div className="px-4 pt-5 pb-3 border-b border-[#E2E8F0]">
-        <h1 className="text-[#0F172A] text-xl font-bold">Buffer AI</h1>
-        <p className="text-[#64748B] text-xs mt-0.5">Personalized financial guidance</p>
-      </div>
+    <Stack
+      sx={{
+        height: { xs: "calc(100dvh - 56px - 72px)", sm: "calc(100dvh - 56px - 72px)" },
+        maxWidth: 672,
+        mx: "auto",
+        width: "100%",
+      }}
+    >
+      <Box sx={{ px: 2, pt: 2.5, pb: 1.5, borderBottom: 1, borderColor: "divider" }}>
+        <Typography variant="h6" fontWeight={700}>
+          Buffer AI
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          Personalized financial guidance
+        </Typography>
+      </Box>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
-        {messages.map((msg) => (
-          <MessageBubble key={msg.id} msg={msg} />
-        ))}
-        {thinking && <div className="text-xs text-[#64748B]">Thinking...</div>}
-        <div ref={bottomRef} />
-      </div>
+      <Box sx={{ flex: 1, overflowY: "auto", px: 2, py: 2 }}>
+        <Stack spacing={1.5}>
+          {messages.map((msg) => (
+            <MessageBubble key={msg.id} msg={msg} />
+          ))}
+          {thinking && (
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <CircularProgress size={14} thickness={6} />
+              <Typography variant="caption" color="text.secondary">
+                Thinking…
+              </Typography>
+            </Stack>
+          )}
+          <div ref={bottomRef} />
+        </Stack>
+      </Box>
 
       {messages.length === 1 && (
-        <div className="px-4 pb-2 flex flex-wrap gap-2">
+        <Stack direction="row" flexWrap="wrap" gap={1} sx={{ px: 2, pb: 1 }}>
           {SUGGESTED.map((s) => (
-            <button key={s} type="button" onClick={() => sendMessage(s)} className="text-xs bg-white border border-[#E2E8F0] rounded-full px-3 py-1.5 text-[#475569]">
-              {s}
-            </button>
+            <Chip
+              key={s}
+              label={s}
+              size="small"
+              onClick={() => void sendMessage(s)}
+              variant="outlined"
+              sx={{ borderColor: "divider", color: "text.secondary" }}
+            />
           ))}
-        </div>
+        </Stack>
       )}
 
-      <div className="px-4 pb-6 pt-3 border-t border-[#E2E8F0] flex gap-2 items-end">
-        <textarea
-          rows={1}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage(input);
-            }
-          }}
-          placeholder="Ask anything about your finances..."
-          className="flex-1 bg-white text-[#0F172A] text-sm rounded-xl px-4 py-3 border border-[#E2E8F0]"
-        />
-        <button type="button" onClick={() => sendMessage(input)} disabled={!input.trim() || thinking} className="w-11 h-11 rounded-xl bg-[#00C9A7] text-[#0F1117] disabled:opacity-40">
-          Send
-        </button>
-      </div>
-    </div>
+      <Paper square elevation={3} sx={{ borderTop: 1, borderColor: "divider", p: 2, pb: 2.5 }}>
+        <Stack direction="row" spacing={1} alignItems="flex-end">
+          <TextField
+            multiline
+            maxRows={4}
+            minRows={1}
+            fullWidth
+            size="small"
+            placeholder="Ask anything about your finances…"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void sendMessage(input);
+              }
+            }}
+          />
+          <IconButton
+            color="primary"
+            onClick={() => void sendMessage(input)}
+            disabled={!input.trim() || thinking}
+            sx={{
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+              borderRadius: 2,
+              "&:hover": { bgcolor: "primary.dark" },
+              "&.Mui-disabled": { bgcolor: "action.disabledBackground" },
+            }}
+            aria-label="Send"
+          >
+            <SendHorizontal size={20} />
+          </IconButton>
+        </Stack>
+      </Paper>
+    </Stack>
   );
 }

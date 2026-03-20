@@ -1,14 +1,15 @@
-import { useMemo, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
 } from "recharts";
+import { Box, Paper, Slider, Stack, Typography } from "@mui/material";
 import type { SimulationResult } from "../../types/timeline";
 
 interface DebtFreeChartProps {
@@ -79,14 +80,16 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#1A1F2E] border border-[#2A3040] rounded-xl px-3 py-2 shadow-xl text-xs">
-      <p className="text-[#8B9CB6] mb-1.5">{fmtDate(label ?? 0)}</p>
+    <Paper elevation={4} sx={{ px: 1.5, py: 1, border: 1, borderColor: "divider" }}>
+      <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+        {fmtDate(label ?? 0)}
+      </Typography>
       {payload.map((p) => (
-        <p key={p.name} style={{ color: p.color }} className="font-mono font-semibold">
+        <Typography key={p.name} variant="caption" fontFamily="ui-monospace, monospace" fontWeight={600} sx={{ color: p.color }} display="block">
           {p.name}: {fmtCurrencyCompact(p.value)}
-        </p>
+        </Typography>
       ))}
-    </div>
+    </Paper>
   );
 }
 
@@ -104,8 +107,9 @@ export function DebtFreeChart({
   const data = useMemo(() => buildChartData(future1, future2, future3), [future1, future2, future3]);
 
   const handleSlider = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      onPaymentChange?.(Number(e.target.value));
+    (_: Event, value: number | number[]) => {
+      const v = Array.isArray(value) ? value[0] : value;
+      onPaymentChange?.(v);
     },
     [onPaymentChange],
   );
@@ -114,43 +118,43 @@ export function DebtFreeChart({
   const totalBalance = future1.balanceArray[0] ? future1.balanceArray[0] + future1.monthlyPayment : 0;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="h-52 w-full" role="img" aria-label="Debt-free timeline chart">
+    <Stack spacing={2}>
+      <Box sx={{ height: 208, width: "100%" }} role="img" aria-label="Debt-free timeline chart">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
             <defs>
               <linearGradient id="gF1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#FF6B6B" stopOpacity={0.25} />
+                <stop offset="5%" stopColor="#FF6B6B" stopOpacity={0.22} />
                 <stop offset="95%" stopColor="#FF6B6B" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gF2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.2} />
+                <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.18} />
                 <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gF3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00C9A7" stopOpacity={0.3} />
+                <stop offset="5%" stopColor="#00C9A7" stopOpacity={0.28} />
                 <stop offset="95%" stopColor="#00C9A7" stopOpacity={0} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A3040" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
             <XAxis
               dataKey="month"
-              tick={{ fill: "#4A5568", fontSize: 10 }}
+              tick={{ fill: "#64748B", fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => fmtDate(v as number)}
               interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fill: "#4A5568", fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
+              tick={{ fill: "#64748B", fontSize: 10, fontFamily: "ui-monospace, monospace" }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => fmtCurrencyCompact(v as number)}
               width={52}
             />
             <Tooltip content={<ChartTooltip />} />
-            <ReferenceLine y={0} stroke="#2A3040" strokeDasharray="4 4" />
+            <ReferenceLine y={0} stroke="#CBD5E1" strokeDasharray="4 4" />
 
             <Area
               type="monotone"
@@ -189,37 +193,55 @@ export function DebtFreeChart({
             )}
           </AreaChart>
         </ResponsiveContainer>
-      </div>
+      </Box>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+      <Stack direction="row" flexWrap="wrap" gap={1} useFlexGap>
         <LegendItem color="#FF6B6B" label="Min payments" value={fmtMonths(future1.monthsToZero)} />
         {future2 && <LegendItem color="#F59E0B" label="Current pace" value={fmtMonths(future2.monthsToZero)} />}
         {future3 && <LegendItem color="#00C9A7" label="With Buffer" value={fmtMonths(future3.monthsToZero)} bold />}
-      </div>
+      </Stack>
 
       {onPaymentChange && (
-        <div className="bg-[#1A1F2E] rounded-2xl p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-[#8B9CB6] text-sm font-medium">Monthly payment</p>
-            <p className="text-[#00C9A7] font-bold font-mono text-lg">${currentPayment.toLocaleString("en-CA")}</p>
-          </div>
+        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: "grey.50" }}>
+          <Stack spacing={2}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Typography variant="body2" fontWeight={600} color="text.secondary">
+                Monthly payment
+              </Typography>
+              <Typography variant="h6" fontWeight={700} fontFamily="ui-monospace, monospace" color="primary.main">
+                ${currentPayment.toLocaleString("en-CA")}
+              </Typography>
+            </Stack>
 
-          <input
-            type="range"
-            min={sliderMin}
-            max={sliderMax}
-            step={sliderStep}
-            value={currentPayment}
-            onChange={handleSlider}
-            className="slider w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#2A3040]"
-          />
+            <Slider
+              value={currentPayment}
+              onChange={handleSlider}
+              min={sliderMin}
+              max={sliderMax}
+              step={sliderStep}
+              valueLabelDisplay="auto"
+              aria-label="Monthly payment"
+              sx={{
+                color: "primary.main",
+                "& .MuiSlider-thumb": { width: 18, height: 18 },
+              }}
+            />
 
-          <div className="flex items-center justify-between text-xs text-[#4A5568]">
-            <span className="font-mono">${sliderMin}/mo min</span>
-            {future3 && <span className="text-[#00C9A7] font-mono">Debt-free {fmtDate(future3.monthsToZero)}</span>}
-            <span className="font-mono">${sliderMax}/mo max</span>
-          </div>
-        </div>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="caption" color="text.secondary" fontFamily="ui-monospace, monospace">
+                ${sliderMin}/mo min
+              </Typography>
+              {future3 && (
+                <Typography variant="caption" color="primary.main" fontFamily="ui-monospace, monospace" fontWeight={600}>
+                  Debt-free {fmtDate(future3.monthsToZero)}
+                </Typography>
+              )}
+              <Typography variant="caption" color="text.secondary" fontFamily="ui-monospace, monospace">
+                ${sliderMax}/mo max
+              </Typography>
+            </Stack>
+          </Stack>
+        </Paper>
       )}
 
       {future3 && (
@@ -229,7 +251,7 @@ export function DebtFreeChart({
           totalBalance={totalBalance}
         />
       )}
-    </div>
+    </Stack>
   );
 }
 
@@ -245,13 +267,15 @@ function LegendItem({
   bold?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-1.5">
-      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
-      <span className={["text-xs", bold ? "text-white font-semibold" : "text-[#4A5568]"].join(" ")}>{label}:</span>
-      <span className={["text-xs font-mono", bold ? "text-[#00C9A7] font-bold" : "text-[#8B9CB6]"].join(" ")}>
+    <Stack direction="row" alignItems="center" spacing={0.75} useFlexGap>
+      <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: color }} />
+      <Typography variant="caption" color={bold ? "text.primary" : "text.secondary"} fontWeight={bold ? 600 : 400}>
+        {label}:
+      </Typography>
+      <Typography variant="caption" fontFamily="ui-monospace, monospace" fontWeight={bold ? 700 : 500} color={bold ? "primary.main" : "text.secondary"}>
         {value}
-      </span>
-    </div>
+      </Typography>
+    </Stack>
   );
 }
 
@@ -267,19 +291,34 @@ function SavingsCallout({
   if (interestSaved < 10) return null;
   const savingsPct = totalBalance > 0 ? (interestSaved / totalBalance) * 100 : 0;
   return (
-    <div className="bg-[#00C9A7]/10 border border-[#00C9A7]/20 rounded-2xl px-4 py-3 flex items-center gap-3">
-      <span className="text-2xl" aria-hidden="true">
+    <Paper
+      variant="outlined"
+      sx={{
+        px: 2,
+        py: 1.5,
+        borderRadius: 2,
+        bgcolor: (t) => `${t.palette.primary.main}14`,
+        borderColor: (t) => `${t.palette.primary.main}40`,
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 1.5,
+      }}
+    >
+      <Typography component="span" sx={{ fontSize: "1.5rem" }} aria-hidden>
         💡
-      </span>
-      <div>
-        <p className="text-white text-sm font-semibold">
-          Save <span className="text-[#00C9A7] font-mono">${Math.round(interestSaved).toLocaleString("en-CA")}</span>{" "}
+      </Typography>
+      <Box>
+        <Typography variant="body2" fontWeight={600} color="text.primary">
+          Save{" "}
+          <Box component="span" sx={{ color: "primary.main", fontFamily: "ui-monospace, monospace" }}>
+            ${Math.round(interestSaved).toLocaleString("en-CA")}
+          </Box>{" "}
           in interest
-        </p>
-        <p className="text-[#8B9CB6] text-xs mt-0.5">
+        </Typography>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.25 }}>
           {fmtMonths(monthsSaved)} faster · {savingsPct.toFixed(0)}% less total cost
-        </p>
-      </div>
-    </div>
+        </Typography>
+      </Box>
+    </Paper>
   );
 }
