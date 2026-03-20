@@ -22,6 +22,8 @@ interface DebtFreeChartProps {
   sliderMax?: number;
   sliderStep?: number;
   sliderDefault?: number;
+  /** When true, savings callout is omitted (e.g. shown in desktop right rail). */
+  hideSavingsCallout?: boolean;
 }
 
 interface ChartPoint {
@@ -42,7 +44,7 @@ function fmtDate(months: number): string {
   return d.toLocaleDateString("en-CA", { year: "numeric", month: "short" });
 }
 
-function fmtMonths(m: number): string {
+export function fmtMonthsDebtChart(m: number): string {
   const yrs = Math.floor(m / 12);
   const mos = m % 12;
   if (yrs === 0) return `${mos}mo`;
@@ -103,6 +105,7 @@ export function DebtFreeChart({
   sliderMax = 2000,
   sliderStep = 10,
   sliderDefault,
+  hideSavingsCallout = false,
 }: DebtFreeChartProps) {
   const data = useMemo(() => buildChartData(future1, future2, future3), [future1, future2, future3]);
 
@@ -119,7 +122,11 @@ export function DebtFreeChart({
 
   return (
     <Stack spacing={2}>
-      <Box sx={{ height: 208, width: "100%" }} role="img" aria-label="Debt-free timeline chart">
+      <Box
+        sx={{ height: { xs: 208, lg: 360 }, width: "100%" }}
+        role="img"
+        aria-label="Debt-free timeline chart"
+      >
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
             <defs>
@@ -196,9 +203,9 @@ export function DebtFreeChart({
       </Box>
 
       <Stack direction="row" flexWrap="wrap" gap={1} useFlexGap>
-        <LegendItem color="#FF6B6B" label="Min payments" value={fmtMonths(future1.monthsToZero)} />
-        {future2 && <LegendItem color="#F59E0B" label="Current pace" value={fmtMonths(future2.monthsToZero)} />}
-        {future3 && <LegendItem color="#00C9A7" label="With Buffer" value={fmtMonths(future3.monthsToZero)} bold />}
+        <LegendItem color="#FF6B6B" label="Min payments" value={fmtMonthsDebtChart(future1.monthsToZero)} />
+        {future2 && <LegendItem color="#F59E0B" label="Current pace" value={fmtMonthsDebtChart(future2.monthsToZero)} />}
+        {future3 && <LegendItem color="#00C9A7" label="With Buffer" value={fmtMonthsDebtChart(future3.monthsToZero)} bold />}
       </Stack>
 
       {onPaymentChange && (
@@ -244,8 +251,8 @@ export function DebtFreeChart({
         </Paper>
       )}
 
-      {future3 && (
-        <SavingsCallout
+      {future3 && !hideSavingsCallout && (
+        <DebtFreeSavingsCallout
           interestSaved={Math.max(0, future1.totalInterest - future3.totalInterest)}
           monthsSaved={Math.max(0, future1.monthsToZero - future3.monthsToZero)}
           totalBalance={totalBalance}
@@ -279,7 +286,7 @@ function LegendItem({
   );
 }
 
-function SavingsCallout({
+export function DebtFreeSavingsCallout({
   interestSaved,
   monthsSaved,
   totalBalance,
@@ -316,7 +323,7 @@ function SavingsCallout({
           in interest
         </Typography>
         <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.25 }}>
-          {fmtMonths(monthsSaved)} faster · {savingsPct.toFixed(0)}% less total cost
+          {fmtMonthsDebtChart(monthsSaved)} faster · {savingsPct.toFixed(0)}% less total cost
         </Typography>
       </Box>
     </Paper>
