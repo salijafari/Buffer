@@ -5,6 +5,15 @@ const BUFFER_TEAL = "#00C9A7";
 const BUFFER_TEAL_DARK = "#00A88A";
 
 export const bufferMuiTheme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1024,
+      xl: 1536,
+    },
+  },
   palette: {
     mode: "light",
     primary: {

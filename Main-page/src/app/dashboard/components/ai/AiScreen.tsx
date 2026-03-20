@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
-  Button,
   Chip,
   CircularProgress,
   IconButton,
@@ -19,12 +18,12 @@ interface Message {
   text: string;
 }
 
-const SUGGESTED = [
+export const AI_SUGGESTED_PROMPTS = [
   "How can I pay off my TD card fastest?",
   "What will my score be in 6 months?",
   "Should I use the avalanche or snowball method?",
   "How does the Buffer Credit Line work?",
-];
+] as const;
 
 function getSimulatedResponse(userText: string): string {
   const lower = userText.toLowerCase();
@@ -62,7 +61,13 @@ function MessageBubble({ msg }: { msg: Message }) {
   );
 }
 
-export function AiScreen() {
+export function AiScreen({
+  sendMessageRef,
+  hideSuggestedChips,
+}: {
+  sendMessageRef?: React.MutableRefObject<((text: string) => void) | null>;
+  hideSuggestedChips?: boolean;
+}) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "0",
@@ -91,25 +96,43 @@ export function AiScreen() {
     [thinking],
   );
 
+  useEffect(() => {
+    if (!sendMessageRef) return;
+    sendMessageRef.current = (t: string) => {
+      void sendMessage(t);
+    };
+    return () => {
+      sendMessageRef.current = null;
+    };
+  }, [sendMessageRef, sendMessage]);
+
   return (
     <Stack
       sx={{
-        height: { xs: "calc(100dvh - 56px - 72px)", sm: "calc(100dvh - 56px - 72px)" },
-        maxWidth: 672,
+        height: { xs: "calc(100dvh - 56px - 72px)", lg: "100%" },
+        maxWidth: { xs: 672, lg: "none" },
         mx: "auto",
         width: "100%",
+        flex: { lg: 1 },
+        minHeight: { lg: 0 },
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <Box sx={{ px: 2, pt: 2.5, pb: 1.5, borderBottom: 1, borderColor: "divider" }}>
-        <Typography variant="h6" fontWeight={700}>
+      <Box sx={{ px: { xs: 2, lg: 0 }, pt: { xs: 2.5, lg: 0 }, pb: 1.5, borderBottom: { xs: 1, lg: 0 }, borderColor: "divider" }}>
+        <Typography
+          variant="h6"
+          fontWeight={700}
+          sx={{ display: { lg: "none" } }}
+        >
           Buffer AI
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color="text.secondary" sx={{ display: { lg: "none" }, mt: 0.25 }}>
           Personalized financial guidance
         </Typography>
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto", px: 2, py: 2 }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, lg: 0 }, py: 2, minHeight: 0 }}>
         <Stack spacing={1.5}>
           {messages.map((msg) => (
             <MessageBubble key={msg.id} msg={msg} />
@@ -126,9 +149,9 @@ export function AiScreen() {
         </Stack>
       </Box>
 
-      {messages.length === 1 && (
+      {messages.length === 1 && !hideSuggestedChips && (
         <Stack direction="row" flexWrap="wrap" gap={1} sx={{ px: 2, pb: 1 }}>
-          {SUGGESTED.map((s) => (
+          {AI_SUGGESTED_PROMPTS.map((s) => (
             <Chip
               key={s}
               label={s}
@@ -141,7 +164,7 @@ export function AiScreen() {
         </Stack>
       )}
 
-      <Paper square elevation={3} sx={{ borderTop: 1, borderColor: "divider", p: 2, pb: 2.5 }}>
+      <Paper square elevation={3} sx={{ borderTop: 1, borderColor: "divider", p: 2, pb: 2.5, flexShrink: 0 }}>
         <Stack direction="row" spacing={1} alignItems="flex-end">
           <TextField
             multiline
