@@ -43,7 +43,6 @@ const TABS = [
   { id: "payoff", label: "Payoff Planner", shortTitle: "Payoff", path: "/dashboard/payoff", Icon: LineChart },
   { id: "credit", label: "Credit Builder", shortTitle: "Credit", path: "/dashboard/credit", Icon: CreditCard },
   { id: "ai", label: "AI Assistant", shortTitle: "AI", path: "/dashboard/ai", Icon: Sparkles },
-  { id: "account", label: "Account", shortTitle: "Account", path: "/dashboard/account", Icon: User },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -75,18 +74,12 @@ const navAnim = {
     75% { transform: scale(1.05) rotate(-6deg); }
     100% { transform: scale(1) rotate(0deg); }
   `,
-  account: keyframes`
-    0% { transform: scale(1); }
-    40% { transform: scale(1.14) translateY(-3px); }
-    70% { transform: scale(0.94); }
-    100% { transform: scale(1); }
-  `,
 } satisfies Record<TabId, ReturnType<typeof keyframes>>;
 
 const NAV_ANIM_MS = 0.42;
 const NAV_ANIM_EASE = "cubic-bezier(0.34, 1.25, 0.64, 1)";
 
-function DesktopTopBar({ title }: { title: string }) {
+function DesktopTopBar({ title, onProfileClick }: { title: string; onProfileClick: () => void }) {
   return (
     <Stack
       direction="row"
@@ -110,7 +103,9 @@ function DesktopTopBar({ title }: { title: string }) {
             <Bell size={22} strokeWidth={1.75} />
           </Badge>
         </IconButton>
-        <Avatar sx={{ width: 36, height: 36, bgcolor: "primary.main", color: "primary.contrastText", fontWeight: 700 }}>A</Avatar>
+        <IconButton onClick={onProfileClick} aria-label="Open account">
+          <Avatar sx={{ width: 36, height: 36, bgcolor: "primary.main", color: "primary.contrastText", fontWeight: 700 }}>A</Avatar>
+        </IconButton>
       </Stack>
     </Stack>
   );
@@ -122,6 +117,7 @@ function DashboardContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const activeTab = TABS.find((t) => location.pathname === t.path)?.id ?? "home";
+  const isAccountPage = location.pathname === "/dashboard/account";
 
   const [iconPulse, setIconPulse] = useState<Partial<Record<TabId, number>>>({});
   const bumpNavIcon = useCallback((tabId: TabId) => {
@@ -137,10 +133,9 @@ function DashboardContent() {
 
   const bottomPad = "calc(72px + env(safe-area-inset-bottom, 0px))";
 
-  const pageTitle = TABS.find((t) => t.id === activeTab)?.shortTitle ?? "Home";
+  const pageTitle = isAccountPage ? "Account" : TABS.find((t) => t.id === activeTab)?.shortTitle ?? "Home";
 
-  const showRightRail =
-    isDesktop && activeTab !== "account";
+  const showRightRail = isDesktop && !isAccountPage;
 
   function renderRightRail() {
     if (!showRightRail) return null;
@@ -256,13 +251,18 @@ function DashboardContent() {
               minHeight: { lg: "100%" },
             }}
           >
-            <DesktopTopBar title={pageTitle} />
+            <DesktopTopBar title={pageTitle} onProfileClick={() => void navigate("/dashboard/account")} />
             <Box sx={{ flex: { lg: activeTab === "ai" ? 1 : "none" }, minHeight: { lg: activeTab === "ai" ? 0 : "auto" }, display: "flex", flexDirection: "column" }}>
-              {activeTab === "home" && <HomeScreen />}
-              {activeTab === "payoff" && <PayoffScreen onPayoffMetrics={setPayoffMetrics} />}
-              {activeTab === "ai" && <AiScreen sendMessageRef={aiSendRef} hideSuggestedChips />}
-              {activeTab === "credit" && <CreditScreen />}
-              {activeTab === "account" && <AccountScreen />}
+              {isAccountPage ? (
+                <AccountScreen />
+              ) : (
+                <>
+                  {activeTab === "home" && <HomeScreen />}
+                  {activeTab === "payoff" && <PayoffScreen onPayoffMetrics={setPayoffMetrics} />}
+                  {activeTab === "ai" && <AiScreen sendMessageRef={aiSendRef} hideSuggestedChips />}
+                  {activeTab === "credit" && <CreditScreen />}
+                </>
+              )}
             </Box>
           </Box>
         </Box>
@@ -361,24 +361,6 @@ function DashboardContent() {
         })}
       </List>
 
-      <Box sx={{ mt: "auto", pt: 2, borderTop: "1px solid", borderColor: "divider", px: 0.5 }}>
-        <ListItemButton
-          onClick={() => void navigate("/dashboard/account")}
-          sx={{ borderRadius: 1.5, py: 1.25, "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}
-        >
-          <ListItemIcon sx={{ minWidth: 40 }}>
-            <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main", color: "primary.contrastText", fontSize: "0.875rem", fontWeight: 700 }}>
-              A
-            </Avatar>
-          </ListItemIcon>
-          <ListItemText
-            primary="Alex Chen"
-            secondary="Account"
-            primaryTypographyProps={{ variant: "body2", fontWeight: 600, sx: { color: "text.primary", fontSize: "0.8125rem" } }}
-            secondaryTypographyProps={{ variant: "caption", sx: { color: NAV_MUTED } }}
-          />
-        </ListItemButton>
-      </Box>
     </Box>
   );
 
@@ -408,6 +390,7 @@ function DashboardContent() {
             mx: "auto",
             minHeight: 56,
             px: 2,
+            gap: 1,
           }}
         >
           <Box
@@ -435,6 +418,9 @@ function DashboardContent() {
               }}
             />
           </Box>
+          <IconButton onClick={() => void navigate("/dashboard/account")} aria-label="Open account">
+            <Avatar sx={{ width: 34, height: 34, bgcolor: "primary.main", color: "primary.contrastText", fontWeight: 700 }}>A</Avatar>
+          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -446,11 +432,16 @@ function DashboardContent() {
           pb: bottomPad,
         }}
       >
-        {activeTab === "home" && <HomeScreen />}
-        {activeTab === "payoff" && <PayoffScreen />}
-        {activeTab === "ai" && <AiScreen />}
-        {activeTab === "credit" && <CreditScreen />}
-        {activeTab === "account" && <AccountScreen />}
+        {isAccountPage ? (
+          <AccountScreen />
+        ) : (
+          <>
+            {activeTab === "home" && <HomeScreen />}
+            {activeTab === "payoff" && <PayoffScreen />}
+            {activeTab === "ai" && <AiScreen />}
+            {activeTab === "credit" && <CreditScreen />}
+          </>
+        )}
       </Box>
 
       <Paper
@@ -469,7 +460,7 @@ function DashboardContent() {
         }}
       >
         <BottomNavigation
-          value={activeTab}
+          value={isAccountPage ? false : activeTab}
           showLabels
           onChange={(_, newValue) => {
             const tab = TABS.find((t) => t.id === newValue);
@@ -484,11 +475,13 @@ function DashboardContent() {
               maxWidth: "20%",
               py: 0.5,
               px: 0.25,
+              gap: 0.4,
             },
             "& .MuiBottomNavigationAction-label": {
               fontSize: { xs: "0.62rem", sm: "0.7rem" },
               lineHeight: 1.15,
               whiteSpace: "normal",
+              mt: 0.35,
               "&.Mui-selected": { fontSize: { xs: "0.62rem", sm: "0.7rem" } },
             },
           }}
