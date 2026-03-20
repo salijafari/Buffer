@@ -3,12 +3,12 @@ import {
   BottomNavigation,
   BottomNavigationAction,
   Box,
-  Button,
   Paper,
   Toolbar,
 } from "@mui/material";
-import { useClerk } from "@clerk/react";
+import { keyframes } from "@mui/material/styles";
 import { CreditCard, Home, LineChart, Sparkles, User } from "lucide-react";
+import { useCallback, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { HomeScreen } from "../dashboard/components/home/HomeScreen";
 import { PayoffScreen } from "../dashboard/components/payoff/PayoffScreen";
@@ -26,11 +26,57 @@ const TABS = [
   { id: "account", label: "Account", path: "/dashboard/account", Icon: User },
 ] as const;
 
+type TabId = (typeof TABS)[number]["id"];
+
+/** Per-tab motion so each destination feels distinct on tap */
+const navAnim = {
+  home: keyframes`
+    0% { transform: scale(1) translateY(0); }
+    35% { transform: scale(1.2) translateY(-5px); }
+    65% { transform: scale(0.92) translateY(1px); }
+    100% { transform: scale(1) translateY(0); }
+  `,
+  payoff: keyframes`
+    0% { transform: rotate(0deg) scale(1); }
+    30% { transform: rotate(-10deg) scale(1.12); }
+    60% { transform: rotate(8deg) scale(1.06); }
+    100% { transform: rotate(0deg) scale(1); }
+  `,
+  credit: keyframes`
+    0% { transform: translateX(0) scale(1); }
+    25% { transform: translateX(-4px) scale(1.08); }
+    50% { transform: translateX(4px) scale(1.08); }
+    75% { transform: translateX(-2px) scale(1.04); }
+    100% { transform: translateX(0) scale(1); }
+  `,
+  ai: keyframes`
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.15) rotate(-12deg); }
+    50% { transform: scale(1.1) rotate(12deg); }
+    75% { transform: scale(1.05) rotate(-6deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  `,
+  account: keyframes`
+    0% { transform: scale(1); }
+    40% { transform: scale(1.14) translateY(-3px); }
+    70% { transform: scale(0.94); }
+    100% { transform: scale(1); }
+  `,
+} satisfies Record<TabId, ReturnType<typeof keyframes>>;
+
+const NAV_ANIM_MS = 0.42;
+const NAV_ANIM_EASE = "cubic-bezier(0.34, 1.25, 0.64, 1)";
+
 function DashboardContent() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut } = useClerk();
   const activeTab = TABS.find((t) => location.pathname === t.path)?.id ?? "home";
+
+  /** Increment on each tap so the icon remounts and the keyframes replay (including re-tapping the active tab). */
+  const [iconPulse, setIconPulse] = useState<Partial<Record<TabId, number>>>({});
+  const bumpNavIcon = useCallback((tabId: TabId) => {
+    setIconPulse((prev) => ({ ...prev, [tabId]: (prev[tabId] ?? 0) + 1 }));
+  }, []);
 
   const bottomPad = "calc(72px + env(safe-area-inset-bottom, 0px))";
 
@@ -51,7 +97,6 @@ function DashboardContent() {
             mx: "auto",
             minHeight: 56,
             px: 2,
-            gap: 1.5,
           }}
         >
           <Box
@@ -68,6 +113,7 @@ function DashboardContent() {
               component="img"
               src={bufferLogoTransparent}
               alt="Buffer"
+              decoding="async"
               sx={{
                 display: "block",
                 height: 32,
@@ -78,14 +124,6 @@ function DashboardContent() {
               }}
             />
           </Box>
-          <Button
-            size="small"
-            color="inherit"
-            onClick={() => void signOut().then(() => navigate("/onboarding", { replace: true }))}
-            sx={{ color: "text.secondary", fontSize: 12, flexShrink: 0 }}
-          >
-            Sign out
-          </Button>
         </Toolbar>
       </AppBar>
 
@@ -144,14 +182,36 @@ function DashboardContent() {
             },
           }}
         >
-          {TABS.map(({ id, label, Icon }) => (
-            <BottomNavigationAction
-              key={id}
-              value={id}
-              label={label}
-              icon={<Icon size={22} strokeWidth={1.75} aria-hidden />}
-            />
-          ))}
+          {TABS.map(({ id, label, Icon }) => {
+            const pulse = iconPulse[id] ?? 0;
+            const kf = navAnim[id];
+            return (
+              <BottomNavigationAction
+                key={id}
+                value={id}
+                label={label}
+                onClick={() => bumpNavIcon(id)}
+                icon={
+                  <Box
+                    key={pulse}
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transformOrigin: "center center",
+                      willChange: pulse > 0 ? "transform" : undefined,
+                      animation:
+                        pulse > 0
+                          ? `${kf} ${NAV_ANIM_MS}s ${NAV_ANIM_EASE} both`
+                          : "none",
+                    }}
+                  >
+                    <Icon size={22} strokeWidth={1.75} aria-hidden />
+                  </Box>
+                }
+              />
+            );
+          })}
         </BottomNavigation>
       </Paper>
     </Box>
