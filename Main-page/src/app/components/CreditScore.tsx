@@ -2,7 +2,7 @@ import imgQR from "@/assets/IMG_1226.webp";
 
 export function CreditScore() {
   return (
-    <section className="py-10 bg-white">
+    <section className="py-6 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
 
         {/* ── MOBILE: one unified card ── */}

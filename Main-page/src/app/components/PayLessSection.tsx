@@ -6,7 +6,7 @@ const banks = [
 
 export function PayLessSection() {
   return (
-    <section className="py-10 bg-white">
+    <section className="pt-8 pb-6 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
         {/* Mobile: single unified card wrapping both visual and text */}
         <div

@@ -27,10 +27,7 @@ export function Footer() {
             </p>
             
             <div className="pt-4 space-y-1">
-              <p>Buffer</p>
               <p>1155 Pender St, Vancouver, BC, Canada.</p>
-              <p>(877) 909-1559</p>
-              <p className="pt-2">NMLS ID: 2654599</p>
               <p>Copyright 2025. All rights reserved.</p>
             </div>
           </div>

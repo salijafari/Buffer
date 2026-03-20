@@ -21,7 +21,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-10 bg-white">
+    <section id="how-it-works" className="py-6 bg-white">
       <div className="container mx-auto max-w-7xl px-5">
         <div
           className="flex flex-col md:flex-row overflow-hidden rounded-[32px]"
