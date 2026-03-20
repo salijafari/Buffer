@@ -19,6 +19,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import bufferLogoTransparent from "@/assets/Buffer Logo Transparent.png";
 import { MaterialShell } from "../material/MaterialShell";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -116,29 +117,31 @@ function OnboardingFlowContent() {
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default", display: "flex", flexDirection: "column" }}>
       <Box component="header" sx={{ px: 2, pt: 3, pb: 2, maxWidth: 512, mx: "auto", width: "100%" }}>
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+        <Box
+          sx={{
+            height: 32,
+            minWidth: 0,
+            maxWidth: "min(220px, 70vw)",
+            display: "flex",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
           <Box
+            component="img"
+            src={bufferLogoTransparent}
+            alt="Buffer"
+            decoding="async"
             sx={{
-              width: 32,
+              display: "block",
               height: 32,
-              borderRadius: 2,
-              bgcolor: "primary.main",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
+              width: "auto",
+              maxWidth: "100%",
+              objectFit: "contain",
+              objectPosition: "left center",
             }}
-            aria-hidden
-          >
-            <svg width="18" height="18" viewBox="0 0 28 28" fill="none">
-              <path d="M6 22C6 22 10 6 14 6C18 6 22 22 22 22" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M9 16H19" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-            </svg>
-          </Box>
-          <Typography variant="body2" fontWeight={600} color="text.primary">
-            Buffer
-          </Typography>
-        </Stack>
+          />
+        </Box>
 
         <LinearProgress
           variant="determinate"
