@@ -46,7 +46,13 @@ export default function Onboarding() {
             mode="modal" keeps Clerk on-page; after sign-in, useEffect navigates forward.
           */}
           <SignUpButton mode="modal">
-            <Button fullWidth variant="contained" color="primary" size="large" sx={{ py: 1.5, bgcolor: "grey.900", "&:hover": { bgcolor: "grey.800" } }}>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ py: 1.5, bgcolor: "grey.900", color: "#FFFFFF", "&:hover": { bgcolor: "grey.800" } }}
+            >
               Create account
             </Button>
           </SignUpButton>
