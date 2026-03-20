@@ -1,6 +1,6 @@
 export function Partners() {
   return (
-    <section className="py-10 bg-white border-y border-gray-100">
+    <section className="py-6 bg-white border-y border-gray-100">
       <div className="container mx-auto max-w-7xl px-5">
         <div className="flex flex-wrap items-center justify-center md:justify-between gap-10 opacity-40">
 
