@@ -107,7 +107,7 @@ export function Hero() {
             </svg>
 
             <h1 className="text-[36px] md:text-[44px] lg:text-[52px] font-bold leading-[0.95] tracking-[-0.03em]">
-              Debt That Pays<br />Itself Down
+              Cut your Credit Card Interest to 14% Today
             </h1>
 
             <p className="text-[15px] md:text-[18px] text-black leading-[1.5] md:leading-[30px] max-w-[445px]">
