@@ -1,4 +1,14 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  TextField,
+  Typography,
+  Avatar,
+} from "@mui/material";
 import { DebtFreeChart } from "../charts/DebtFreeChart";
 import { FINANCE } from "../../lib/finance";
 import type { TimelineOutput, CardData, SimulationResult } from "../../types/timeline";
@@ -81,11 +91,14 @@ export function PayoffScreen() {
   const [transferAmountErr, setTransferAmountErr] = useState("");
 
   const totalDebt = MOCK_CARDS.reduce((s, c) => s + c.balance, 0);
-  const handlePaymentChange = useCallback((payment: number) => {
-    setAdjustedPayment(payment);
-    const newF3 = calcFuture3Only(totalDebt, FINANCE.BUFFER_APR_DEFAULT, payment);
-    setTimeline((prev) => ({ ...prev, future3: newF3 }));
-  }, [totalDebt]);
+  const handlePaymentChange = useCallback(
+    (payment: number) => {
+      setAdjustedPayment(payment);
+      const newF3 = calcFuture3Only(totalDebt, FINANCE.BUFFER_APR_DEFAULT, payment);
+      setTimeline((prev) => ({ ...prev, future3: newF3 }));
+    },
+    [totalDebt],
+  );
 
   function handleTransferSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -104,68 +117,107 @@ export function PayoffScreen() {
   }
 
   return (
-    <div className="flex flex-col gap-5 px-4 py-5 max-w-2xl mx-auto w-full pb-24 lg:pb-6">
-      <div>
-        <h1 className="text-[#0F172A] text-2xl font-bold">Payoff Planner</h1>
-        <p className="text-[#475569] text-sm mt-1">Accelerate your path to debt freedom</p>
-      </div>
+    <Stack spacing={2.5} sx={{ px: 2, py: 2.5, maxWidth: 672, mx: "auto", width: "100%" }}>
+      <Box>
+        <Typography variant="h5" fontWeight={700} color="text.primary">
+          Payoff Planner
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Accelerate your path to debt freedom
+        </Typography>
+      </Box>
 
-      <section className="bg-white rounded-2xl p-5">
-        <DebtFreeChart
-          future1={timeline.future1}
-          future2={timeline.future2}
-          future3={timeline.future3}
-          adjustedPayment={adjustedPayment}
-          onPaymentChange={handlePaymentChange}
-          sliderMin={210}
-          sliderMax={1400}
-          sliderStep={10}
-          sliderDefault={timeline.recommendedPayment}
-        />
-      </section>
-
-      <section className="bg-white rounded-2xl p-5">
-        <h2 className="text-[#475569] text-sm font-medium mb-3">Make a Payment</h2>
-        <form onSubmit={handleTransferSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            {MOCK_CARDS.map((card) => (
-              <button
-                key={card.id}
-                type="button"
-                onClick={() => setSelectedCard((prev) => (prev?.id === card.id ? null : card))}
-                className={["flex items-center gap-3 p-3 rounded-xl border text-left", selectedCard?.id === card.id ? "border-[#00C9A7] bg-[#00C9A7]/10" : "border-[#E2E8F0]"].join(" ")}
-              >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ backgroundColor: card.color ?? "#94A3B8" }}>
-                  {card.institution.slice(0, 2)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[#0F172A] text-sm truncate">{card.name}</p>
-                  <p className="text-[#64748B] text-xs font-mono">••••{card.last4} · {fmtCurrency(card.balance)} balance</p>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <input
-            type="number"
-            inputMode="decimal"
-            min="10"
-            step="0.01"
-            value={transferAmount}
-            onChange={(e) => {
-              setTransferAmount(e.target.value);
-              setTransferAmountErr("");
-            }}
-            placeholder="Payment amount"
-            className={["w-full bg-[#F8FAFC] text-[#0F172A] text-sm font-mono rounded-xl px-4 py-3 border", transferAmountErr ? "border-red-500" : "border-[#E2E8F0]"].join(" ")}
+      <Card variant="outlined">
+        <CardContent sx={{ p: { xs: 2, sm: 2.5 }, "&:last-child": { pb: { xs: 2, sm: 2.5 } } }}>
+          <DebtFreeChart
+            future1={timeline.future1}
+            future2={timeline.future2}
+            future3={timeline.future3}
+            adjustedPayment={adjustedPayment}
+            onPaymentChange={handlePaymentChange}
+            sliderMin={210}
+            sliderMax={1400}
+            sliderStep={10}
+            sliderDefault={timeline.recommendedPayment}
           />
-          {transferAmountErr && <p className="text-red-400 text-xs">{transferAmountErr}</p>}
+        </CardContent>
+      </Card>
 
-          <button type="submit" disabled={!selectedCard} className="w-full bg-[#00C9A7] text-[#0F1117] font-semibold text-sm rounded-xl py-3.5 disabled:opacity-40">
-            {selectedCard ? `Pay ${selectedCard.name}` : "Select a card"}
-          </button>
-        </form>
-      </section>
-    </div>
+      <Card variant="outlined">
+        <CardContent sx={{ p: { xs: 2, sm: 2.5 }, "&:last-child": { pb: { xs: 2, sm: 2.5 } } }}>
+          <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
+            Make a Payment
+          </Typography>
+          <Box component="form" onSubmit={handleTransferSubmit} sx={{ mt: 2 }}>
+            <Stack spacing={2}>
+              <Stack spacing={1}>
+                {MOCK_CARDS.map((card) => {
+                  const sel = selectedCard?.id === card.id;
+                  return (
+                    <Button
+                      key={card.id}
+                      type="button"
+                      fullWidth
+                      onClick={() => setSelectedCard((prev) => (prev?.id === card.id ? null : card))}
+                      variant={sel ? "contained" : "outlined"}
+                      color={sel ? "primary" : "inherit"}
+                      sx={{
+                        justifyContent: "flex-start",
+                        textAlign: "left",
+                        py: 1.5,
+                        px: 1.5,
+                        borderColor: "divider",
+                        ...(sel ? {} : { bgcolor: "background.paper", color: "text.primary" }),
+                      }}
+                    >
+                      <Avatar
+                        variant="rounded"
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          mr: 1.5,
+                          bgcolor: card.color ?? "#94A3B8",
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {card.institution.slice(0, 2)}
+                      </Avatar>
+                      <Box sx={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+                        <Typography variant="body2" fontWeight={600} noWrap>
+                          {card.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" fontFamily="ui-monospace, monospace" display="block">
+                          ••••{card.last4} · {fmtCurrency(card.balance)} balance
+                        </Typography>
+                      </Box>
+                    </Button>
+                  );
+                })}
+              </Stack>
+
+              <TextField
+                type="number"
+                inputProps={{ inputMode: "decimal", min: 10, step: "0.01" }}
+                value={transferAmount}
+                onChange={(e) => {
+                  setTransferAmount(e.target.value);
+                  setTransferAmountErr("");
+                }}
+                placeholder="Payment amount"
+                error={Boolean(transferAmountErr)}
+                helperText={transferAmountErr || undefined}
+                fullWidth
+                size="small"
+              />
+
+              <Button type="submit" variant="contained" color="primary" size="large" fullWidth disabled={!selectedCard}>
+                {selectedCard ? `Pay ${selectedCard.name}` : "Select a card"}
+              </Button>
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
+    </Stack>
   );
 }

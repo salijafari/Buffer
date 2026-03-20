@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Card, CardContent, Stack, Typography, Box } from "@mui/material";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { CreditScore } from "../../types/timeline";
 
 const MOCK_SCORE: CreditScore = {
@@ -21,32 +22,48 @@ const MOCK_SCORE: CreditScore = {
 export function CreditScreen() {
   const [score] = useState<CreditScore>(MOCK_SCORE);
   return (
-    <div className="flex flex-col gap-4 px-4 py-5 max-w-2xl mx-auto w-full pb-24 lg:pb-6">
-      <div>
-        <h1 className="text-[#0F172A] text-2xl font-bold">Credit</h1>
-        <p className="text-[#475569] text-sm mt-1">Track and grow your credit score</p>
-      </div>
+    <Stack spacing={2} sx={{ px: 2, py: 2.5, maxWidth: 672, mx: "auto", width: "100%" }}>
+      <Box>
+        <Typography variant="h5" fontWeight={700}>
+          Credit
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Track and grow your credit score
+        </Typography>
+      </Box>
 
-      <section className="bg-white rounded-2xl p-5">
-        <p className="text-[#64748B] text-xs mb-1">Current score</p>
-        <p className="text-4xl font-bold font-mono text-[#F59E0B]">{score.score}</p>
-        <p className="text-[#64748B] text-xs mt-1">via {score.bureau}</p>
-      </section>
+      <Card variant="outlined">
+        <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
+          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+            Current score
+          </Typography>
+          <Typography variant="h3" fontWeight={700} fontFamily="ui-monospace, monospace" sx={{ color: "#F59E0B" }}>
+            {score.score}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+            via {score.bureau}
+          </Typography>
+        </CardContent>
+      </Card>
 
-      <section className="bg-white rounded-2xl p-5">
-        <h2 className="text-[#475569] text-sm font-medium mb-4">6-Month Score Trend</h2>
-        <div className="h-36">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={score.history} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
-              <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 10 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fill: "#64748B", fontSize: 10 }} tickLine={false} axisLine={false} domain={["dataMin - 20", "dataMax + 20"]} />
-              <Tooltip />
-              <Line type="monotone" dataKey="score" stroke="#00C9A7" strokeWidth={2.5} dot={{ fill: "#00C9A7", r: 3 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-    </div>
+      <Card variant="outlined">
+        <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
+          <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
+            6-Month Score Trend
+          </Typography>
+          <Box sx={{ height: 144, mt: 2 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={score.history} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 10 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: "#64748B", fontSize: 10 }} tickLine={false} axisLine={false} domain={["dataMin - 20", "dataMax + 20"]} />
+                <Tooltip />
+                <Line type="monotone" dataKey="score" stroke="#00C9A7" strokeWidth={2.5} dot={{ fill: "#00C9A7", r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </Box>
+        </CardContent>
+      </Card>
+    </Stack>
   );
 }
