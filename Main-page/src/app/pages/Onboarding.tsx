@@ -4,20 +4,37 @@ import { SignInButton, SignUpButton, useAuth, useUser } from "@clerk/react";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import imgLogo from "@/assets/buffer-logo.png";
 import { MaterialShell } from "../material/MaterialShell";
+import { bootstrapOnboardingFromDb, ONBOARDING_GATE_TIMEOUT_MS } from "../lib/onboardingStatus";
 
 export default function Onboarding() {
   const navigate = useNavigate();
 
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded, getToken } = useAuth();
   const { user, isLoaded: userLoaded } = useUser();
 
   useEffect(() => {
     if (!isLoaded || !userLoaded) return;
     if (!isSignedIn || !user) return;
 
-    const completed = user.unsafeMetadata?.onboarding_completed === true;
-    navigate(completed ? "/dashboard" : "/onboarding/flow", { replace: true });
-  }, [isLoaded, userLoaded, isSignedIn, user, navigate]);
+    const ac = new AbortController();
+    const timeoutId = setTimeout(() => ac.abort(), ONBOARDING_GATE_TIMEOUT_MS);
+
+    bootstrapOnboardingFromDb(getToken, ac.signal)
+      .then((result) => {
+        navigate(result.onboarding_completed ? "/dashboard" : "/onboarding/flow", { replace: true });
+      })
+      .catch(() => {
+        navigate("/onboarding/flow", { replace: true });
+      })
+      .finally(() => {
+        clearTimeout(timeoutId);
+      });
+
+    return () => {
+      ac.abort();
+      clearTimeout(timeoutId);
+    };
+  }, [isLoaded, userLoaded, isSignedIn, user, navigate, getToken]);
 
   return (
     <MaterialShell>
