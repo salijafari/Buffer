@@ -12,6 +12,7 @@ import {
   generatePkcePair,
   buildAuthorizeUrl,
   exchangeAuthorizationCode,
+  fetchAuth0UserInfo,
   buildLogoutUrl,
   resolveLogoutReturnTo,
 } from "./oauth.mjs";
@@ -106,26 +107,49 @@ export function registerBffAuthRoutes(app, deps = {}) {
         return res.redirect(302, "/onboarding?error=state");
       }
       try {
-        const tokens = await exchangeAuthorizationCode({
-          domain: cfg.domain,
-          clientId: cfg.clientId,
-          clientSecret: cfg.clientSecret,
-          code,
-          redirectUri: cfg.callbackUrl,
-          codeVerifier: pending.codeVerifier,
-        });
+        let tokens;
+        try {
+          tokens = await exchangeAuthorizationCode({
+            domain: cfg.domain,
+            clientId: cfg.clientId,
+            clientSecret: cfg.clientSecret,
+            code,
+            redirectUri: cfg.callbackUrl,
+            codeVerifier: pending.codeVerifier,
+          });
+        } catch (e) {
+          console.error("[bff] /oauth/token exchange failed:", e?.message ?? e);
+          return res.redirect(302, "/onboarding?error=exchange");
+        }
         if (!tokens.id_token) {
-          throw new Error("missing id_token");
+          console.error("[bff] token response missing id_token");
+          return res.redirect(302, "/onboarding?error=no_id_token");
         }
         const issuer = issuerFromDomain(cfg.domain);
-        const idPayload = await verifyIdToken(tokens.id_token, issuer, cfg.clientId);
+        let idPayload;
+        try {
+          idPayload = await verifyIdToken(tokens.id_token, issuer, cfg.clientId);
+        } catch (e) {
+          console.error("[bff] id_token verify failed:", e?.message ?? e);
+          return res.redirect(302, "/onboarding?error=verify");
+        }
+        let picture = typeof idPayload.picture === "string" ? idPayload.picture : null;
+        if (!picture && typeof tokens.access_token === "string") {
+          try {
+            const ui = await fetchAuth0UserInfo({ domain: cfg.domain, accessToken: tokens.access_token });
+            if (typeof ui.picture === "string") picture = ui.picture;
+          } catch (e) {
+            console.warn("[bff] optional userinfo fetch failed:", e?.message ?? e);
+          }
+        }
+
         const csrfToken = newCsrfToken();
         const expiresAt = Date.now() + (Number(tokens.expires_in) || 3600) * 1000;
         const sessionId = createSessionRecord({
           sub: idPayload.sub,
           email: typeof idPayload.email === "string" ? idPayload.email : null,
           name: typeof idPayload.name === "string" ? idPayload.name : null,
-          picture: typeof idPayload.picture === "string" ? idPayload.picture : null,
+          picture,
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token ?? null,
           accessTokenExpiresAt: expiresAt,
@@ -150,7 +174,7 @@ export function registerBffAuthRoutes(app, deps = {}) {
 
         return res.redirect(302, redirectPath);
       } catch (e) {
-        console.error("[bff] callback exchange failed:", e?.message ?? e);
+        console.error("[bff] callback unexpected:", e?.message ?? e);
         return res.redirect(302, "/onboarding?error=exchange");
       }
     });

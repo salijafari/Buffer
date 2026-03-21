@@ -24,9 +24,12 @@ model UserOnboardingProfile {
   annualPreTaxIncome  Int?     @map("annual_pre_tax_income")
   heardAboutUs        String?  @map("heard_about_us")
   heardAboutUsOther   String?  @map("heard_about_us_other")
+  /** Soft-delete: user removed from Auth0; row retained for records/analytics. */
+  accountDeletedAt    DateTime? @map("account_deleted_at")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
+  @@index([accountDeletedAt])
   @@index([onboardingCompleted, onboardingStep])
   @@index([provinceCode])
   @@index([heardAboutUs])

@@ -15,6 +15,7 @@ Protected JSON APIs (session cookie + refresh on the server):
 - `GET /api/onboarding-profile` — read-only, CSRF not required  
 - `PUT /api/onboarding-profile` — CSRF  
 - `POST /api/onboarding/complete` — CSRF  
+- `POST /api/account/delete` — CSRF — soft-deletes the row in Postgres (`account_deleted_at`), **deletes the user in Auth0** via Management API, then clears the BFF session. Requires **Auth0 Management API** credentials (see below).
 
 There is **no** separate `/api/auth/refresh` route: refresh runs inside `requireBffSession` when the access token is near expiry.
 
@@ -43,10 +44,37 @@ There is **no** separate `/api/auth/refresh` route: refresh runs inside `require
 4. Enable **Refresh Token** rotation in API settings if you use `offline_access` (already requested).  
 5. Optional: create an **API** and set `AUTH0_AUDIENCE` to its identifier for API-scoped access tokens.
 
+## Account deletion (`POST /api/account/delete`)
+
+1. **Database:** sets `account_deleted_at` on `user_onboarding_profiles` (row **kept** for records).  
+2. **Auth0:** calls Management API `DELETE /api/v2/users/{sub}` so the user can no longer sign in with that identity.  
+3. **Session:** BFF cookies cleared.
+
+Create a **Machine to Machine** application in Auth0 → **Auth0 Management API** → authorize **`delete:users`** (and `read:users` is optional). Use its Client ID and secret:
+
+**Required Auth0 settings for the M2M app**
+
+- Application type must be **Machine to Machine** (not “Regular Web Application”).
+- Under **Application → Settings → Advanced Settings → Grant Types**, ensure **Client Credentials** is enabled. If you see `Grant type 'client_credentials' not allowed for the client`, turn this on (or recreate the app as M2M).
+
+**Local check:** from `Main-page`, run `npm run verify:auth0-mgmt` — it only requests a Management API token (no user is deleted). Success means credentials work.
+
+- **`AUTH0_MGMT_CLIENT_ID`** / **`AUTH0_MGMT_CLIENT_SECRET`** — recommended.  
+- If omitted, the server falls back to **`AUTH0_CLIENT_ID`** / **`AUTH0_CLIENT_SECRET`** only if that application is allowed to obtain a Management API token (uncommon for “Regular Web” apps; prefer a dedicated M2M app).
+
+The Management API token uses `audience=https://<host>/api/v2/` where **host** is **`AUTH0_MGMT_DOMAIN`** if set (recommended when login uses a custom domain like `auth.example.com`), otherwise **`AUTH0_DOMAIN`**.
+
+### Smoke test (dev / opt-in prod)
+
+`GET /api/admin/test-m2m` — exchanges M2M credentials and calls Management API `GET /users?per_page=5`. Responds with **HTTP 200** and JSON: `{ status: "success", count, sample_users, domain_used, audience }` or `{ status: "error", error, details, hint? }` (200 avoids generic browser “502” pages that hide the JSON). **Disabled in production** unless `ALLOW_ADMIN_TEST_M2M=true`.
+
 ## Environment variables
 
 - `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_CALLBACK_URL`  
 - Optional: `AUTH0_AUDIENCE`  
+- Optional (Management API host): `AUTH0_MGMT_DOMAIN` — canonical `*.auth0.com` tenant if `AUTH0_DOMAIN` is a custom domain  
+- Optional (account delete): `AUTH0_MGMT_CLIENT_ID`, `AUTH0_MGMT_CLIENT_SECRET`  
+- Optional: `ALLOW_ADMIN_TEST_M2M=true` — enables `GET /api/admin/test-m2m` in production  
 - `DATABASE_URL` / `DIRECT_URL` for Prisma  
 
 ## Security checklist
@@ -64,3 +92,14 @@ There is **no** separate `/api/auth/refresh` route: refresh runs inside `require
 ## Dev
 
 Run API and Vite together: `npm run dev:api` (port 3000) and `npm run dev` (5173, proxies `/api`).
+
+## Troubleshooting: `/onboarding?error=exchange`
+
+That means **POST `https://<AUTH0_DOMAIN>/oauth/token`** failed after Auth0 redirected back with `?code=`. Common fixes:
+
+1. **`AUTH0_CALLBACK_URL`** must match **exactly** one **Allowed Callback URL** in Auth0 (including `http` vs `https`, `localhost:5173`, path `/api/auth/callback`, no trailing slash mismatch).
+2. **`AUTH0_CLIENT_SECRET`** must match the Auth0 application (no extra quotes/spaces in `.env`).
+3. **`AUTH0_DOMAIN`** must be your tenant / custom domain (e.g. `auth.mybuffer.ca`) — same app as **Client ID**.
+4. Read the API log line **`[bff] /oauth/token exchange failed:`** — Auth0’s JSON error explains `invalid_grant`, `redirect_uri` mismatch, etc.
+
+If you see **`?error=verify`**, the ID token failed JWKS verification — usually **wrong `AUTH0_DOMAIN`** vs issuer, or wrong **Client ID** audience.
