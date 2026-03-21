@@ -67,7 +67,7 @@ export function bffLoginUrl(options?: { returnTo?: string; screenHint?: "signup"
  * Prefer setting AUTH0_LOGOUT_RETURN_URL on the API (canonical URL for Auth0 Allowed Logout URLs).
  */
 /**
- * Soft-delete profile in DB, delete Auth0 user, clear session. Requires CSRF cookie + header.
+ * Removes profile row from DB, deletes Auth0 user (Management API), clears session. Requires CSRF cookie + header.
  * @see docs/BFF_AUTH.md — Auth0 Management API (delete:users) must be configured.
  */
 export async function deleteBffAccount(): Promise<
@@ -86,9 +86,6 @@ export async function deleteBffAccount(): Promise<
   }
   if (res.ok && data.ok) {
     return { ok: true, redirect: typeof data.redirect === "string" ? data.redirect : "/" };
-  }
-  if (res.status === 410 && typeof data.redirect === "string") {
-    return { ok: true, redirect: data.redirect };
   }
   return {
     ok: false,

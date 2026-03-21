@@ -134,7 +134,7 @@ function ProfileSection({
         Danger zone
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        Deleting your account removes your ability to sign in with Auth0. Your app history stays in our database as a deleted record for compliance and support.
+        Deleting your account removes your profile from our database and deletes your Auth0 user. Signing up again with the same email starts fresh.
       </Typography>
       <Button
         variant="outlined"
@@ -163,10 +163,10 @@ function ProfileSection({
           <DialogContentText component="div">
             <Stack spacing={1.5}>
               <Typography variant="body2" component="p">
-                This will <strong>permanently delete your Auth0 user</strong>. You won&apos;t be able to sign in with this account again.
+                This will <strong>remove your profile from our database</strong> and <strong>permanently delete your Auth0 user</strong>. You won&apos;t be able to sign in with this identity again.
               </Typography>
               <Typography variant="body2" component="p">
-                We will <strong>keep your database record</strong> and mark it as deleted (we do not remove historical rows).
+                If you sign up again with the same email, you&apos;ll be treated as a <strong>new user</strong> with a new onboarding profile.
               </Typography>
               <Typography variant="body2" component="p" color="text.secondary">
                 This action cannot be undone from the app. If you&apos;re sure, click Delete below.

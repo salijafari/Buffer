@@ -63,7 +63,7 @@ async function fetchAuth0UserInfo(issuer, accessToken) {
 
 /**
  * Ensures a `UserOnboardingProfile` row exists (Auth0 `sub` stored in `clerk_user_id` column).
- * Reactivates soft-deleted rows when the same user signs in again (same `sub`, or new `sub` with same email).
+ * After account deletion the row is removed; the same email signing up again gets a **new** Auth0 `sub` and a **new** row.
  */
 async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
   const info = await fetchAuth0UserInfo(issuer, accessToken);
@@ -76,48 +76,19 @@ async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
     lastName = parts.length > 1 ? parts.slice(1).join(" ") : null;
   }
 
-  const existingBySub = await prisma.userOnboardingProfile.findUnique({
+  const existing = await prisma.userOnboardingProfile.findUnique({
     where: { clerkUserId: authSubject },
   });
-
-  // After account delete + new Auth0 signup, `sub` may change but email matches — re-link one unambiguous soft-deleted row.
-  if (!existingBySub && email?.trim()) {
-    const deletedWithEmail = await prisma.userOnboardingProfile.findMany({
-      where: {
-        email: { equals: email.trim(), mode: "insensitive" },
-        accountDeletedAt: { not: null },
-      },
-      take: 2,
-    });
-    if (deletedWithEmail.length === 1) {
-      return prisma.userOnboardingProfile.update({
-        where: { id: deletedWithEmail[0].id },
-        data: {
-          clerkUserId: authSubject,
-          accountDeletedAt: null,
-          email,
-          firstName,
-          lastName,
-        },
-      });
-    }
-  }
+  if (existing) return existing;
 
   try {
-    return await prisma.userOnboardingProfile.upsert({
-      where: { clerkUserId: authSubject },
-      create: {
+    return await prisma.userOnboardingProfile.create({
+      data: {
         clerkUserId: authSubject,
         email,
         firstName,
         lastName,
         onboardingCompleted: false,
-      },
-      update: {
-        accountDeletedAt: null,
-        email,
-        firstName,
-        lastName,
       },
     });
   } catch (e) {
@@ -250,13 +221,6 @@ app.put("/api/onboarding-profile", ...requireSessionWithCsrf, async (req, res) =
   const body = req.body ?? {};
   const onboardingStep = Number(body.onboarding_step ?? 1);
 
-  const existingRow = await prisma.userOnboardingProfile.findUnique({
-    where: { clerkUserId: req.auth.userId },
-  });
-  if (existingRow?.accountDeletedAt) {
-    return res.status(403).json({ error: "Account deleted." });
-  }
-
   const next = await prisma.userOnboardingProfile.upsert({
     where: { clerkUserId: req.auth.userId },
     update: {
@@ -289,7 +253,7 @@ app.put("/api/onboarding-profile", ...requireSessionWithCsrf, async (req, res) =
 });
 
 /**
- * Soft-delete DB row (keep records), delete Auth0 user, clear BFF session.
+ * Deletes the Auth0 user (Management API), removes the onboarding profile row, clears BFF session.
  * Requires Auth0 Management API (M2M) with delete:users — see docs/BFF_AUTH.md.
  */
 app.post("/api/account/delete", ...requireSessionWithCsrf, async (req, res) => {
@@ -297,44 +261,23 @@ app.post("/api/account/delete", ...requireSessionWithCsrf, async (req, res) => {
   const sid = req.bffSessionId;
 
   try {
-    const row = await prisma.userOnboardingProfile.findUnique({
+    await prisma.userOnboardingProfile.deleteMany({
       where: { clerkUserId: authSubject },
     });
-    if (row?.accountDeletedAt) {
-      deleteSessionRecord(sid);
-      res.clearCookie(SESSION_COOKIE, { ...cookieOptions(), maxAge: 0 });
-      res.clearCookie(CSRF_COOKIE, { ...csrfCookieOptions(), maxAge: 0 });
-      return res.status(410).json({ error: "Account already deleted.", redirect: "/" });
-    }
   } catch (e) {
-    console.error("[account/delete] profile lookup failed:", e);
-    return res.status(500).json(prismaErrorPayload(e, "Could not verify account."));
-  }
-
-  try {
-    await prisma.userOnboardingProfile.updateMany({
-      where: { clerkUserId: authSubject, accountDeletedAt: null },
-      data: { accountDeletedAt: new Date() },
-    });
-  } catch (e) {
-    console.error("[account/delete] DB soft-delete failed:", e);
-    return res.status(500).json(prismaErrorPayload(e, "Could not update account."));
+    console.error("[account/delete] DB delete failed:", e);
+    return res.status(500).json(prismaErrorPayload(e, "Could not remove profile from database."));
   }
 
   try {
     await deleteAuth0UserBySub(authSubject);
   } catch (e) {
     console.error("[account/delete] Auth0 delete failed:", e?.message ?? e);
-    try {
-      await prisma.userOnboardingProfile.updateMany({
-        where: { clerkUserId: authSubject },
-        data: { accountDeletedAt: null },
-      });
-    } catch (rollbackErr) {
-      console.error("[account/delete] rollback failed:", rollbackErr);
-    }
+    deleteSessionRecord(sid);
+    res.clearCookie(SESSION_COOKIE, { ...cookieOptions(), maxAge: 0 });
+    res.clearCookie(CSRF_COOKIE, { ...csrfCookieOptions(), maxAge: 0 });
     return res.status(502).json({
-      error: "Could not delete your Auth0 account.",
+      error: "Profile was removed but Auth0 could not delete the user. Sign in again; a new profile will be created.",
       hint: String(e?.message ?? e).slice(0, 400),
     });
   }
@@ -348,13 +291,6 @@ app.post("/api/account/delete", ...requireSessionWithCsrf, async (req, res) => {
 app.post("/api/onboarding/complete", ...requireSessionWithCsrf, async (req, res) => {
   const userId = req.auth.userId;
   try {
-    const existingRow = await prisma.userOnboardingProfile.findUnique({
-      where: { clerkUserId: userId },
-    });
-    if (existingRow?.accountDeletedAt) {
-      return res.status(403).json({ error: "Account deleted." });
-    }
-
     await prisma.userOnboardingProfile.upsert({
       where: { clerkUserId: userId },
       update: { onboardingCompleted: true },
