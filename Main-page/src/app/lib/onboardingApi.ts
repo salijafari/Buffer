@@ -1,4 +1,5 @@
 import type { AcquisitionSource, InterestSelection, UserOnboardingProfile } from "./onboardingProfile";
+import { bffAuthHeadersForMutation } from "@/lib/bffSession";
 
 /** Step saves only — completion is POST /api/onboarding/complete */
 export type OnboardingProfilePatch = {
@@ -35,15 +36,13 @@ function linkAbortSignals(controller: AbortController, outer?: AbortSignal): () 
   };
 }
 
-export async function fetchOnboardingProfile(token: string, signal?: AbortSignal): Promise<UserOnboardingProfile | null> {
+export async function fetchOnboardingProfile(signal?: AbortSignal): Promise<UserOnboardingProfile | null> {
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller, signal);
   try {
     const response = await fetch("/api/onboarding-profile", {
       signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      credentials: "include",
     });
     if (response.status === 404) {
       return null;
@@ -58,17 +57,15 @@ export async function fetchOnboardingProfile(token: string, signal?: AbortSignal
   }
 }
 
-export async function postSyncUser(token: string, signal?: AbortSignal): Promise<{ userId: string; onboarding_completed: boolean }> {
+export async function postSyncUser(signal?: AbortSignal): Promise<{ userId: string; onboarding_completed: boolean }> {
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller, signal);
   try {
     const response = await fetch("/api/auth/sync-user", {
       method: "POST",
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      credentials: "include",
+      headers: bffAuthHeadersForMutation(),
     });
     if (!response.ok) {
       throw new Error(`Request failed with ${response.status}`);
@@ -79,17 +76,15 @@ export async function postSyncUser(token: string, signal?: AbortSignal): Promise
   }
 }
 
-export async function postOnboardingComplete(token: string, signal?: AbortSignal): Promise<{ success: boolean; message: string }> {
+export async function postOnboardingComplete(signal?: AbortSignal): Promise<{ success: boolean; message: string }> {
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller, signal);
   try {
     const response = await fetch("/api/onboarding/complete", {
       method: "POST",
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      credentials: "include",
+      headers: bffAuthHeadersForMutation(),
     });
     if (!response.ok) {
       throw new Error(`Request failed with ${response.status}`);
@@ -100,17 +95,15 @@ export async function postOnboardingComplete(token: string, signal?: AbortSignal
   }
 }
 
-export async function saveOnboardingProfile(token: string, payload: OnboardingProfilePatch): Promise<UserOnboardingProfile> {
+export async function saveOnboardingProfile(payload: OnboardingProfilePatch): Promise<UserOnboardingProfile> {
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller);
   try {
     const response = await fetch("/api/onboarding-profile", {
       method: "PUT",
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      credentials: "include",
+      headers: bffAuthHeadersForMutation(),
       body: JSON.stringify(payload),
     });
     if (!response.ok) {

@@ -1,10 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
-import { verifyToken, createClerkClient } from "@clerk/backend";
+import { registerBffAuthRoutes } from "./bff/registerAuth.mjs";
+import { requireBffSession, requireBffCsrf } from "./bff/sessionAuth.mjs";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -13,14 +15,71 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, "../dist");
 
-function getClerkBackend() {
-  const secretKey = process.env.CLERK_SECRET_KEY;
-  if (!secretKey) return null;
-  return createClerkClient({ secretKey });
+app.use(cookieParser());
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json());
+
+registerBffAuthRoutes(app);
+
+const requireSession = requireBffSession;
+const requireSessionWithCsrf = [requireBffSession, requireBffCsrf];
+
+async function fetchAuth0UserInfo(issuer, accessToken) {
+  if (!accessToken) return {};
+  try {
+    const hostname = new URL(issuer).hostname;
+    const res = await fetch(`https://${hostname}/userinfo`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!res.ok) return {};
+    return await res.json();
+  } catch (e) {
+    console.error("[userinfo]", e?.message ?? e);
+    return {};
+  }
 }
 
-app.use(cors());
-app.use(express.json());
+/**
+ * Ensures a `UserOnboardingProfile` row exists (Auth0 `sub` stored in `clerk_user_id` column).
+ */
+async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
+  const existing = await prisma.userOnboardingProfile.findUnique({
+    where: { clerkUserId: authSubject },
+  });
+  if (existing) return existing;
+
+  let email = null;
+  let firstName = null;
+  let lastName = null;
+
+  const info = await fetchAuth0UserInfo(issuer, accessToken);
+  email = typeof info.email === "string" ? info.email : null;
+  firstName = typeof info.given_name === "string" ? info.given_name : null;
+  lastName = typeof info.family_name === "string" ? info.family_name : null;
+  if (!firstName && !lastName && typeof info.name === "string") {
+    const parts = info.name.trim().split(/\s+/);
+    firstName = parts[0] || null;
+    lastName = parts.length > 1 ? parts.slice(1).join(" ") : null;
+  }
+
+  try {
+    return await prisma.userOnboardingProfile.create({
+      data: {
+        clerkUserId: authSubject,
+        email,
+        firstName,
+        lastName,
+        onboardingCompleted: false,
+      },
+    });
+  } catch (e) {
+    if (e?.code === "P2002") {
+      const again = await prisma.userOnboardingProfile.findUnique({ where: { clerkUserId: authSubject } });
+      if (again) return again;
+    }
+    throw e;
+  }
+}
 
 function sanitizeProfile(profile) {
   if (!profile) return null;
@@ -45,79 +104,28 @@ function sanitizeProfile(profile) {
   };
 }
 
-async function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-  const secretKey = process.env.CLERK_SECRET_KEY;
-
-  if (!token) return res.status(401).json({ error: "Missing bearer token." });
-  if (!secretKey) return res.status(500).json({ error: "Missing CLERK_SECRET_KEY." });
-
+app.get("/api/health", async (_req, res) => {
   try {
-    const payload = await verifyToken(token, { secretKey });
-    if (!payload?.sub) {
-      return res.status(401).json({ error: "Invalid token payload." });
-    }
-    req.auth = { userId: payload.sub };
-    return next();
-  } catch {
-    return res.status(401).json({ error: "Unauthorized." });
+    await prisma.$queryRaw`SELECT 1`;
+    return res.json({ ok: true, database: "connected" });
+  } catch (e) {
+    console.error("[health] database check failed:", e?.message ?? e);
+    return res.status(503).json({
+      ok: false,
+      database: "error",
+      hint: "Check DATABASE_URL / DIRECT_URL in Main-page/.env and that migrations were applied (npx prisma migrate dev).",
+    });
   }
-}
-
-app.get("/api/health", (_req, res) => {
-  res.json({ ok: true });
 });
 
-/** Ensures a DB row exists; fills identity from Clerk on create only. */
-app.post("/api/auth/sync-user", requireAuth, async (req, res) => {
-  const clerkUserId = req.auth.userId;
+app.post("/api/auth/sync-user", ...requireSessionWithCsrf, async (req, res) => {
+  const userId = req.auth.userId;
 
   try {
-    const existing = await prisma.userOnboardingProfile.findUnique({
-      where: { clerkUserId },
-    });
-
-    if (existing) {
-      return res.json({
-        userId: existing.id,
-        onboarding_completed: existing.onboardingCompleted,
-      });
-    }
-
-    let email = null;
-    let firstName = null;
-    let lastName = null;
-
-    const clerk = getClerkBackend();
-    if (clerk) {
-      try {
-        const cu = await clerk.users.getUser(clerkUserId);
-        const primaryEmail =
-          cu.emailAddresses?.find((e) => e.id === cu.primaryEmailAddressId)?.emailAddress ??
-          cu.emailAddresses?.[0]?.emailAddress ??
-          null;
-        email = primaryEmail;
-        firstName = cu.firstName ?? null;
-        lastName = cu.lastName ?? null;
-      } catch (e) {
-        console.error("[sync-user] Clerk users.getUser failed:", e?.message ?? e);
-      }
-    }
-
-    const created = await prisma.userOnboardingProfile.create({
-      data: {
-        clerkUserId,
-        email,
-        firstName,
-        lastName,
-        onboardingCompleted: false,
-      },
-    });
-
+    const profile = await ensureUserOnboardingProfile(userId, req.auth.issuer, req.auth.accessToken);
     return res.json({
-      userId: created.id,
-      onboarding_completed: created.onboardingCompleted,
+      userId: profile.id,
+      onboarding_completed: profile.onboardingCompleted,
     });
   } catch (e) {
     console.error("[sync-user]", e);
@@ -125,18 +133,17 @@ app.post("/api/auth/sync-user", requireAuth, async (req, res) => {
   }
 });
 
-app.get("/api/onboarding-profile", requireAuth, async (req, res) => {
-  const profile = await prisma.userOnboardingProfile.findUnique({
-    where: { clerkUserId: req.auth.userId },
-  });
-  if (!profile) {
-    return res.status(404).json({ error: "Profile not found." });
+app.get("/api/onboarding-profile", requireSession, async (req, res) => {
+  try {
+    const profile = await ensureUserOnboardingProfile(req.auth.userId, req.auth.issuer, req.auth.accessToken);
+    return res.json({ profile: sanitizeProfile(profile) });
+  } catch (e) {
+    console.error("[onboarding-profile GET]", e);
+    return res.status(500).json({ error: "Failed to load profile." });
   }
-  return res.json({ profile: sanitizeProfile(profile) });
 });
 
-/** Step saves — never sets onboardingCompleted from the client; use POST /api/onboarding/complete for that. */
-app.put("/api/onboarding-profile", requireAuth, async (req, res) => {
+app.put("/api/onboarding-profile", ...requireSessionWithCsrf, async (req, res) => {
   const body = req.body ?? {};
   const onboardingStep = Number(body.onboarding_step ?? 1);
 
@@ -171,14 +178,14 @@ app.put("/api/onboarding-profile", requireAuth, async (req, res) => {
   res.json({ profile: sanitizeProfile(next) });
 });
 
-app.post("/api/onboarding/complete", requireAuth, async (req, res) => {
-  const clerkUserId = req.auth.userId;
+app.post("/api/onboarding/complete", ...requireSessionWithCsrf, async (req, res) => {
+  const userId = req.auth.userId;
   try {
     await prisma.userOnboardingProfile.upsert({
-      where: { clerkUserId },
+      where: { clerkUserId: userId },
       update: { onboardingCompleted: true },
       create: {
-        clerkUserId,
+        clerkUserId: userId,
         onboardingCompleted: true,
       },
     });

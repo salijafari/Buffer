@@ -1,25 +1,24 @@
 import { useEffect } from "react";
-import { Link, useNavigate } from "react-router";
-import { SignInButton, SignUpButton, useAuth, useUser } from "@clerk/react";
+import { useNavigate } from "react-router";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import imgLogo from "@/assets/buffer-logo.png";
 import { MaterialShell } from "../material/MaterialShell";
 import { bootstrapOnboardingFromDb, ONBOARDING_GATE_TIMEOUT_MS } from "../lib/onboardingStatus";
+import { useBffAuth } from "@/lib/BffAuthContext";
+import { bffLoginUrl } from "@/lib/bffSession";
 
 export default function Onboarding() {
   const navigate = useNavigate();
-
-  const { isSignedIn, isLoaded, getToken } = useAuth();
-  const { user, isLoaded: userLoaded } = useUser();
+  const { state } = useBffAuth();
+  const userId = state.status === "auth" ? state.user.sub : null;
 
   useEffect(() => {
-    if (!isLoaded || !userLoaded) return;
-    if (!isSignedIn || !user) return;
+    if (state.status === "loading" || state.status === "anon" || !userId) return;
 
     const ac = new AbortController();
     const timeoutId = setTimeout(() => ac.abort(), ONBOARDING_GATE_TIMEOUT_MS);
 
-    bootstrapOnboardingFromDb(getToken, ac.signal)
+    bootstrapOnboardingFromDb(ac.signal)
       .then((result) => {
         navigate(result.onboarding_completed ? "/dashboard" : "/onboarding/flow", { replace: true });
       })
@@ -34,7 +33,9 @@ export default function Onboarding() {
       ac.abort();
       clearTimeout(timeoutId);
     };
-  }, [isLoaded, userLoaded, isSignedIn, user, navigate, getToken]);
+  }, [state.status, userId, navigate]);
+
+  const loading = state.status === "loading";
 
   return (
     <MaterialShell>
@@ -59,31 +60,38 @@ export default function Onboarding() {
         </Typography>
 
         <Stack spacing={1.5} sx={{ width: "100%", maxWidth: 340 }}>
-          {/*
-            mode="modal" keeps Clerk on-page; after sign-in, useEffect navigates forward.
-          */}
-          <SignUpButton mode="modal">
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ py: 1.5, bgcolor: "grey.900", color: "#FFFFFF", "&:hover": { bgcolor: "grey.800" } }}
-            >
-              Create account
-            </Button>
-          </SignUpButton>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            size="large"
+            disabled={loading}
+            sx={{ py: 1.5, bgcolor: "grey.900", color: "#FFFFFF", "&:hover": { bgcolor: "grey.800" } }}
+            onClick={() => {
+              window.location.href = bffLoginUrl({ returnTo: "/onboarding", screenHint: "signup" });
+            }}
+          >
+            Create account
+          </Button>
 
-          <SignInButton mode="modal">
-            <Button fullWidth variant="outlined" color="inherit" size="large" sx={{ py: 1.5, borderColor: "grey.900", color: "grey.900" }}>
-              Sign in
-            </Button>
-          </SignInButton>
+          <Button
+            fullWidth
+            variant="outlined"
+            color="inherit"
+            size="large"
+            disabled={loading}
+            sx={{ py: 1.5, borderColor: "grey.900", color: "grey.900" }}
+            onClick={() => {
+              window.location.href = bffLoginUrl({ returnTo: "/onboarding" });
+            }}
+          >
+            Sign in
+          </Button>
         </Stack>
 
         <Typography
-          component={Link}
-          to="/"
+          component="a"
+          href="/"
           variant="body2"
           sx={{ mt: 4, color: "text.disabled", textDecoration: "none", "&:hover": { color: "text.secondary" } }}
         >
