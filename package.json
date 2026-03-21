@@ -6,6 +6,8 @@
     "dev:api": "npm --prefix \"Main-page\" run dev:api",
     "build": "npm --prefix \"Main-page\" run build",
     "prisma:migrate": "npm --prefix \"Main-page\" run prisma:migrate",
-    "prisma:generate": "npm --prefix \"Main-page\" run prisma:generate"
+    "prisma:generate": "npm --prefix \"Main-page\" run prisma:generate",
+    "prisma:deploy": "npm --prefix \"Main-page\" run prisma:deploy",
+    "prisma:studio": "npm --prefix \"Main-page\" run prisma:studio"
   }
 }
