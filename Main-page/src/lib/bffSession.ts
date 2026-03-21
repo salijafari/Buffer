@@ -66,6 +66,37 @@ export function bffLoginUrl(options?: { returnTo?: string; screenHint?: "signup"
  * Optional `returnTo` is only used if the server has no AUTH0_LOGOUT_RETURN_URL / callback origin.
  * Prefer setting AUTH0_LOGOUT_RETURN_URL on the API (canonical URL for Auth0 Allowed Logout URLs).
  */
+/**
+ * Soft-delete profile in DB, delete Auth0 user, clear session. Requires CSRF cookie + header.
+ * @see docs/BFF_AUTH.md — Auth0 Management API (delete:users) must be configured.
+ */
+export async function deleteBffAccount(): Promise<
+  { ok: true; redirect: string } | { ok: false; error: string; hint?: string }
+> {
+  const res = await fetch("/api/account/delete", {
+    method: "POST",
+    credentials: "include",
+    headers: bffAuthHeadersForMutation(),
+  });
+  let data: { ok?: boolean; redirect?: string; error?: string; hint?: string } = {};
+  try {
+    data = (await res.json()) as typeof data;
+  } catch {
+    /* ignore */
+  }
+  if (res.ok && data.ok) {
+    return { ok: true, redirect: typeof data.redirect === "string" ? data.redirect : "/" };
+  }
+  if (res.status === 410 && typeof data.redirect === "string") {
+    return { ok: true, redirect: data.redirect };
+  }
+  return {
+    ok: false,
+    error: data.error ?? `Request failed (${res.status})`,
+    hint: typeof data.hint === "string" ? data.hint : undefined,
+  };
+}
+
 export async function bffLogout(returnTo?: string | null): Promise<void> {
   const csrf = getBffCsrfTokenFromDocument();
   const res = await fetch("/api/auth/logout", {

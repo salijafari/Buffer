@@ -6,7 +6,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
 import { registerBffAuthRoutes } from "./bff/registerAuth.mjs";
-import { requireBffSession, requireBffCsrf } from "./bff/sessionAuth.mjs";
+import { deleteAuth0UserBySub, runM2mAdminSmokeTest } from "./bff/auth0Management.mjs";
+import { deleteSessionRecord } from "./bff/store.mjs";
+import { requireBffSession, requireBffCsrf, cookieOptions, csrfCookieOptions } from "./bff/sessionAuth.mjs";
 
 /**
  * Load env from `Main-page/.env` (path is next to `server/`, not CWD).
@@ -41,6 +43,19 @@ app.use(express.json());
 const requireSession = requireBffSession;
 const requireSessionWithCsrf = [requireBffSession, requireBffCsrf];
 
+const SESSION_COOKIE = "bff_sid";
+const CSRF_COOKIE = "bff_csrf";
+
+function accountDeletedError() {
+  const e = new Error("Account deleted.");
+  e.code = "ACCOUNT_DELETED";
+  return e;
+}
+
+function isAccountDeletedError(e) {
+  return e && e.code === "ACCOUNT_DELETED";
+}
+
 async function fetchAuth0UserInfo(issuer, accessToken) {
   if (!accessToken) return {};
   try {
@@ -63,6 +78,9 @@ async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
   const existing = await prisma.userOnboardingProfile.findUnique({
     where: { clerkUserId: authSubject },
   });
+  if (existing?.accountDeletedAt) {
+    throw accountDeletedError();
+  }
   if (existing) return existing;
 
   let email = null;
@@ -165,6 +183,27 @@ app.get("/api/health", async (_req, res) => {
 });
 
 /**
+ * M2M smoke test: client_credentials → Management API GET /users (no auth cookie).
+ * Disabled in production unless ALLOW_ADMIN_TEST_M2M=true (e.g. Railway debugging).
+ */
+app.get("/api/admin/test-m2m", async (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_ADMIN_TEST_M2M !== "true") {
+    return res.status(404).json({
+      status: "error",
+      error: "Not available",
+      details: "Set ALLOW_ADMIN_TEST_M2M=true on the server to enable in production.",
+    });
+  }
+  const result = await runM2mAdminSmokeTest();
+  // Always 200 so the browser shows JSON (502 often hides the body behind a generic error page).
+  if (result.status === "error") {
+    console.error("[test-m2m]", result.error, result.details?.slice?.(0, 500) ?? result.details);
+  }
+  return res.status(200).json(result);
+});
+
+/**
  * Idempotent "ensure user row exists" — GET so the onboarding bootstrap does not need CSRF
  * (session cookie + SameSite already constrain cross-site POST abuse).
  */
@@ -179,6 +218,9 @@ app.get("/api/auth/sync-user", requireSession, async (req, res) => {
       onboarding_completed: profile.onboardingCompleted,
     });
   } catch (e) {
+    if (isAccountDeletedError(e)) {
+      return res.status(403).json({ error: "Account deleted." });
+    }
     console.error("[sync-user]", e);
     return res.status(500).json(prismaErrorPayload(e, "Sync failed."));
   }
@@ -189,6 +231,9 @@ app.get("/api/onboarding-profile", requireSession, async (req, res) => {
     const profile = await ensureUserOnboardingProfile(req.auth.userId, req.auth.issuer, req.auth.accessToken);
     return res.json({ profile: sanitizeProfile(profile) });
   } catch (e) {
+    if (isAccountDeletedError(e)) {
+      return res.status(403).json({ error: "Account deleted." });
+    }
     console.error("[onboarding-profile GET]", e);
     return res.status(500).json(prismaErrorPayload(e, "Failed to load profile."));
   }
@@ -197,6 +242,13 @@ app.get("/api/onboarding-profile", requireSession, async (req, res) => {
 app.put("/api/onboarding-profile", ...requireSessionWithCsrf, async (req, res) => {
   const body = req.body ?? {};
   const onboardingStep = Number(body.onboarding_step ?? 1);
+
+  const existingRow = await prisma.userOnboardingProfile.findUnique({
+    where: { clerkUserId: req.auth.userId },
+  });
+  if (existingRow?.accountDeletedAt) {
+    return res.status(403).json({ error: "Account deleted." });
+  }
 
   const next = await prisma.userOnboardingProfile.upsert({
     where: { clerkUserId: req.auth.userId },
@@ -229,9 +281,73 @@ app.put("/api/onboarding-profile", ...requireSessionWithCsrf, async (req, res) =
   res.json({ profile: sanitizeProfile(next) });
 });
 
+/**
+ * Soft-delete DB row (keep records), delete Auth0 user, clear BFF session.
+ * Requires Auth0 Management API (M2M) with delete:users — see docs/BFF_AUTH.md.
+ */
+app.post("/api/account/delete", ...requireSessionWithCsrf, async (req, res) => {
+  const authSubject = req.auth.userId;
+  const sid = req.bffSessionId;
+
+  try {
+    const row = await prisma.userOnboardingProfile.findUnique({
+      where: { clerkUserId: authSubject },
+    });
+    if (row?.accountDeletedAt) {
+      deleteSessionRecord(sid);
+      res.clearCookie(SESSION_COOKIE, { ...cookieOptions(), maxAge: 0 });
+      res.clearCookie(CSRF_COOKIE, { ...csrfCookieOptions(), maxAge: 0 });
+      return res.status(410).json({ error: "Account already deleted.", redirect: "/" });
+    }
+  } catch (e) {
+    console.error("[account/delete] profile lookup failed:", e);
+    return res.status(500).json(prismaErrorPayload(e, "Could not verify account."));
+  }
+
+  try {
+    await prisma.userOnboardingProfile.updateMany({
+      where: { clerkUserId: authSubject, accountDeletedAt: null },
+      data: { accountDeletedAt: new Date() },
+    });
+  } catch (e) {
+    console.error("[account/delete] DB soft-delete failed:", e);
+    return res.status(500).json(prismaErrorPayload(e, "Could not update account."));
+  }
+
+  try {
+    await deleteAuth0UserBySub(authSubject);
+  } catch (e) {
+    console.error("[account/delete] Auth0 delete failed:", e?.message ?? e);
+    try {
+      await prisma.userOnboardingProfile.updateMany({
+        where: { clerkUserId: authSubject },
+        data: { accountDeletedAt: null },
+      });
+    } catch (rollbackErr) {
+      console.error("[account/delete] rollback failed:", rollbackErr);
+    }
+    return res.status(502).json({
+      error: "Could not delete your Auth0 account.",
+      hint: String(e?.message ?? e).slice(0, 400),
+    });
+  }
+
+  deleteSessionRecord(sid);
+  res.clearCookie(SESSION_COOKIE, { ...cookieOptions(), maxAge: 0 });
+  res.clearCookie(CSRF_COOKIE, { ...csrfCookieOptions(), maxAge: 0 });
+  return res.json({ ok: true, redirect: "/" });
+});
+
 app.post("/api/onboarding/complete", ...requireSessionWithCsrf, async (req, res) => {
   const userId = req.auth.userId;
   try {
+    const existingRow = await prisma.userOnboardingProfile.findUnique({
+      where: { clerkUserId: userId },
+    });
+    if (existingRow?.accountDeletedAt) {
+      return res.status(403).json({ error: "Account deleted." });
+    }
+
     await prisma.userOnboardingProfile.upsert({
       where: { clerkUserId: userId },
       update: { onboardingCompleted: true },

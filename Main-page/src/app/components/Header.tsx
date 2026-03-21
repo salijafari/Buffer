@@ -46,7 +46,7 @@ export function Header() {
           ) : (
             <div className="flex items-center gap-2">
               {user?.picture ? (
-                <img src={user.picture} alt="" className="h-9 w-9 rounded-full object-cover" />
+                <img src={user.picture} alt="" className="h-9 w-9 rounded-full object-cover" referrerPolicy="no-referrer" />
               ) : null}
               <button
                 type="button"

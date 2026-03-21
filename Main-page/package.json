@@ -15,7 +15,8 @@
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema prisma/schema.prisma",
     "prisma:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
-    "prisma:studio": "prisma studio --schema prisma/schema.prisma"
+    "prisma:studio": "prisma studio --schema prisma/schema.prisma",
+    "verify:auth0-mgmt": "node scripts/verifyAuth0Mgmt.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

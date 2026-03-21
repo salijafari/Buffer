@@ -28,7 +28,10 @@ import { AiScreen, AI_SUGGESTED_PROMPTS } from "../dashboard/components/ai/AiScr
 import { CreditScreen, CreditGraduationRail } from "../dashboard/components/credit/CreditScreen";
 import { AccountScreen } from "../dashboard/components/account/AccountScreen";
 import bufferLogoTransparent from "@/assets/Buffer Logo Transparent.png";
+import { useBffAuth } from "@/lib/BffAuthContext";
+import type { BffUser } from "@/lib/bffSession";
 import { MaterialShell } from "../material/MaterialShell";
+import { BffUserAvatar } from "../dashboard/components/BffUserAvatar";
 import { DebtFreeSavingsCallout } from "../dashboard/components/charts/DebtFreeChart";
 
 const SIDEBAR_BG = "#FFFFFF";
@@ -79,7 +82,17 @@ const navAnim = {
 const NAV_ANIM_MS = 0.42;
 const NAV_ANIM_EASE = "cubic-bezier(0.34, 1.25, 0.64, 1)";
 
-function DesktopTopBar({ title, onProfileClick }: { title: string; onProfileClick: () => void }) {
+function DesktopTopBar({
+  title,
+  onProfileClick,
+  user,
+  loading,
+}: {
+  title: string;
+  onProfileClick: () => void;
+  user: BffUser | null;
+  loading: boolean;
+}) {
   return (
     <Stack
       direction="row"
@@ -103,8 +116,14 @@ function DesktopTopBar({ title, onProfileClick }: { title: string; onProfileClic
             <Bell size={22} strokeWidth={1.75} />
           </Badge>
         </IconButton>
-        <IconButton onClick={onProfileClick} aria-label="Open account">
-          <Avatar sx={{ width: 36, height: 36, bgcolor: "primary.main", color: "primary.contrastText", fontWeight: 700 }}>A</Avatar>
+        <IconButton onClick={onProfileClick} aria-label="Open account" disabled={loading}>
+          {loading ? (
+            <Avatar sx={{ width: 36, height: 36, bgcolor: "action.hover" }} />
+          ) : user ? (
+            <BffUserAvatar picture={user.picture} name={user.name} email={user.email} size={36} />
+          ) : (
+            <BffUserAvatar picture={null} name={null} email={null} size={36} />
+          )}
         </IconButton>
       </Stack>
     </Stack>
@@ -116,6 +135,9 @@ function DashboardContent() {
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const navigate = useNavigate();
   const location = useLocation();
+  const { state: bffState } = useBffAuth();
+  const bffUser = bffState.status === "auth" ? bffState.user : null;
+  const bffLoading = bffState.status === "loading";
   const activeTab = TABS.find((t) => location.pathname === t.path)?.id ?? "home";
   const isAccountPage = location.pathname === "/dashboard/account";
 
@@ -251,7 +273,12 @@ function DashboardContent() {
               minHeight: { lg: "100%" },
             }}
           >
-            <DesktopTopBar title={pageTitle} onProfileClick={() => void navigate("/dashboard/account")} />
+            <DesktopTopBar
+              title={pageTitle}
+              onProfileClick={() => void navigate("/dashboard/account")}
+              user={bffUser}
+              loading={bffLoading}
+            />
             <Box sx={{ flex: { lg: activeTab === "ai" ? 1 : "none" }, minHeight: { lg: activeTab === "ai" ? 0 : "auto" }, display: "flex", flexDirection: "column" }}>
               {isAccountPage ? (
                 <AccountScreen />
@@ -426,8 +453,15 @@ function DashboardContent() {
             aria-label="Open account"
             edge="end"
             sx={{ flexShrink: 0, ml: "auto" }}
+            disabled={bffLoading}
           >
-            <Avatar sx={{ width: 34, height: 34, bgcolor: "primary.main", color: "primary.contrastText", fontWeight: 700 }}>A</Avatar>
+            {bffLoading ? (
+              <Avatar sx={{ width: 34, height: 34, bgcolor: "action.hover" }} />
+            ) : bffUser ? (
+              <BffUserAvatar picture={bffUser.picture} name={bffUser.name} email={bffUser.email} size={34} />
+            ) : (
+              <BffUserAvatar picture={null} name={null} email={null} size={34} />
+            )}
           </IconButton>
         </Toolbar>
       </AppBar>

@@ -12,6 +12,7 @@ import {
   generatePkcePair,
   buildAuthorizeUrl,
   exchangeAuthorizationCode,
+  fetchAuth0UserInfo,
   buildLogoutUrl,
   resolveLogoutReturnTo,
 } from "./oauth.mjs";
@@ -132,13 +133,23 @@ export function registerBffAuthRoutes(app, deps = {}) {
           console.error("[bff] id_token verify failed:", e?.message ?? e);
           return res.redirect(302, "/onboarding?error=verify");
         }
+        let picture = typeof idPayload.picture === "string" ? idPayload.picture : null;
+        if (!picture && typeof tokens.access_token === "string") {
+          try {
+            const ui = await fetchAuth0UserInfo({ domain: cfg.domain, accessToken: tokens.access_token });
+            if (typeof ui.picture === "string") picture = ui.picture;
+          } catch (e) {
+            console.warn("[bff] optional userinfo fetch failed:", e?.message ?? e);
+          }
+        }
+
         const csrfToken = newCsrfToken();
         const expiresAt = Date.now() + (Number(tokens.expires_in) || 3600) * 1000;
         const sessionId = createSessionRecord({
           sub: idPayload.sub,
           email: typeof idPayload.email === "string" ? idPayload.email : null,
           name: typeof idPayload.name === "string" ? idPayload.name : null,
-          picture: typeof idPayload.picture === "string" ? idPayload.picture : null,
+          picture,
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token ?? null,
           accessTokenExpiresAt: expiresAt,

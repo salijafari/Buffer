@@ -46,6 +46,20 @@ export function buildAuthorizeUrl({ domain, clientId, redirectUri, state, codeCh
   return u.toString();
 }
 
+/**
+ * OIDC UserInfo — useful when `picture` is not present on the ID token but exists for the user.
+ */
+export async function fetchAuth0UserInfo({ domain, accessToken }) {
+  const res = await fetch(`https://${domain}/userinfo`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`userinfo ${res.status}: ${t.slice(0, 300)}`);
+  }
+  return res.json();
+}
+
 export async function exchangeAuthorizationCode({ domain, clientId, clientSecret, code, redirectUri, codeVerifier }) {
   const res = await fetch(`https://${domain}/oauth/token`, {
     method: "POST",
