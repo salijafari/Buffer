@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "@clerk/react";
 import {
   Box,
   Button,
@@ -112,7 +111,6 @@ export type OnboardingFlowProps = {
 
 function OnboardingFlowContent({ profile, onRetryBootstrap, onCompletedNavigate }: OnboardingFlowProps) {
   const navigate = useNavigate();
-  const { getToken } = useAuth();
 
   const [step, setStep] = useState<StepId>(() => (profile ? mapStep(profile.onboarding_step || 1) : 1));
   const [draft, setDraft] = useState<OnboardingDraft>(() => (profile ? draftFromProfile(profile) : DEFAULT_DRAFT));
@@ -173,10 +171,7 @@ function OnboardingFlowContent({ profile, onRetryBootstrap, onCompletedNavigate 
       heard_about_us_other: draft.heard_about_us === "other" ? draft.heard_about_us_other.trim() : "",
     };
 
-    const token = await getToken();
-    if (!token) throw new Error("Missing auth token");
-
-    await saveOnboardingProfile(token, payload);
+    await saveOnboardingProfile(payload);
   }
 
   async function onNext() {
@@ -199,9 +194,7 @@ function OnboardingFlowContent({ profile, onRetryBootstrap, onCompletedNavigate 
         setStep(nextStep);
       } else {
         await persist(5);
-        const token = await getToken();
-        if (!token) throw new Error("Missing auth token");
-        await postOnboardingComplete(token);
+        await postOnboardingComplete();
         onCompletedNavigate?.();
         navigate("/dashboard", { replace: true });
       }
@@ -223,10 +216,38 @@ function OnboardingFlowContent({ profile, onRetryBootstrap, onCompletedNavigate 
       <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", bgcolor: "#F3F4F6", px: 2 }}>
         <Paper elevation={0} sx={{ p: 3, maxWidth: 480, borderRadius: 3 }}>
           <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
-            Profile not found
+            Can&apos;t load your profile
           </Typography>
           <Typography sx={{ color: "text.secondary", mb: 2 }}>
-            We couldn&apos;t load your onboarding profile from the server. Check that the API is running, then try again.
+            This usually means the backend isn&apos;t reachable, your BFF session cookie is missing, CSRF failed, or Auth0 env is wrong. Run{" "}
+            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
+              npm run dev:api
+            </Box>{" "}
+            (port 3000) alongside Vite, set{" "}
+            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
+              AUTH0_DOMAIN
+            </Box>
+            ,{" "}
+            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
+              AUTH0_CLIENT_SECRET
+            </Box>
+            , and{" "}
+            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
+              AUTH0_CALLBACK_URL
+            </Box>{" "}
+            on the API, and run{" "}
+            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
+              npx prisma migrate dev
+            </Box>{" "}
+            (or{" "}
+            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
+              db push
+            </Box>
+            ) so the database has the{" "}
+            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
+              user_onboarding_profiles
+            </Box>{" "}
+            table.
           </Typography>
           <Button variant="contained" onClick={onRetryBootstrap} sx={{ textTransform: "none" }}>
             Retry

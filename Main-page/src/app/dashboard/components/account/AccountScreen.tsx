@@ -16,7 +16,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useClerk } from "@clerk/react";
+import { bffLogout } from "@/lib/bffSession";
 import { ChevronLeft } from "lucide-react";
 
 type Section = "main" | "profile" | "notifications" | "security" | "subscription" | "support";
@@ -211,7 +211,6 @@ export function AccountScreen() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const [section, setSection] = useState<Section>("main");
-  const { signOut } = useClerk();
 
   const goMain = () => setSection("main");
 
@@ -249,7 +248,13 @@ export function AccountScreen() {
           ))}
         </List>
 
-        <Button variant="outlined" color="error" fullWidth sx={{ py: 1.5 }} onClick={() => void signOut()}>
+        <Button
+          variant="outlined"
+          color="error"
+          fullWidth
+          sx={{ py: 1.5 }}
+          onClick={() => void bffLogout(window.location.origin)}
+        >
           Sign Out
         </Button>
       </Stack>
@@ -304,7 +309,13 @@ export function AccountScreen() {
               </Box>
             ))}
           </List>
-          <Button variant="outlined" color="error" fullWidth sx={{ py: 1.25 }} onClick={() => void signOut()}>
+          <Button
+            variant="outlined"
+            color="error"
+            fullWidth
+            sx={{ py: 1.25 }}
+            onClick={() => void bffLogout(window.location.origin)}
+          >
             Sign Out
           </Button>
         </Stack>
