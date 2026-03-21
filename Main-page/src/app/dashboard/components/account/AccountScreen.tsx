@@ -265,7 +265,7 @@ function SupportSection({ onBack, showBack = true }: { onBack: () => void; showB
 }
 
 const wrap = (node: ReactNode) => (
-  <Box sx={{ px: 2, py: 2.5, maxWidth: 672, mx: "auto", width: "100%" }}>
+  <Box sx={{ px: 2, py: 2.5, maxWidth: { xs: "100%", sm: 672 }, mx: "auto", width: "100%", minWidth: 0, boxSizing: "border-box" }}>
     {node}
   </Box>
 );
@@ -314,7 +314,7 @@ export function AccountScreen() {
     if (section === "support") return wrap(<SupportSection onBack={goMain} />);
 
     return (
-      <Stack spacing={2.5} sx={{ px: 2, py: 2.5, maxWidth: 672, mx: "auto", width: "100%" }}>
+      <Stack spacing={2.5} sx={{ px: 2, py: 2.5, maxWidth: { xs: "100%", sm: 672 }, mx: "auto", width: "100%", minWidth: 0, boxSizing: "border-box" }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <BffUserAvatar picture={identity.picture} name={identity.displayName} email={identity.email} size={56} />
           <Box sx={{ minWidth: 0 }}>
@@ -361,8 +361,10 @@ export function AccountScreen() {
         px: { lg: 0 },
         py: { lg: 0 },
         width: "100%",
+        minWidth: 0,
         maxWidth: { lg: "none" },
         alignItems: "flex-start",
+        boxSizing: "border-box",
       }}
     >
       <Box
