@@ -57,18 +57,20 @@ export async function fetchOnboardingProfile(signal?: AbortSignal): Promise<User
   }
 }
 
-export async function postSyncUser(signal?: AbortSignal): Promise<{ userId: string; onboarding_completed: boolean }> {
+/** GET — no CSRF (see server); session cookie only. */
+export async function fetchSyncUser(signal?: AbortSignal): Promise<{ userId: string; onboarding_completed: boolean }> {
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller, signal);
   try {
     const response = await fetch("/api/auth/sync-user", {
-      method: "POST",
+      method: "GET",
       signal: controller.signal,
       credentials: "include",
-      headers: bffAuthHeadersForMutation(),
+      headers: { Accept: "application/json" },
     });
     if (!response.ok) {
-      throw new Error(`Request failed with ${response.status}`);
+      const errBody = await response.text().catch(() => "");
+      throw new Error(`sync-user failed (${response.status}): ${errBody.slice(0, 200)}`);
     }
     return response.json() as Promise<{ userId: string; onboarding_completed: boolean }>;
   } finally {
