@@ -11,7 +11,7 @@
 
 Protected JSON APIs (session cookie + refresh on the server):
 
-- `GET /api/auth/sync-user` — idempotent DB sync (**no CSRF**; bootstrap uses this right after login)  
+- `GET /api/auth/sync-user` — idempotent DB sync (**no CSRF**; bootstrap uses this right after login). **Reactivates** soft-deleted profiles (`account_deleted_at` cleared) when the user signs in again — same Auth0 `sub` via `upsert`, or **new** `sub` with the **same email** when exactly one soft-deleted row matches (re-links `clerk_user_id`).  
 - `GET /api/onboarding-profile` — read-only, CSRF not required  
 - `PUT /api/onboarding-profile` — CSRF  
 - `POST /api/onboarding/complete` — CSRF  
@@ -49,6 +49,8 @@ There is **no** separate `/api/auth/refresh` route: refresh runs inside `require
 1. **Database:** sets `account_deleted_at` on `user_onboarding_profiles` (row **kept** for records).  
 2. **Auth0:** calls Management API `DELETE /api/v2/users/{sub}` so the user can no longer sign in with that identity.  
 3. **Session:** BFF cookies cleared.
+
+**Re-registering after delete:** If the user signs up again, Auth0 may issue a **new** `sub`. `ensureUserOnboardingProfile` (callback + `sync-user`) clears `account_deleted_at` for the matching `clerk_user_id`, or updates the single soft-deleted row with that **email** to the new `sub`. Onboarding fields are preserved unless you change them in product logic.
 
 Create a **Machine to Machine** application in Auth0 → **Auth0 Management API** → authorize **`delete:users`** (and `read:users` is optional). Use its Client ID and secret:
 
