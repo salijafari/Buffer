@@ -69,8 +69,20 @@ export async function fetchSyncUser(signal?: AbortSignal): Promise<{ userId: str
       headers: { Accept: "application/json" },
     });
     if (!response.ok) {
-      const errBody = await response.text().catch(() => "");
-      throw new Error(`sync-user failed (${response.status}): ${errBody.slice(0, 200)}`);
+      const raw = await response.text().catch(() => "");
+      let detail = raw.slice(0, 500);
+      try {
+        const j = JSON.parse(raw) as {
+          error?: string;
+          hint?: string;
+          prismaCode?: string;
+          detail?: string;
+        };
+        detail = [j.error, j.prismaCode && `code=${j.prismaCode}`, j.hint, j.detail].filter(Boolean).join(" — ");
+      } catch {
+        /* keep raw */
+      }
+      throw new Error(`sync-user failed (${response.status}): ${detail || "unknown"}`);
     }
     return response.json() as Promise<{ userId: string; onboarding_completed: boolean }>;
   } finally {

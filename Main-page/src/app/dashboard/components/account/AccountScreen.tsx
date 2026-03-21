@@ -253,7 +253,7 @@ export function AccountScreen() {
           color="error"
           fullWidth
           sx={{ py: 1.5 }}
-          onClick={() => void bffLogout(window.location.origin)}
+          onClick={() => void bffLogout()}
         >
           Sign Out
         </Button>
@@ -314,7 +314,7 @@ export function AccountScreen() {
             color="error"
             fullWidth
             sx={{ py: 1.25 }}
-            onClick={() => void bffLogout(window.location.origin)}
+            onClick={() => void bffLogout()}
           >
             Sign Out
           </Button>

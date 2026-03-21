@@ -11,8 +11,10 @@
     "dev": "vite --port 5173 --strictPort",
     "dev:api": "node server/index.mjs",
     "start": "node server/index.mjs",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
