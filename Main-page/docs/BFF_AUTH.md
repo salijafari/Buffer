@@ -64,3 +64,14 @@ There is **no** separate `/api/auth/refresh` route: refresh runs inside `require
 ## Dev
 
 Run API and Vite together: `npm run dev:api` (port 3000) and `npm run dev` (5173, proxies `/api`).
+
+## Troubleshooting: `/onboarding?error=exchange`
+
+That means **POST `https://<AUTH0_DOMAIN>/oauth/token`** failed after Auth0 redirected back with `?code=`. Common fixes:
+
+1. **`AUTH0_CALLBACK_URL`** must match **exactly** one **Allowed Callback URL** in Auth0 (including `http` vs `https`, `localhost:5173`, path `/api/auth/callback`, no trailing slash mismatch).
+2. **`AUTH0_CLIENT_SECRET`** must match the Auth0 application (no extra quotes/spaces in `.env`).
+3. **`AUTH0_DOMAIN`** must be your tenant / custom domain (e.g. `auth.mybuffer.ca`) — same app as **Client ID**.
+4. Read the API log line **`[bff] /oauth/token exchange failed:`** — Auth0’s JSON error explains `invalid_grant`, `redirect_uri` mismatch, etc.
+
+If you see **`?error=verify`**, the ID token failed JWKS verification — usually **wrong `AUTH0_DOMAIN`** vs issuer, or wrong **Client ID** audience.
