@@ -26,14 +26,12 @@ import { ChevronLeft } from "lucide-react";
 import { BffUserAvatar } from "../BffUserAvatar";
 import { type AccountIdentity, useAccountIdentity } from "./useAccountIdentity";
 
-type Section = "main" | "profile" | "notifications" | "security" | "subscription" | "support";
+type Section = "main" | "profile" | "notifications" | "support";
 
 type NavItem = { id: Exclude<Section, "main">; label: string; desc: string };
 
 const NAV_ITEMS_TAIL: NavItem[] = [
   { id: "notifications", label: "Notifications", desc: "Push, email, SMS" },
-  { id: "security", label: "Security", desc: "Password, passkey, 2FA" },
-  { id: "subscription", label: "Subscription", desc: "Plan, billing, PAD" },
   { id: "support", label: "Help & Support", desc: "FAQ, contact" },
 ];
 
@@ -242,57 +240,6 @@ function NotificationsSection({ onBack, showBack = true }: { onBack: () => void;
   );
 }
 
-function SecuritySection({ onBack, showBack = true }: { onBack: () => void; showBack?: boolean }) {
-  return (
-    <Stack spacing={2.5}>
-      {showBack ? (
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          <BackButton onClick={onBack} />
-          <Typography variant="h6" fontWeight={700}>
-            Security
-          </Typography>
-        </Stack>
-      ) : (
-        <Typography variant="h6" fontWeight={700} sx={{ fontSize: "1.375rem" }}>
-          Security
-        </Typography>
-      )}
-      <Box sx={{ p: 2.5, borderRadius: 2, border: 1, borderColor: "divider", bgcolor: "background.paper" }}>
-        <Typography variant="body2" color="text.secondary">
-          Security settings are ready for integration.
-        </Typography>
-      </Box>
-    </Stack>
-  );
-}
-
-function SubscriptionSection({ onBack, showBack = true }: { onBack: () => void; showBack?: boolean }) {
-  return (
-    <Stack spacing={2.5}>
-      {showBack ? (
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          <BackButton onClick={onBack} />
-          <Typography variant="h6" fontWeight={700}>
-            Subscription
-          </Typography>
-        </Stack>
-      ) : (
-        <Typography variant="h6" fontWeight={700} sx={{ fontSize: "1.375rem" }}>
-          Subscription
-        </Typography>
-      )}
-      <Box sx={{ p: 2.5, borderRadius: 2, border: 1, borderColor: "divider", bgcolor: "background.paper" }}>
-        <Typography variant="subtitle1" fontWeight={600}>
-          Buffer Pro
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          $14.99/month
-        </Typography>
-      </Box>
-    </Stack>
-  );
-}
-
 function SupportSection({ onBack, showBack = true }: { onBack: () => void; showBack?: boolean }) {
   return (
     <Stack spacing={2.5}>
@@ -336,10 +283,6 @@ function renderDetailSection(
       return <ProfileSection identity={identity} loading={loading} profileError={profileError} onBack={onBack} showBack={showBack} />;
     case "notifications":
       return <NotificationsSection onBack={onBack} showBack={showBack} />;
-    case "security":
-      return <SecuritySection onBack={onBack} showBack={showBack} />;
-    case "subscription":
-      return <SubscriptionSection onBack={onBack} showBack={showBack} />;
     case "support":
       return <SupportSection onBack={onBack} showBack={showBack} />;
     default:
@@ -368,8 +311,6 @@ export function AccountScreen() {
       return wrap(<ProfileSection identity={identity} loading={loading} profileError={profileError} onBack={goMain} />);
     }
     if (section === "notifications") return wrap(<NotificationsSection onBack={goMain} />);
-    if (section === "security") return wrap(<SecuritySection onBack={goMain} />);
-    if (section === "subscription") return wrap(<SubscriptionSection onBack={goMain} />);
     if (section === "support") return wrap(<SupportSection onBack={goMain} />);
 
     return (

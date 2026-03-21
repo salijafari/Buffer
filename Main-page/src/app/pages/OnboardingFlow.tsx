@@ -12,7 +12,17 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { ChevronLeft, Check } from "lucide-react";
+import { ChevronLeft, Check, MoreHorizontal } from "lucide-react";
+import { FaLinkedin } from "react-icons/fa6";
+import {
+  SiAppstore,
+  SiFacebook,
+  SiGoogle,
+  SiInstagram,
+  SiReddit,
+  SiTiktok,
+  SiYoutube,
+} from "react-icons/si";
 import { MaterialShell } from "../material/MaterialShell";
 import {
   CANADIAN_PROVINCES,
@@ -44,6 +54,35 @@ const ACQUISITION_OPTIONS: { value: AcquisitionSource; label: string }[] = [
   { value: "linkedin", label: "LinkedIn" },
   { value: "other", label: "Other" },
 ];
+
+/** Brand marks via react-icons (Simple Icons). "Other" uses a neutral lucide icon. */
+function AcquisitionOptionIcon({ source, size = 28 }: { source: AcquisitionSource; size?: number }) {
+  const common = { size, "aria-hidden": true as const };
+  if (source === "other") {
+    return <MoreHorizontal size={size} strokeWidth={2.25} color="#6B7280" aria-hidden />;
+  }
+  switch (source) {
+    case "facebook":
+      return <SiFacebook {...common} color="#1877F2" />;
+    case "instagram":
+      return <SiInstagram {...common} color="#E4405F" />;
+    case "tiktok":
+      return <SiTiktok {...common} color="#000000" />;
+    case "app_store":
+      return <SiAppstore {...common} color="#0D96F6" />;
+    case "google":
+      return <SiGoogle {...common} />;
+    case "reddit":
+      return <SiReddit {...common} color="#FF4500" />;
+    case "youtube":
+      return <SiYoutube {...common} color="#FF0000" />;
+    case "linkedin":
+      // Simple Icons dropped LinkedIn in newer sets; Font Awesome brand mark still ships in react-icons.
+      return <FaLinkedin {...common} color="#0A66C2" />;
+    default:
+      return null;
+  }
+}
 
 type OnboardingDraft = {
   interest_selection: InterestSelection | null;
@@ -429,8 +468,8 @@ function OnboardingFlowContent({
                         }}
                         elevation={0}
                         sx={{
-                          p: { xs: 1.5, sm: 2 },
-                          minHeight: { xs: 92, sm: 104 },
+                          p: { xs: 1.25, sm: 1.5 },
+                          minHeight: { xs: 108, sm: 118 },
                           borderRadius: 2,
                           border: "1px solid",
                           borderColor: selected ? "#0284C7" : "#E5E7EB",
@@ -442,9 +481,30 @@ function OnboardingFlowContent({
                           cursor: "pointer",
                         }}
                       >
-                        <Typography sx={{ fontSize: { xs: "0.95rem", sm: "1rem" }, color: "#1F2937", fontWeight: 500 }}>
-                          {option.label}
-                        </Typography>
+                        <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ width: "100%" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              minHeight: 32,
+                              flexShrink: 0,
+                            }}
+                          >
+                            <AcquisitionOptionIcon source={option.value} size={option.value === "other" ? 26 : 30} />
+                          </Box>
+                          <Typography
+                            sx={{
+                              fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                              color: "#1F2937",
+                              fontWeight: 600,
+                              lineHeight: 1.2,
+                              px: 0.25,
+                            }}
+                          >
+                            {option.label}
+                          </Typography>
+                        </Stack>
                       </Paper>
                     );
                   })}
@@ -480,8 +540,20 @@ function OnboardingFlowContent({
                 fontSize: "1.15rem",
                 textTransform: "none",
                 bgcolor: "#0E2430",
-                "&:hover": { bgcolor: "#0B1D27" },
-                "&.Mui-disabled": { bgcolor: "#9CA3AF", color: "#F3F4F6" },
+                color: "#FFFFFF",
+                boxShadow: "none",
+                "&:hover": {
+                  bgcolor: "#0B1D27",
+                  color: "#FFFFFF",
+                  boxShadow: "none",
+                },
+                // Mandatory step: gray + white label; MUI default disabled uses dark text + opacity — override.
+                "&.Mui-disabled": {
+                  bgcolor: "#9CA3AF",
+                  color: "#FFFFFF",
+                  WebkitTextFillColor: "#FFFFFF",
+                  opacity: 1,
+                },
               }}
             >
               {saving ? <CircularProgress size={20} color="inherit" /> : "Next"}
