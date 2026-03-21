@@ -69,6 +69,7 @@ export async function requireBffSession(req, res, next) {
   req.bffSessionId = sid;
   req.auth = {
     userId: session.sub,
+    email: typeof session.email === "string" ? session.email : null,
     accessToken: session.accessToken,
     issuer: issuerFromDomain(cfg.domain),
   };

@@ -10,6 +10,12 @@ import Dashboard from "./app/pages/Dashboard.tsx";
 import { bootstrapOnboardingFromDb, ONBOARDING_GATE_TIMEOUT_MS } from "./app/lib/onboardingStatus";
 import type { UserOnboardingProfile } from "./app/lib/onboardingProfile";
 import { BffAuthProvider, useBffAuth } from "./lib/BffAuthContext";
+import { AdminGuard } from "./admin/AdminGuard";
+import { AdminLayout } from "./admin/AdminLayout";
+import { AdminDashboardPage } from "./admin/AdminDashboardPage";
+import { AdminUsersPage } from "./admin/AdminUsersPage";
+import { AdminUserDetailPage } from "./admin/AdminUserDetailPage";
+import { AdminAdminsPage } from "./admin/AdminAdminsPage";
 import "./styles/index.css";
 
 type LoadingPhase = "auth" | "onboarding";
@@ -227,6 +233,21 @@ createRoot(document.getElementById("root")!).render(
             </RequireAuth>
           }
         />
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth>
+              <AdminGuard>
+                <AdminLayout />
+              </AdminGuard>
+            </RequireAuth>
+          }
+        >
+          <Route index element={<AdminDashboardPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="users/:id" element={<AdminUserDetailPage />} />
+          <Route path="admins" element={<AdminAdminsPage />} />
+        </Route>
       </Routes>
     </BffAuthProvider>
   </BrowserRouter>,
