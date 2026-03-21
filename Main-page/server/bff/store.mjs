@@ -26,7 +26,6 @@ export function prunePendingOAuth() {
 }
 
 setInterval(prunePendingOAuth, 60_000).unref?.();
-
 export function createSessionRecord(data) {
   const id = randomUUID();
   sessions.set(id, data);
@@ -48,3 +47,4 @@ export function updateSessionRecord(id, patch) {
 export function deleteSessionRecord(id) {
   sessions.delete(id);
 }
+
