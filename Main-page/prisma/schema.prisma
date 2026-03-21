@@ -24,11 +24,28 @@ model UserOnboardingProfile {
   annualPreTaxIncome  Int?     @map("annual_pre_tax_income")
   heardAboutUs        String?  @map("heard_about_us")
   heardAboutUsOther   String?  @map("heard_about_us_other")
+  /** Admin dashboard: soft-remove after Auth0 delete (audit). */
+  removedAt           DateTime? @map("removed_at")
+  isAdmin             Boolean  @default(false) @map("is_admin")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
   @@index([onboardingCompleted, onboardingStep])
   @@index([provinceCode])
   @@index([heardAboutUs])
+  @@index([removedAt])
+  @@index([isAdmin])
   @@map("user_onboarding_profiles")
+}
+
+/** Admin allow-list + audit (who granted). Email stored lowercased. */
+model AdminGrant {
+  id        String    @id @default(cuid())
+  userEmail String    @unique @map("user_email")
+  grantedBy String    @map("granted_by")
+  grantedAt DateTime  @default(now()) @map("granted_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  @@index([userEmail])
+  @@map("admin_grants")
 }

@@ -21,3 +21,15 @@ cd Main-page
 npm install
 npm run dev
 ```
+
+### Database (Prisma)
+
+Run Prisma from **`Main-page/`** (or use the root shortcuts below). From the repo root, `npx prisma migrate dev` will fail because there is no `prisma/schema.prisma` there.
+
+```bash
+# From repo root (recommended)
+npm run prisma:migrate
+
+# Or from Main-page
+cd Main-page && npx prisma migrate dev
+```

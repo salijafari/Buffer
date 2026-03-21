@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
 import { registerBffAuthRoutes } from "./bff/registerAuth.mjs";
+import { registerAdminRoutes } from "./bff/registerAdmin.mjs";
 import { deleteAuth0UserBySub, runM2mAdminSmokeTest } from "./bff/auth0Management.mjs";
 import { deleteSessionRecord } from "./bff/store.mjs";
 import { requireBffSession, requireBffCsrf, cookieOptions, csrfCookieOptions } from "./bff/sessionAuth.mjs";
@@ -101,6 +102,7 @@ async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
 }
 
 registerBffAuthRoutes(app, { ensureUserOnboardingProfile });
+registerAdminRoutes(app, { prisma });
 
 /** Map Prisma errors to actionable hints (returned in API JSON). */
 function prismaErrorPayload(e, message) {
