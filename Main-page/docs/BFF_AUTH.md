@@ -11,7 +11,7 @@
 
 Protected JSON APIs (session cookie + refresh on the server):
 
-- `POST /api/auth/sync-user` — requires CSRF header  
+- `GET /api/auth/sync-user` — idempotent DB sync (**no CSRF**; bootstrap uses this right after login)  
 - `GET /api/onboarding-profile` — read-only, CSRF not required  
 - `PUT /api/onboarding-profile` — CSRF  
 - `POST /api/onboarding/complete` — CSRF  

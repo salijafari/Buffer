@@ -32,7 +32,7 @@ If the API is down or cookies are missing, the app may show **logged-out** state
 
 Within **15 seconds** (single `AbortController` + timeout):
 
-1. **`POST /api/auth/sync-user`** — ensures a `UserOnboardingProfile` row exists (CSRF + cookies).  
+1. **`GET /api/auth/sync-user`** — ensures a `UserOnboardingProfile` row exists (session cookie only; no CSRF on this route).  
 2. If sync reports **`onboarding_completed: true`** → **`<Navigate to="/dashboard" />`**.  
 3. Else **`GET /api/onboarding-profile`** — ensures row exists, returns profile. **`profile: null`** means network/auth failure (401, 500), not “missing row”.
 

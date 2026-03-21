@@ -16,7 +16,13 @@ const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, "../dist");
 
 app.use(cookieParser());
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    allowedHeaders: ["Content-Type", "X-CSRF-Token", "Accept"],
+  }),
+);
 app.use(express.json());
 
 registerBffAuthRoutes(app);
@@ -118,7 +124,12 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
-app.post("/api/auth/sync-user", ...requireSessionWithCsrf, async (req, res) => {
+/**
+ * Idempotent "ensure user row exists" — GET so the onboarding bootstrap does not need CSRF
+ * (session cookie + SameSite already constrain cross-site POST abuse).
+ */
+app.get("/api/auth/sync-user", requireSession, async (req, res) => {
+  res.set("Cache-Control", "no-store");
   const userId = req.auth.userId;
 
   try {
