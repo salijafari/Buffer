@@ -5,7 +5,7 @@
 | Method | Path | Purpose |
 |--------|------|---------|
 | GET | `/api/auth/login` | Redirects to Auth0 `/authorize` with `response_type=code`, PKCE (`S256`), optional `screen_hint=signup`, `returnTo` query (path only). |
-| GET | `/api/auth/callback` | Exchanges `code` + `code_verifier` for tokens (client secret server-side), verifies **ID token** with JWKS, creates server session, sets cookies, redirects to `returnTo`. |
+| GET | `/api/auth/callback` | Auth0 redirects with `?code=&state=`. Exchanges code for tokens, verifies **ID token**, creates BFF session + cookies, runs **`ensureUserOnboardingProfile`** (Prisma), then redirects: **`/dashboard`** if `onboarding_completed`, else **`/onboarding/flow`**. If DB ensure fails → `/onboarding/flow`. Auth0 **Allowed Callback URLs** must include this path on your public origin (e.g. `http://localhost:5173/api/auth/callback`). |
 | GET | `/api/auth/me` | Returns `{ authenticated, sub, email, name, picture }` from session (no access token to the browser). |
 | POST | `/api/auth/logout` | Validates session + **CSRF**, deletes server session, clears cookies; JSON `{ federatedLogoutUrl? }` for optional Auth0 `/v2/logout` redirect. |
 

@@ -107,9 +107,16 @@ export type OnboardingFlowProps = {
   profile: UserOnboardingProfile | null;
   onRetryBootstrap: () => void;
   onCompletedNavigate?: () => void;
+  /** From bootstrap API failure (shown when profile is null). */
+  bootstrapError?: string;
 };
 
-function OnboardingFlowContent({ profile, onRetryBootstrap, onCompletedNavigate }: OnboardingFlowProps) {
+function OnboardingFlowContent({
+  profile,
+  onRetryBootstrap,
+  onCompletedNavigate,
+  bootstrapError,
+}: OnboardingFlowProps) {
   const navigate = useNavigate();
 
   const [step, setStep] = useState<StepId>(() => (profile ? mapStep(profile.onboarding_step || 1) : 1));
@@ -214,40 +221,25 @@ function OnboardingFlowContent({ profile, onRetryBootstrap, onCompletedNavigate 
   if (!profile) {
     return (
       <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", bgcolor: "#F3F4F6", px: 2 }}>
-        <Paper elevation={0} sx={{ p: 3, maxWidth: 480, borderRadius: 3 }}>
+        <Paper elevation={0} sx={{ p: 3, maxWidth: 520, borderRadius: 3 }}>
           <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
             Can&apos;t load your profile
           </Typography>
+          {bootstrapError ? (
+            <Paper
+              variant="outlined"
+              sx={{ p: 1.5, mb: 2, bgcolor: "grey.50", borderColor: "divider", wordBreak: "break-word" }}
+            >
+              <Typography component="pre" sx={{ m: 0, fontFamily: "monospace", fontSize: "0.8rem", whiteSpace: "pre-wrap" }}>
+                {bootstrapError}
+              </Typography>
+            </Paper>
+          ) : null}
           <Typography sx={{ color: "text.secondary", mb: 2 }}>
-            This usually means the backend isn&apos;t reachable, your BFF session cookie is missing, CSRF failed, or Auth0 env is wrong. Run{" "}
-            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
-              npm run dev:api
-            </Box>{" "}
-            (port 3000) alongside Vite, set{" "}
-            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
-              AUTH0_DOMAIN
-            </Box>
-            ,{" "}
-            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
-              AUTH0_CLIENT_SECRET
-            </Box>
-            , and{" "}
-            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
-              AUTH0_CALLBACK_URL
-            </Box>{" "}
-            on the API, and run{" "}
-            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
-              npx prisma migrate dev
-            </Box>{" "}
-            (or{" "}
-            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
-              db push
-            </Box>
-            ) so the database has the{" "}
-            <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.9em" }}>
-              user_onboarding_profiles
-            </Box>{" "}
-            table.
+            Common causes: API not running, <strong>DATABASE_URL</strong> missing or migrations not applied, BFF session lost (use{" "}
+            <strong>1 Railway replica</strong> with in-memory sessions, or Redis later), or <strong>401</strong> after login (Auth0
+            refresh token / env). Dev: run <Box component="span" sx={{ fontFamily: "monospace" }}>npm run dev:api</Box> on port 3000
+            with Vite proxying <Box component="span" sx={{ fontFamily: "monospace" }}>/api</Box>.
           </Typography>
           <Button variant="contained" onClick={onRetryBootstrap} sx={{ textTransform: "none" }}>
             Retry
