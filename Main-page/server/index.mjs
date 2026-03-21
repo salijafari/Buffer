@@ -1,4 +1,4 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -8,13 +8,24 @@ import { PrismaClient } from "@prisma/client";
 import { registerBffAuthRoutes } from "./bff/registerAuth.mjs";
 import { requireBffSession, requireBffCsrf } from "./bff/sessionAuth.mjs";
 
+/**
+ * Load env from `Main-page/.env` (path is next to `server/`, not CWD).
+ * `.env.local` is only loaded when NODE_ENV !== "production" so a stray deployed
+ * `.env.local` cannot override Railway/injected secrets.
+ */
+const __envDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+dotenv.config({ path: path.join(__envDir, ".env") });
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({ path: path.join(__envDir, ".env.local"), override: true });
+}
+
 const app = express();
 /** Railway / reverse proxy: correct client IP + Secure cookies behind TLS terminator */
 app.set("trust proxy", 1);
 const prisma = new PrismaClient();
 const port = Number(process.env.PORT || 3000);
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(__filename); // server/
 const distPath = path.resolve(__dirname, "../dist");
 
 app.use(cookieParser());
