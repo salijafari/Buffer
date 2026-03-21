@@ -99,7 +99,7 @@ export function buildLogoutUrl({ domain, clientId, returnTo }) {
  * Must match an entry in Auth0 → Application → Allowed Logout URLs (exact match, including https / www).
  */
 export function resolveLogoutReturnTo(req) {
-  const envUrl = process.env.AUTH0_LOGOUT_RETURN_URL?.trim();
+  const envUrl = process.env.AUTH0_LOGOUT_RETURN_URL?.trim() || process.env.LOGOUT_REDIRECT_URL?.trim();
   if (envUrl && /^https?:\/\//i.test(envUrl)) {
     return envUrl;
   }
