@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Box, Paper, Slider, Stack, Typography } from "@mui/material";
+import { Box, Paper, Slider, Stack, Typography, useTheme } from "@mui/material";
 import type { SimulationResult } from "../../types/timeline";
 
 interface DebtFreeChartProps {
@@ -107,6 +107,8 @@ export function DebtFreeChart({
   sliderDefault,
   hideSavingsCallout = false,
 }: DebtFreeChartProps) {
+  const theme = useTheme();
+  const primaryHex = theme.palette.primary.main;
   const data = useMemo(() => buildChartData(future1, future2, future3), [future1, future2, future3]);
 
   const handleSlider = useCallback(
@@ -139,8 +141,8 @@ export function DebtFreeChart({
                 <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gF3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00C9A7" stopOpacity={0.28} />
-                <stop offset="95%" stopColor="#00C9A7" stopOpacity={0} />
+                <stop offset="5%" stopColor={primaryHex} stopOpacity={0.28} />
+                <stop offset="95%" stopColor={primaryHex} stopOpacity={0} />
               </linearGradient>
             </defs>
 
@@ -191,7 +193,7 @@ export function DebtFreeChart({
                 type="monotone"
                 dataKey="f3"
                 name="With Buffer"
-                stroke="#00C9A7"
+                stroke={primaryHex}
                 strokeWidth={2.5}
                 fill="url(#gF3)"
                 dot={false}
@@ -205,7 +207,7 @@ export function DebtFreeChart({
       <Stack direction="row" flexWrap="wrap" gap={1} useFlexGap>
         <LegendItem color="#FF6B6B" label="Min payments" value={fmtMonthsDebtChart(future1.monthsToZero)} />
         {future2 && <LegendItem color="#F59E0B" label="Current pace" value={fmtMonthsDebtChart(future2.monthsToZero)} />}
-        {future3 && <LegendItem color="#00C9A7" label="With Buffer" value={fmtMonthsDebtChart(future3.monthsToZero)} bold />}
+        {future3 && <LegendItem color={primaryHex} label="With Buffer" value={fmtMonthsDebtChart(future3.monthsToZero)} bold />}
       </Stack>
 
       {onPaymentChange && (

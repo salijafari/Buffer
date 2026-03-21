@@ -33,3 +33,8 @@ npm run prisma:migrate
 # Or from Main-page
 cd Main-page && npx prisma migrate dev
 ```
+
+### Dashboard dev (`Main-page`)
+
+- **`VITE_DASHBOARD_CONNECTION`**: `pre` (pre–Plaid estimates) or `post` (connected mock data). Default is `post` if unset.
+- **Query override**: append `?dashboardConnection=pre` (or `post`) to any `/dashboard` URL.

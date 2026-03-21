@@ -1,8 +1,8 @@
 import { createTheme } from "@mui/material/styles";
 
-/** Buffer brand teal — scoped to dashboard + onboarding Material shell only */
-const BUFFER_TEAL = "#00C9A7";
-const BUFFER_TEAL_DARK = "#00A88A";
+/** BUFFER spec brand teal — dashboard + onboarding Material shell */
+const BUFFER_TEAL = "#1A9E8F";
+const BUFFER_TEAL_DARK = "#158A7D";
 
 export const bufferMuiTheme = createTheme({
   breakpoints: {
@@ -11,7 +11,8 @@ export const bufferMuiTheme = createTheme({
       sm: 600,
       md: 900,
       lg: 1024,
-      xl: 1536,
+      /** Spec: desktop layouts 1280px+ */
+      xl: 1280,
     },
   },
   palette: {
@@ -38,8 +39,7 @@ export const bufferMuiTheme = createTheme({
     borderRadius: 12,
   },
   typography: {
-    fontFamily:
-      'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    fontFamily: '"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   },
   components: {
     MuiButton: {
