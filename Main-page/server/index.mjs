@@ -46,16 +46,6 @@ const requireSessionWithCsrf = [requireBffSession, requireBffCsrf];
 const SESSION_COOKIE = "bff_sid";
 const CSRF_COOKIE = "bff_csrf";
 
-function accountDeletedError() {
-  const e = new Error("Account deleted.");
-  e.code = "ACCOUNT_DELETED";
-  return e;
-}
-
-function isAccountDeletedError(e) {
-  return e && e.code === "ACCOUNT_DELETED";
-}
-
 async function fetchAuth0UserInfo(issuer, accessToken) {
   if (!accessToken) return {};
   try {
@@ -73,38 +63,61 @@ async function fetchAuth0UserInfo(issuer, accessToken) {
 
 /**
  * Ensures a `UserOnboardingProfile` row exists (Auth0 `sub` stored in `clerk_user_id` column).
+ * Reactivates soft-deleted rows when the same user signs in again (same `sub`, or new `sub` with same email).
  */
 async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
-  const existing = await prisma.userOnboardingProfile.findUnique({
-    where: { clerkUserId: authSubject },
-  });
-  if (existing?.accountDeletedAt) {
-    throw accountDeletedError();
-  }
-  if (existing) return existing;
-
-  let email = null;
-  let firstName = null;
-  let lastName = null;
-
   const info = await fetchAuth0UserInfo(issuer, accessToken);
-  email = typeof info.email === "string" ? info.email : null;
-  firstName = typeof info.given_name === "string" ? info.given_name : null;
-  lastName = typeof info.family_name === "string" ? info.family_name : null;
+  const email = typeof info.email === "string" ? info.email : null;
+  let firstName = typeof info.given_name === "string" ? info.given_name : null;
+  let lastName = typeof info.family_name === "string" ? info.family_name : null;
   if (!firstName && !lastName && typeof info.name === "string") {
     const parts = info.name.trim().split(/\s+/);
     firstName = parts[0] || null;
     lastName = parts.length > 1 ? parts.slice(1).join(" ") : null;
   }
 
+  const existingBySub = await prisma.userOnboardingProfile.findUnique({
+    where: { clerkUserId: authSubject },
+  });
+
+  // After account delete + new Auth0 signup, `sub` may change but email matches — re-link one unambiguous soft-deleted row.
+  if (!existingBySub && email?.trim()) {
+    const deletedWithEmail = await prisma.userOnboardingProfile.findMany({
+      where: {
+        email: { equals: email.trim(), mode: "insensitive" },
+        accountDeletedAt: { not: null },
+      },
+      take: 2,
+    });
+    if (deletedWithEmail.length === 1) {
+      return prisma.userOnboardingProfile.update({
+        where: { id: deletedWithEmail[0].id },
+        data: {
+          clerkUserId: authSubject,
+          accountDeletedAt: null,
+          email,
+          firstName,
+          lastName,
+        },
+      });
+    }
+  }
+
   try {
-    return await prisma.userOnboardingProfile.create({
-      data: {
+    return await prisma.userOnboardingProfile.upsert({
+      where: { clerkUserId: authSubject },
+      create: {
         clerkUserId: authSubject,
         email,
         firstName,
         lastName,
         onboardingCompleted: false,
+      },
+      update: {
+        accountDeletedAt: null,
+        email,
+        firstName,
+        lastName,
       },
     });
   } catch (e) {
@@ -218,9 +231,6 @@ app.get("/api/auth/sync-user", requireSession, async (req, res) => {
       onboarding_completed: profile.onboardingCompleted,
     });
   } catch (e) {
-    if (isAccountDeletedError(e)) {
-      return res.status(403).json({ error: "Account deleted." });
-    }
     console.error("[sync-user]", e);
     return res.status(500).json(prismaErrorPayload(e, "Sync failed."));
   }
@@ -231,9 +241,6 @@ app.get("/api/onboarding-profile", requireSession, async (req, res) => {
     const profile = await ensureUserOnboardingProfile(req.auth.userId, req.auth.issuer, req.auth.accessToken);
     return res.json({ profile: sanitizeProfile(profile) });
   } catch (e) {
-    if (isAccountDeletedError(e)) {
-      return res.status(403).json({ error: "Account deleted." });
-    }
     console.error("[onboarding-profile GET]", e);
     return res.status(500).json(prismaErrorPayload(e, "Failed to load profile."));
   }
