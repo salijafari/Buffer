@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Box,
@@ -8,10 +8,14 @@ import {
   MenuItem,
   Paper,
   Select,
+  Slider,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
+import type { SliderValueLabelProps } from "@mui/material/Slider";
+import { styled } from "@mui/material/styles";
 import { ChevronLeft, Check, MoreHorizontal } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa6";
 import {
@@ -35,6 +39,78 @@ import { postOnboardingComplete, saveOnboardingProfile } from "../lib/onboarding
 type StepId = 1 | 2 | 3 | 4 | 5;
 
 const TOTAL_STEPS = 5;
+
+/** Canadian / general FICO-style range used in validation and persist. */
+const CREDIT_SCORE_MIN = 300;
+const CREDIT_SCORE_MAX = 900;
+const CREDIT_SCORE_DEFAULT = 600;
+
+function ValueLabelComponent(props: SliderValueLabelProps) {
+  const { children, value } = props;
+  return (
+    <Tooltip enterTouchDelay={0} placement="top" title={value}>
+      {children}
+    </Tooltip>
+  );
+}
+
+const iOSBoxShadow =
+  "0 3px 1px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.13),0 0 0 1px rgba(0,0,0,0.02)";
+
+/** Material-style slider; track/thumb accent is black per product request. */
+const CreditScoreSlider = styled(Slider)(({ theme }) => ({
+  color: "#000000",
+  height: 5,
+  padding: "15px 0",
+  "& .MuiSlider-thumb": {
+    height: 20,
+    width: 20,
+    backgroundColor: "#fff",
+    boxShadow: "0 0 2px 0px rgba(0, 0, 0, 0.1)",
+    "&:focus, &:hover, &.Mui-active": {
+      boxShadow: "0px 0px 3px 1px rgba(0, 0, 0, 0.1)",
+      "@media (hover: none)": {
+        boxShadow: iOSBoxShadow,
+      },
+    },
+    "&:before": {
+      boxShadow:
+        "0px 0px 1px 0px rgba(0,0,0,0.2), 0px 0px 0px 0px rgba(0,0,0,0.14), 0px 0px 1px 0px rgba(0,0,0,0.12)",
+    },
+  },
+  "& .MuiSlider-valueLabel": {
+    fontSize: 12,
+    fontWeight: "normal",
+    top: -6,
+    backgroundColor: "unset",
+    color: theme.palette.text.primary,
+    "&::before": {
+      display: "none",
+    },
+    "& *": {
+      background: "transparent",
+      color: "#000",
+      ...theme.applyStyles?.("dark", {
+        color: "#fff",
+      }),
+    },
+  },
+  "& .MuiSlider-track": {
+    border: "none",
+    height: 5,
+  },
+  "& .MuiSlider-rail": {
+    opacity: 0.5,
+    boxShadow: "inset 0px 0px 4px -2px #000",
+    backgroundColor: "#d0d0d0",
+  },
+  ...theme.applyStyles?.("dark", {
+    color: "#ffffff",
+    "& .MuiSlider-rail": {
+      backgroundColor: "#555",
+    },
+  }),
+}));
 
 const INTEREST_OPTIONS: { value: InterestSelection; label: string }[] = [
   { value: "refinance_credit_card_balance", label: "Refinance credit card balance for lower interest rate" },
@@ -163,6 +239,23 @@ function OnboardingFlowContent({
   const [saving, setSaving] = useState(false);
   const [fieldError, setFieldError] = useState<string>("");
 
+  /** Slider needs a numeric value in range; seed a sensible default when landing on step 3. */
+  useEffect(() => {
+    if (step !== 3) return;
+    setDraft((prev) => {
+      const score = parseOptionalNumber(prev.credit_score_input);
+      if (
+        prev.credit_score_input !== "" &&
+        score !== null &&
+        score >= CREDIT_SCORE_MIN &&
+        score <= CREDIT_SCORE_MAX
+      ) {
+        return prev;
+      }
+      return { ...prev, credit_score_input: String(CREDIT_SCORE_DEFAULT) };
+    });
+  }, [step]);
+
   const canContinue = useMemo(() => {
     if (step === 1) {
       if (!draft.interest_selection) return false;
@@ -178,7 +271,7 @@ function OnboardingFlowContent({
 
     if (step === 3) {
       const score = parseOptionalNumber(draft.credit_score_input);
-      return score !== null && score >= 300 && score <= 900;
+      return score !== null && score >= CREDIT_SCORE_MIN && score <= CREDIT_SCORE_MAX;
     }
 
     if (step === 4) {
@@ -226,8 +319,8 @@ function OnboardingFlowContent({
 
     if (step === 3) {
       const score = parseOptionalNumber(draft.credit_score_input);
-      if (score === null || score < 300 || score > 900) {
-        setFieldError("Enter a credit score between 300 and 900.");
+      if (score === null || score < CREDIT_SCORE_MIN || score > CREDIT_SCORE_MAX) {
+        setFieldError(`Enter a credit score between ${CREDIT_SCORE_MIN} and ${CREDIT_SCORE_MAX}.`);
         return;
       }
     }
@@ -408,17 +501,48 @@ function OnboardingFlowContent({
             )}
 
             {step === 3 && (
-              <TextField
-                value={draft.credit_score_input}
-                onChange={(e) => {
-                  setDraft((prev) => ({ ...prev, credit_score_input: digitsOnly(e.target.value).slice(0, 3) }));
-                  setFieldError("");
-                }}
-                placeholder="For example: 670"
-                fullWidth
-                inputProps={{ inputMode: "numeric" }}
-                sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#FFFFFF", borderRadius: 2 } }}
-              />
+              <Box sx={{ px: { xs: 0.5, sm: 1 }, pt: 0.5 }}>
+                <Typography sx={{ fontSize: "2rem", fontWeight: 700, color: "#111827", mb: 0.5 }}>
+                  {parseOptionalNumber(draft.credit_score_input) ?? CREDIT_SCORE_DEFAULT}
+                </Typography>
+                <Typography sx={{ color: "#6B7280", fontSize: "0.9rem", mb: 2 }}>
+                  Drag to set your approximate score ({CREDIT_SCORE_MIN}–{CREDIT_SCORE_MAX}).
+                </Typography>
+                <CreditScoreSlider
+                  aria-label="Credit score"
+                  value={
+                    Math.min(
+                      CREDIT_SCORE_MAX,
+                      Math.max(
+                        CREDIT_SCORE_MIN,
+                        parseOptionalNumber(draft.credit_score_input) ?? CREDIT_SCORE_DEFAULT,
+                      ),
+                    )
+                  }
+                  min={CREDIT_SCORE_MIN}
+                  max={CREDIT_SCORE_MAX}
+                  step={1}
+                  valueLabelDisplay="on"
+                  slots={{ valueLabel: ValueLabelComponent }}
+                  onChange={(_, value) => {
+                    const n = Array.isArray(value) ? value[0] : value;
+                    const clamped = Math.min(
+                      CREDIT_SCORE_MAX,
+                      Math.max(CREDIT_SCORE_MIN, Math.round(Number(n))),
+                    );
+                    setDraft((prev) => ({ ...prev, credit_score_input: String(clamped) }));
+                    setFieldError("");
+                  }}
+                />
+                <Stack direction="row" justifyContent="space-between" sx={{ mt: -0.5 }}>
+                  <Typography variant="caption" sx={{ color: "#6B7280" }}>
+                    {CREDIT_SCORE_MIN}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "#6B7280" }}>
+                    {CREDIT_SCORE_MAX}
+                  </Typography>
+                </Stack>
+              </Box>
             )}
 
             {step === 4 && (
