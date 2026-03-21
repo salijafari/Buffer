@@ -27,9 +27,12 @@ const SESSION_COOKIE = "bff_sid";
 const CSRF_COOKIE = "bff_csrf";
 
 /**
- * Registers BFF OAuth routes (login, callback, me, logout).
+ * @param {import("express").Application} app
+ * @param {{ ensureUserOnboardingProfile?: (authSubject: string, issuer: string, accessToken: string) => Promise<{ onboardingCompleted: boolean }> }} [deps]
  */
-export function registerBffAuthRoutes(app) {
+export function registerBffAuthRoutes(app, deps = {}) {
+  const { ensureUserOnboardingProfile } = deps;
+
   app.get("/api/auth/me", (req, res) => {
     const sid = req.cookies?.bff_sid;
     if (!sid) {
@@ -80,6 +83,12 @@ export function registerBffAuthRoutes(app) {
       return res.redirect(302, url);
     });
 
+    /**
+     * Auth0 redirects here with ?code=&state=
+     * 1) Exchange code for tokens (confidential client + PKCE)
+     * 2) Verify ID token, create BFF session (HTTP-only cookie)
+     * 3) Ensure DB row exists; redirect: existing user → /dashboard, new user → /onboarding/flow
+     */
     app.get("/api/auth/callback", async (req, res) => {
       const code = req.query.code;
       const state = req.query.state;
@@ -124,7 +133,21 @@ export function registerBffAuthRoutes(app) {
         const maxAge = 7 * 24 * 60 * 60 * 1000;
         res.cookie(SESSION_COOKIE, sessionId, { ...cookieOptions(), maxAge });
         res.cookie(CSRF_COOKIE, csrfToken, { ...csrfCookieOptions(), maxAge });
-        return res.redirect(302, pending.returnTo || "/");
+
+        /** Where to send the user after login (relative paths — same host as callback). */
+        let redirectPath = pending.returnTo || "/";
+
+        if (typeof ensureUserOnboardingProfile === "function") {
+          try {
+            const profile = await ensureUserOnboardingProfile(idPayload.sub, issuer, tokens.access_token);
+            redirectPath = profile.onboardingCompleted ? "/dashboard" : "/onboarding/flow";
+          } catch (e) {
+            console.error("[bff] callback ensureUserOnboardingProfile failed:", e?.message ?? e);
+            redirectPath = "/onboarding/flow";
+          }
+        }
+
+        return res.redirect(302, redirectPath);
       } catch (e) {
         console.error("[bff] callback exchange failed:", e?.message ?? e);
         return res.redirect(302, "/onboarding?error=exchange");

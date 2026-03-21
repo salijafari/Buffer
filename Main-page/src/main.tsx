@@ -106,7 +106,7 @@ function RequireCompletedOnboarding({ children }: { children: ReactElement }) {
 type GateState =
   | { kind: "loading" }
   | { kind: "dashboard" }
-  | { kind: "flow"; profile: UserOnboardingProfile | null };
+  | { kind: "flow"; profile: UserOnboardingProfile | null; error?: string };
 
 function OnboardingFlowGate() {
   const { state } = useBffAuth();
@@ -132,11 +132,15 @@ function OnboardingFlowGate() {
           setGate({ kind: "dashboard" });
           return;
         }
-        setGate({ kind: "flow", profile: result.profile ?? null });
+        setGate({
+          kind: "flow",
+          profile: result.profile ?? null,
+          error: result.error,
+        });
       })
       .catch(() => {
         if (!active) return;
-        setGate({ kind: "flow", profile: null });
+        setGate({ kind: "flow", profile: null, error: "Unexpected error loading onboarding." });
       })
       .finally(() => {
         clearTimeout(timeoutId);
@@ -158,6 +162,7 @@ function OnboardingFlowGate() {
     <OnboardingFlow
       key={bootstrapKey}
       profile={gate.profile}
+      bootstrapError={gate.error}
       onRetryBootstrap={runBootstrap}
       onCompletedNavigate={() => {}}
     />

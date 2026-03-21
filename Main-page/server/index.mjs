@@ -9,6 +9,8 @@ import { registerBffAuthRoutes } from "./bff/registerAuth.mjs";
 import { requireBffSession, requireBffCsrf } from "./bff/sessionAuth.mjs";
 
 const app = express();
+/** Railway / reverse proxy: correct client IP + Secure cookies behind TLS terminator */
+app.set("trust proxy", 1);
 const prisma = new PrismaClient();
 const port = Number(process.env.PORT || 3000);
 const __filename = fileURLToPath(import.meta.url);
@@ -24,8 +26,6 @@ app.use(
   }),
 );
 app.use(express.json());
-
-registerBffAuthRoutes(app);
 
 const requireSession = requireBffSession;
 const requireSessionWithCsrf = [requireBffSession, requireBffCsrf];
@@ -86,6 +86,8 @@ async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
     throw e;
   }
 }
+
+registerBffAuthRoutes(app, { ensureUserOnboardingProfile });
 
 function sanitizeProfile(profile) {
   if (!profile) return null;
