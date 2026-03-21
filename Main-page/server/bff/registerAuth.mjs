@@ -13,6 +13,7 @@ import {
   buildAuthorizeUrl,
   exchangeAuthorizationCode,
   buildLogoutUrl,
+  resolveLogoutReturnTo,
 } from "./oauth.mjs";
 import {
   verifyIdToken,
@@ -162,10 +163,7 @@ export function registerBffAuthRoutes(app, deps = {}) {
     const c = getBffOAuthConfig();
     let federatedLogoutUrl = null;
     if (c.ok) {
-      const returnTo =
-        typeof req.body?.returnTo === "string" && req.body.returnTo.startsWith("http")
-          ? req.body.returnTo
-          : null;
+      const returnTo = resolveLogoutReturnTo(req);
       if (returnTo) {
         federatedLogoutUrl = buildLogoutUrl({
           domain: c.domain,

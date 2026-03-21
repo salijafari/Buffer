@@ -51,7 +51,7 @@ export function Header() {
               <button
                 type="button"
                 className="text-sm font-semibold text-gray-800 hover:text-gray-600"
-                onClick={() => void bffLogout(window.location.origin)}
+                onClick={() => void bffLogout()}
               >
                 Log out
               </button>

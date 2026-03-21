@@ -89,6 +89,33 @@ async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
 
 registerBffAuthRoutes(app, { ensureUserOnboardingProfile });
 
+/** Map Prisma errors to actionable hints (returned in API JSON). */
+function prismaErrorPayload(e, message) {
+  const code = e?.code;
+  const msg = String(e?.message ?? e);
+  let hint =
+    "Check DATABASE_URL / DIRECT_URL on the server, run `npx prisma migrate deploy`, and `npx prisma generate`. See server logs for the full stack trace.";
+  if (code === "P2021" || /relation .* does not exist/i.test(msg) || /table .* does not exist/i.test(msg)) {
+    hint =
+      "Database tables are missing. Run migrations against this DATABASE_URL: `npx prisma migrate deploy`. On Railway: add a Release command `npx prisma migrate deploy` (or run once from your machine with DATABASE_URL).";
+  }
+  if (code === "P1001") {
+    hint = "Cannot reach the database server — wrong DATABASE_URL, firewall, or Postgres not running.";
+  }
+  if (code === "P1003") {
+    hint = "The database name in DATABASE_URL does not exist on the server.";
+  }
+  if (code === "P1017") {
+    hint = "Server closed the connection — try direct URL for migrations, or check connection pool limits.";
+  }
+  return {
+    error: message,
+    prismaCode: code ?? null,
+    hint,
+    ...(process.env.NODE_ENV !== "production" ? { detail: msg.slice(0, 500) } : {}),
+  };
+}
+
 function sanitizeProfile(profile) {
   if (!profile) return null;
   return {
@@ -142,7 +169,7 @@ app.get("/api/auth/sync-user", requireSession, async (req, res) => {
     });
   } catch (e) {
     console.error("[sync-user]", e);
-    return res.status(500).json({ error: "Sync failed." });
+    return res.status(500).json(prismaErrorPayload(e, "Sync failed."));
   }
 });
 
@@ -152,7 +179,7 @@ app.get("/api/onboarding-profile", requireSession, async (req, res) => {
     return res.json({ profile: sanitizeProfile(profile) });
   } catch (e) {
     console.error("[onboarding-profile GET]", e);
-    return res.status(500).json({ error: "Failed to load profile." });
+    return res.status(500).json(prismaErrorPayload(e, "Failed to load profile."));
   }
 });
 

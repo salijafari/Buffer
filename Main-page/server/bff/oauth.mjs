@@ -92,3 +92,28 @@ export function buildLogoutUrl({ domain, clientId, returnTo }) {
   if (returnTo) u.searchParams.set("returnTo", returnTo);
   return u.toString();
 }
+
+/**
+ * Where Auth0 should send the browser after /v2/logout.
+ * Precedence: AUTH0_LOGOUT_RETURN_URL (canonical) → request body returnTo → origin of AUTH0_CALLBACK_URL.
+ * Must match an entry in Auth0 → Application → Allowed Logout URLs (exact match, including https / www).
+ */
+export function resolveLogoutReturnTo(req) {
+  const envUrl = process.env.AUTH0_LOGOUT_RETURN_URL?.trim();
+  if (envUrl && /^https?:\/\//i.test(envUrl)) {
+    return envUrl;
+  }
+  const body = req.body?.returnTo;
+  if (typeof body === "string" && body.startsWith("http")) {
+    return body;
+  }
+  const callback = process.env.AUTH0_CALLBACK_URL?.trim();
+  if (callback) {
+    try {
+      return new URL(callback).origin;
+    } catch {
+      /* ignore */
+    }
+  }
+  return null;
+}

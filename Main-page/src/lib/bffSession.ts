@@ -61,7 +61,12 @@ export function bffLoginUrl(options?: { returnTo?: string; screenHint?: "signup"
   return `/api/auth/login${q ? `?${q}` : ""}`;
 }
 
-export async function bffLogout(returnTo?: string): Promise<void> {
+/**
+ * Clears BFF session; server may return Auth0 federated logout URL.
+ * Optional `returnTo` is only used if the server has no AUTH0_LOGOUT_RETURN_URL / callback origin.
+ * Prefer setting AUTH0_LOGOUT_RETURN_URL on the API (canonical URL for Auth0 Allowed Logout URLs).
+ */
+export async function bffLogout(returnTo?: string | null): Promise<void> {
   const csrf = getBffCsrfTokenFromDocument();
   const res = await fetch("/api/auth/logout", {
     method: "POST",
@@ -70,7 +75,9 @@ export async function bffLogout(returnTo?: string): Promise<void> {
       "Content-Type": "application/json",
       ...(csrf ? { "X-CSRF-Token": csrf } : {}),
     },
-    body: JSON.stringify({ returnTo: returnTo ?? (typeof window !== "undefined" ? window.location.origin : "") }),
+    body: JSON.stringify({
+      returnTo: returnTo ?? null,
+    }),
   });
   let data: { federatedLogoutUrl?: string | null } = {};
   try {
