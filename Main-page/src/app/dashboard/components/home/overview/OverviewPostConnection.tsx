@@ -58,6 +58,9 @@ function utilPct(balance: number, limit: number): number {
   return Math.min(100, Math.round((balance / limit) * 100));
 }
 
+/** Stable empty list so useMemo deps don’t see a new [] every render while loading. */
+const EMPTY_LINKED_CARDS: CardData[] = [];
+
 type OverviewPhase = "loading" | "demo" | "live" | "syncing" | "empty" | "error";
 
 export function OverviewPostConnection({
@@ -79,6 +82,7 @@ export function OverviewPostConnection({
   const [liveTimeline, setLiveTimeline] = useState<TimelineOutput | null>(null);
   const [liveAiInsight, setLiveAiInsight] = useState<string | null>(null);
   const [syncBusy, setSyncBusy] = useState(false);
+  const [bannerOpen, setBannerOpen] = useState(true);
 
   const applyLiveOverview = useCallback((d: DashboardOverviewResponse | null) => {
     if (!d) {
@@ -132,6 +136,39 @@ export function OverviewPostConnection({
   }
 
   const showDemoChrome = phase === "demo";
+  const cards = showDemoChrome ? MOCK_CONNECTED_CARDS : (liveCards ?? EMPTY_LINKED_CARDS);
+  const timeline = showDemoChrome ? MOCK_TIMELINE : (liveTimeline ?? MOCK_TIMELINE);
+  const usingLivePlaid = phase === "live";
+  const f1 = timeline.future1;
+  const f2 = timeline.future2 ?? timeline.future1;
+  const f3 = timeline.future3 ?? timeline.future1;
+
+  const chartData = useMemo(() => {
+    const maxLen = Math.max(f1.balanceArray.length, f2.balanceArray.length, f3.balanceArray.length);
+    return Array.from({ length: maxLen }, (_, i) => ({
+      month: i + 1,
+      minimum: f1.balanceArray[i] ?? null,
+      currentPace: f2.balanceArray[i] ?? null,
+      buffer: f3.balanceArray[i] ?? null,
+    }));
+  }, [f1.balanceArray, f2.balanceArray, f3.balanceArray]);
+
+  const totalDebt = cards.reduce((s, c) => s + c.balance, 0);
+  const totalLimit = cards.reduce((s, c) => s + c.limit, 0);
+  const overallUtil = utilPct(totalDebt, totalLimit);
+
+  const interestRows = useMemo(() => {
+    const rows = cards.map((c) => {
+      const apr = c.apr ?? 0.2;
+      const mi = monthlyInterestCost(c.balance, apr);
+      return { ...c, apr, monthlyInterest: mi };
+    });
+    rows.sort((a, b) => b.monthlyInterest - a.monthlyInterest);
+    const totalMi = rows.reduce((s, r) => s + r.monthlyInterest, 0);
+    const withoutBuffer = totalMi;
+    const bufferSaved = Math.max(0, withoutBuffer * 0.15);
+    return { rows, totalMi, bufferSaved };
+  }, [cards]);
 
   if (usePlaidLiveDataOnly && phase === "loading") {
     return (
@@ -202,42 +239,6 @@ export function OverviewPostConnection({
       </Stack>
     );
   }
-
-  const cards = showDemoChrome ? MOCK_CONNECTED_CARDS : (liveCards ?? []);
-  const timeline = showDemoChrome ? MOCK_TIMELINE : (liveTimeline ?? MOCK_TIMELINE);
-  const usingLivePlaid = phase === "live";
-  const f1 = timeline.future1;
-  const f2 = timeline.future2 ?? timeline.future1;
-  const f3 = timeline.future3 ?? timeline.future1;
-
-  const chartData = useMemo(() => {
-    const maxLen = Math.max(f1.balanceArray.length, f2.balanceArray.length, f3.balanceArray.length);
-    return Array.from({ length: maxLen }, (_, i) => ({
-      month: i + 1,
-      minimum: f1.balanceArray[i] ?? null,
-      currentPace: f2.balanceArray[i] ?? null,
-      buffer: f3.balanceArray[i] ?? null,
-    }));
-  }, [f1.balanceArray, f2.balanceArray, f3.balanceArray]);
-
-  const totalDebt = cards.reduce((s, c) => s + c.balance, 0);
-  const totalLimit = cards.reduce((s, c) => s + c.limit, 0);
-  const overallUtil = utilPct(totalDebt, totalLimit);
-
-  const interestRows = useMemo(() => {
-    const rows = cards.map((c) => {
-      const apr = c.apr ?? 0.2;
-      const mi = monthlyInterestCost(c.balance, apr);
-      return { ...c, apr, monthlyInterest: mi };
-    });
-    rows.sort((a, b) => b.monthlyInterest - a.monthlyInterest);
-    const totalMi = rows.reduce((s, r) => s + r.monthlyInterest, 0);
-    const withoutBuffer = totalMi;
-    const bufferSaved = Math.max(0, withoutBuffer * 0.15);
-    return { rows, totalMi, bufferSaved };
-  }, [cards]);
-
-  const [bannerOpen, setBannerOpen] = useState(true);
 
   const hero = (
     <Card variant="outlined" sx={{ borderColor: `${primary}55` }}>

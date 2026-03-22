@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -27,9 +27,9 @@ export function PayoffPreConnection() {
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const { profile, refreshPlaidConnection, refreshProfile } = useDashboardShell();
 
-  const handlePlaidConnected = () => {
+  const handlePlaidConnected = useCallback(() => {
     void Promise.all([refreshPlaidConnection(), refreshProfile()]);
-  };
+  }, [refreshPlaidConnection, refreshProfile]);
 
   const defaultApr = estimatedAprFromCreditScore(profile?.credit_score ?? null);
   const [debt, setDebt] = useState(MOCK_ILLUSTRATIVE_DEBT);

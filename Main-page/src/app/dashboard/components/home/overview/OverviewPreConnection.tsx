@@ -1,4 +1,5 @@
 import { Box, Card, CardContent, Stack, Typography, useTheme } from "@mui/material";
+import { useCallback } from "react";
 import type { UserOnboardingProfile } from "@/app/lib/onboardingProfile";
 import { useDashboardShell } from "../../../context/DashboardShellContext";
 import { PlaidConnectButton } from "../../plaid/PlaidConnectButton";
@@ -29,9 +30,9 @@ export function OverviewPreConnection({ profile }: { profile: UserOnboardingProf
   const primary = theme.palette.primary.main;
   const { refreshPlaidConnection, refreshProfile } = useDashboardShell();
 
-  const handlePlaidConnected = () => {
+  const handlePlaidConnected = useCallback(() => {
     void Promise.all([refreshPlaidConnection(), refreshProfile()]);
-  };
+  }, [refreshPlaidConnection, refreshProfile]);
 
   const debt = MOCK_ILLUSTRATIVE_DEBT;
   const apr = estimatedAprFromCreditScore(profile?.credit_score ?? null);
