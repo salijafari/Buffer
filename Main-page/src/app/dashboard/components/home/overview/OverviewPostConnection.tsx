@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Avatar,
@@ -19,6 +19,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Skeleton,
 } from "@mui/material";
 import { ChevronRight, X } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -34,6 +35,11 @@ import {
   YAxis,
 } from "recharts";
 import type { UserOnboardingProfile } from "@/app/lib/onboardingProfile";
+import {
+  fetchDashboardOverview,
+  triggerPlaidFullSync,
+  type DashboardOverviewResponse,
+} from "@/lib/dashboardApi";
 import { MOCK_TIMELINE } from "../../../data/mockTimeline";
 import {
   MOCK_AI_INSIGHT_OVERVIEW,
@@ -45,21 +51,161 @@ import {
 } from "../../../data/mockDashboard";
 import { monthlyInterestCost } from "../../../lib/dashboardFormulas";
 import { fmtCurrency, fmtDate } from "../../../lib/dashboardFormat";
+import type { CardData, TimelineOutput } from "../../../types/timeline";
 
 function utilPct(balance: number, limit: number): number {
   if (limit <= 0) return 0;
   return Math.min(100, Math.round((balance / limit) * 100));
 }
 
-export function OverviewPostConnection({ profile: _profile }: { profile: UserOnboardingProfile | null }) {
+type OverviewPhase = "loading" | "demo" | "live" | "syncing" | "empty" | "error";
+
+export function OverviewPostConnection({
+  profile: _profile,
+  usePlaidLiveDataOnly,
+}: {
+  profile: UserOnboardingProfile | null;
+  /** True when Plaid is actually connected — no mock banks/timeline. */
+  usePlaidLiveDataOnly: boolean;
+}) {
   void _profile;
   const theme = useTheme();
   const primary = theme.palette.primary.main;
   const navigate = useNavigate();
   const isLg = useMediaQuery(theme.breakpoints.up("lg"));
 
-  const cards = MOCK_CONNECTED_CARDS;
-  const timeline = MOCK_TIMELINE;
+  const [phase, setPhase] = useState<OverviewPhase>(() => (usePlaidLiveDataOnly ? "loading" : "demo"));
+  const [liveCards, setLiveCards] = useState<CardData[] | null>(null);
+  const [liveTimeline, setLiveTimeline] = useState<TimelineOutput | null>(null);
+  const [liveAiInsight, setLiveAiInsight] = useState<string | null>(null);
+  const [syncBusy, setSyncBusy] = useState(false);
+
+  const applyLiveOverview = useCallback((d: DashboardOverviewResponse | null) => {
+    if (!d) {
+      setPhase("error");
+      return;
+    }
+    if (d.cards.length > 0 && d.timeline) {
+      setLiveCards(d.cards);
+      setLiveTimeline(d.timeline);
+      setLiveAiInsight(d.aiInsight);
+      setPhase("live");
+    } else if (d.meta?.syncPending) {
+      setPhase("syncing");
+    } else {
+      setPhase("empty");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!usePlaidLiveDataOnly) {
+      setPhase("demo");
+      setLiveCards(null);
+      setLiveTimeline(null);
+      setLiveAiInsight(null);
+      return;
+    }
+
+    let cancelled = false;
+    setPhase("loading");
+    void fetchDashboardOverview().then((d) => {
+      if (cancelled) return;
+      applyLiveOverview(d);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [usePlaidLiveDataOnly, applyLiveOverview]);
+
+  async function handleRefreshPlaidSync() {
+    setSyncBusy(true);
+    const r = await triggerPlaidFullSync();
+    setSyncBusy(false);
+    if (!r.ok) return;
+    const d = await fetchDashboardOverview();
+    applyLiveOverview(d);
+  }
+
+  function retryLoadOverview() {
+    setPhase("loading");
+    void fetchDashboardOverview().then(applyLiveOverview);
+  }
+
+  const showDemoChrome = phase === "demo";
+
+  if (usePlaidLiveDataOnly && phase === "loading") {
+    return (
+      <Stack
+        component="main"
+        role="main"
+        aria-busy="true"
+        aria-label="Loading linked accounts"
+        spacing={2}
+        sx={{
+          px: { xs: 2, lg: 0 },
+          py: { xs: 2.5, lg: 0 },
+          maxWidth: { xs: "100%", sm: 672, lg: "none" },
+          mx: "auto",
+          width: "100%",
+          minWidth: 0,
+        }}
+      >
+        <Skeleton variant="rounded" height={160} sx={{ borderRadius: 2 }} />
+        <Skeleton variant="rounded" height={260} />
+        <Skeleton variant="rounded" height={120} />
+        <Skeleton variant="rounded" height={120} />
+      </Stack>
+    );
+  }
+
+  if (usePlaidLiveDataOnly && phase === "error") {
+    return (
+      <Stack component="main" role="main" spacing={2} sx={{ px: { xs: 2, lg: 0 }, py: { xs: 2.5, lg: 0 }, maxWidth: { sm: 672 }, mx: "auto" }}>
+        <Alert severity="error">
+          Couldn&apos;t load your linked accounts. Check your connection and try again.
+        </Alert>
+        <Button variant="contained" onClick={() => retryLoadOverview()}>
+          Retry
+        </Button>
+      </Stack>
+    );
+  }
+
+  if (usePlaidLiveDataOnly && phase === "syncing") {
+    return (
+      <Stack component="main" role="main" spacing={2} sx={{ px: { xs: 2, lg: 0 }, py: { xs: 2.5, lg: 0 }, maxWidth: { sm: 672 }, mx: "auto" }}>
+        <Alert severity="info" sx={{ borderLeft: `4px solid ${primary}` }}>
+          <Typography variant="body2" gutterBottom>
+            Your bank is connected. We&apos;re importing your credit cards from Plaid — this usually takes under a minute.
+          </Typography>
+          <Button size="small" variant="contained" disabled={syncBusy} sx={{ mt: 1 }} onClick={() => void handleRefreshPlaidSync()}>
+            {syncBusy ? "Syncing…" : "Run sync now"}
+          </Button>
+        </Alert>
+        <Typography variant="body2" color="text.secondary">
+          After sync completes, your real balances, APRs, and utilization will show here (no demo bank names).
+        </Typography>
+      </Stack>
+    );
+  }
+
+  if (usePlaidLiveDataOnly && phase === "empty") {
+    return (
+      <Stack component="main" role="main" spacing={2} sx={{ px: { xs: 2, lg: 0 }, py: { xs: 2.5, lg: 0 }, maxWidth: { sm: 672 }, mx: "auto" }}>
+        <Alert severity="warning">
+          No credit card accounts were found for this connection. If you expected to see cards, try syncing again or reconnect your institution
+          from Account settings when available.
+        </Alert>
+        <Button variant="outlined" disabled={syncBusy} onClick={() => void handleRefreshPlaidSync()}>
+          {syncBusy ? "Syncing…" : "Run sync again"}
+        </Button>
+      </Stack>
+    );
+  }
+
+  const cards = showDemoChrome ? MOCK_CONNECTED_CARDS : (liveCards ?? []);
+  const timeline = showDemoChrome ? MOCK_TIMELINE : (liveTimeline ?? MOCK_TIMELINE);
+  const usingLivePlaid = phase === "live";
   const f1 = timeline.future1;
   const f2 = timeline.future2 ?? timeline.future1;
   const f3 = timeline.future3 ?? timeline.future1;
@@ -135,7 +281,11 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
           Balance progress
         </Typography>
         <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-          Minimum payments vs. your pace vs. Buffer (illustrative mock)
+          {usingLivePlaid
+            ? "Projections from your linked balances and APRs (estimates)."
+            : showDemoChrome
+              ? "Minimum payments vs. your pace vs. Buffer (illustrative mock)"
+              : "Projections from your linked data."}
         </Typography>
         {/* Recharts ResponsiveContainer needs a parent with explicit height (not an auto-height wrapper). */}
         <Box
@@ -176,7 +326,7 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {fmtCurrency(interestRows.totalMi, 0)} total this month — saving ~{fmtCurrency(interestRows.bufferSaved, 0)} vs. your
-          old rates (mock)
+          old rates{usingLivePlaid ? " (from linked APRs)" : showDemoChrome ? " (mock)" : ""}
         </Typography>
         <TableContainer>
           <Table size="small">
@@ -197,7 +347,7 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
                   <TableCell align="right">{fmtCurrency(r.monthlyInterest, 0)}</TableCell>
                 </TableRow>
               ))}
-              {MOCK_HAS_BUFFER_CREDIT_LINE && !MOCK_CREDIT_BUILDER_ONLY ? (
+              {showDemoChrome && MOCK_HAS_BUFFER_CREDIT_LINE && !MOCK_CREDIT_BUILDER_ONLY ? (
                 <TableRow sx={{ bgcolor: `${primary}0f` }}>
                   <TableCell colSpan={4}>
                     <Typography variant="body2" fontWeight={600} color="primary">
@@ -214,7 +364,7 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
   );
 
   const aiBanner =
-    bannerOpen ? (
+    bannerOpen && ((usingLivePlaid && Boolean(liveAiInsight)) || showDemoChrome) ? (
       <Alert
         severity="info"
         icon={false}
@@ -230,7 +380,7 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
         }
       >
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ width: "100%" }}>
-          <Typography variant="body2">{MOCK_AI_INSIGHT_OVERVIEW}</Typography>
+          <Typography variant="body2">{liveAiInsight ?? (showDemoChrome ? MOCK_AI_INSIGHT_OVERVIEW : "")}</Typography>
           <Button size="small" endIcon={<ChevronRight size={16} />} onClick={() => void navigate("/dashboard/ai")}>
             AI
           </Button>
@@ -265,7 +415,7 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
               <CardContent sx={{ p: { xs: 2, lg: 3 } }}>
                 <Stack direction="row" alignItems="center" spacing={1.5}>
                   <Avatar variant="rounded" sx={{ width: 40, height: 40, bgcolor: card.color ?? "#94A3B8", fontSize: "0.75rem" }}>
-                    {card.institution.slice(0, 2)}
+                    {(card.institution || "—").slice(0, 2)}
                   </Avatar>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography variant="subtitle2" fontWeight={700} noWrap>
@@ -286,7 +436,12 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      Utilization {util}% · Due & min payment: connect for live dates (mock)
+                      Utilization {util}%
+                      {usingLivePlaid
+                        ? " · Due dates from Plaid when available"
+                        : showDemoChrome
+                          ? " · Due & min payment: connect for live dates (mock)"
+                          : ""}
                     </Typography>
                   </Box>
                   <ChevronRight size={20} aria-hidden />
@@ -303,7 +458,7 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
   );
 
   const bufferLineCard =
-    MOCK_HAS_BUFFER_CREDIT_LINE && !MOCK_CREDIT_BUILDER_ONLY ? (
+    showDemoChrome && MOCK_HAS_BUFFER_CREDIT_LINE && !MOCK_CREDIT_BUILDER_ONLY ? (
       <Card variant="outlined" sx={{ borderColor: `${primary}44` }}>
         <CardContent sx={{ p: { xs: 2, lg: 3 } }}>
           <Typography variant="subtitle2" fontWeight={700} gutterBottom>
@@ -350,14 +505,14 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
       </Card>
     ) : null;
 
-  const rewards = (
+  const rewards = showDemoChrome ? (
     <Chip
       label={`${MOCK_REWARDS_POINTS} points — ${MOCK_REWARDS_POINTS_TO_MILESTONE} points from an APR reduction`}
       variant="outlined"
       onClick={() => void navigate("/dashboard/account")}
       sx={{ alignSelf: "flex-start" }}
     />
-  );
+  ) : null;
 
   return (
     <Stack

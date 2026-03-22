@@ -9,9 +9,12 @@ export function PayoffScreen({
 }: {
   onPayoffMetrics?: (m: PayoffRailMetrics | null) => void;
 }) {
-  const { connectionMode } = useDashboardShell();
+  const { connectionMode, plaidConnected } = useDashboardShell();
+  const usePlaidLiveDataOnly = connectionMode === "post" && plaidConnected === true;
   if (connectionMode === "pre") {
     return <PayoffPreConnection />;
   }
-  return <PayoffPostConnection onPayoffMetrics={onPayoffMetrics} />;
+  return (
+    <PayoffPostConnection usePlaidLiveDataOnly={usePlaidLiveDataOnly} onPayoffMetrics={onPayoffMetrics} />
+  );
 }

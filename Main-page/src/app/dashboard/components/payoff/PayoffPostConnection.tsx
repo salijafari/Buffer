@@ -3,6 +3,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
   Avatar,
   Box,
   Button,
@@ -10,6 +11,7 @@ import {
   CardContent,
   FormControlLabel,
   LinearProgress,
+  Skeleton,
   Stack,
   Switch,
   Table,
@@ -27,6 +29,11 @@ import {
 import { ChevronDown } from "lucide-react";
 import { DebtFreeChart } from "../charts/DebtFreeChart";
 import { FINANCE } from "../../lib/finance";
+import {
+  fetchDashboardOverview,
+  triggerPlaidFullSync,
+  type DashboardOverviewResponse,
+} from "@/lib/dashboardApi";
 import { MOCK_TIMELINE } from "../../data/mockTimeline";
 import { MOCK_CONNECTED_CARDS } from "../../data/mockDashboard";
 import type { TimelineOutput, CardData, SimulationResult } from "../../types/timeline";
@@ -60,24 +67,77 @@ function calcFuture3Only(balance: number, bufferAPR: number, payment: number): S
   return { monthsToZero: months, totalInterest, totalPaid, balanceArray, debtFreeDate, monthlyPayment: payment };
 }
 
+type PayoffPhase = "loading" | "demo" | "live" | "syncing" | "empty" | "error";
+
 export function PayoffPostConnection({
+  usePlaidLiveDataOnly,
   onPayoffMetrics,
 }: {
+  usePlaidLiveDataOnly: boolean;
   onPayoffMetrics?: (m: PayoffRailMetrics | null) => void;
 }) {
   const theme = useTheme();
   const primary = theme.palette.primary.main;
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
 
+  const [phase, setPhase] = useState<PayoffPhase>(() => (usePlaidLiveDataOnly ? "loading" : "demo"));
   const [timeline, setTimeline] = useState<TimelineOutput>(MOCK_TIMELINE);
   const [adjustedPayment, setAdjustedPayment] = useState(MOCK_TIMELINE.recommendedPayment);
+  const [cards, setCards] = useState<CardData[]>(() => (usePlaidLiveDataOnly ? [] : MOCK_CONNECTED_CARDS));
+  const [syncBusy, setSyncBusy] = useState(false);
   const [selectedCard, setSelectedCard] = useState<CardData | null>(null);
   const [transferAmount, setTransferAmount] = useState("");
   const [transferAmountErr, setTransferAmountErr] = useState("");
   const [strategy, setStrategy] = useState<"snowball" | "avalanche">("avalanche");
   const [autoTransfer, setAutoTransfer] = useState(false);
 
-  const cards = MOCK_CONNECTED_CARDS;
+  const showPayoffDemoChrome = phase === "demo";
+  const usingLivePlaid = phase === "live";
+
+  const applyLiveOverview = useCallback((d: DashboardOverviewResponse | null) => {
+    if (!d) {
+      setPhase("error");
+      return;
+    }
+    if (d.cards.length > 0 && d.timeline) {
+      setCards(d.cards);
+      setTimeline(d.timeline);
+      setAdjustedPayment(d.timeline.recommendedPayment);
+      setPhase("live");
+    } else if (d.meta?.syncPending) {
+      setPhase("syncing");
+    } else {
+      setPhase("empty");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!usePlaidLiveDataOnly) {
+      setPhase("demo");
+      setCards(MOCK_CONNECTED_CARDS);
+      setTimeline(MOCK_TIMELINE);
+      setAdjustedPayment(MOCK_TIMELINE.recommendedPayment);
+      return;
+    }
+    let cancelled = false;
+    setPhase("loading");
+    void fetchDashboardOverview().then((d) => {
+      if (cancelled) return;
+      applyLiveOverview(d);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [usePlaidLiveDataOnly, applyLiveOverview]);
+
+  async function handleRefreshPlaidSync() {
+    setSyncBusy(true);
+    const r = await triggerPlaidFullSync();
+    setSyncBusy(false);
+    if (!r.ok) return;
+    applyLiveOverview(await fetchDashboardOverview());
+  }
+
   const totalDebt = cards.reduce((s, c) => s + c.balance, 0);
 
   const handlePaymentChange = useCallback(
@@ -91,6 +151,10 @@ export function PayoffPostConnection({
 
   useEffect(() => {
     if (!onPayoffMetrics) return;
+    if (usePlaidLiveDataOnly && phase !== "live") {
+      onPayoffMetrics(null);
+      return;
+    }
     const f1 = timeline.future1;
     const f3 = timeline.future3;
     if (!f3) {
@@ -103,7 +167,7 @@ export function PayoffPostConnection({
       monthsSaved: Math.max(0, f1.monthsToZero - f3.monthsToZero),
       totalBalance,
     });
-  }, [timeline, onPayoffMetrics]);
+  }, [timeline, onPayoffMetrics, usePlaidLiveDataOnly, phase]);
 
   function handleTransferSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -133,7 +197,9 @@ export function PayoffPostConnection({
           Transfer centre
         </Typography>
         <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
-          Mock UI — select a card and amount to move to your Buffer line (VoPay when live).
+          {showPayoffDemoChrome
+            ? "Mock UI — select a card and amount to move to your Buffer line (VoPay when live)."
+            : "Balance transfers to your Buffer line will run through VoPay when live. Linked cards below are from Plaid."}
         </Typography>
         <Box component="form" onSubmit={handleTransferSubmit}>
           <Stack spacing={2}>
@@ -158,7 +224,7 @@ export function PayoffPostConnection({
                     }}
                   >
                     <Avatar variant="rounded" sx={{ width: 32, height: 32, mr: 1.5, bgcolor: card.color ?? "#94A3B8", fontSize: "0.7rem", fontWeight: 700 }}>
-                      {card.institution.slice(0, 2)}
+                      {(card.institution || "—").slice(0, 2)}
                     </Avatar>
                     <Box sx={{ flex: 1, minWidth: 0, textAlign: "left" }}>
                       <Typography variant="body2" fontWeight={600} noWrap>
@@ -187,12 +253,17 @@ export function PayoffPostConnection({
               size="small"
             />
             <Typography variant="body2" color="text.secondary">
-              Transfer total (mock): enter amount above · New debt-free date tracks in Overview when live.
+              {showPayoffDemoChrome
+                ? "Transfer total (mock): enter amount above · New debt-free date tracks in Overview when live."
+                : "Transfers are disabled until VoPay is enabled."}
             </Typography>
-            <Button type="submit" variant="contained" color="primary" size="large" fullWidth disabled={!selectedCard}>
+            <Button type="submit" variant="contained" color="primary" size="large" fullWidth disabled={!selectedCard || !showPayoffDemoChrome}>
               Transfer now
             </Button>
-            <FormControlLabel control={<Switch checked={autoTransfer} onChange={(_, c) => setAutoTransfer(c)} />} label="Auto-transfer new balances (mock)" />
+            <FormControlLabel
+              control={<Switch checked={autoTransfer} onChange={(_, c) => setAutoTransfer(c)} disabled={!showPayoffDemoChrome} />}
+              label={showPayoffDemoChrome ? "Auto-transfer new balances (mock)" : "Auto-transfer (coming soon)"}
+            />
           </Stack>
         </Box>
       </CardContent>
@@ -224,9 +295,15 @@ export function PayoffPostConnection({
             </Box>
           ))}
         </Stack>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: "block" }}>
-          Avalanche saves you ~$420 more (mock). Snowball pays off your first card ~2 months sooner (mock).
-        </Typography>
+        {showPayoffDemoChrome ? (
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: "block" }}>
+            Avalanche saves you ~$420 more (mock). Snowball pays off your first card ~2 months sooner (mock).
+          </Typography>
+        ) : (
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: "block" }}>
+            Order is based on your linked balances and APRs from Plaid.
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );
@@ -359,6 +436,57 @@ export function PayoffPostConnection({
     </Card>
   );
 
+  if (usePlaidLiveDataOnly && phase === "loading") {
+    return (
+      <Stack spacing={2} sx={{ px: { xs: 2, lg: 0 }, py: { xs: 2.5, lg: 0 }, maxWidth: { sm: 672 }, mx: "auto" }}>
+        <Skeleton variant="text" width={220} height={36} />
+        <Skeleton variant="rounded" height={200} />
+        <Skeleton variant="rounded" height={280} />
+      </Stack>
+    );
+  }
+
+  if (usePlaidLiveDataOnly && phase === "error") {
+    return (
+      <Stack spacing={2} sx={{ px: { xs: 2, lg: 0 }, py: { xs: 2.5, lg: 0 }, maxWidth: { sm: 672 }, mx: "auto" }}>
+        <Alert severity="error">Couldn&apos;t load payoff data.</Alert>
+        <Button
+          variant="contained"
+          onClick={() => {
+            setPhase("loading");
+            void fetchDashboardOverview().then(applyLiveOverview);
+          }}
+        >
+          Retry
+        </Button>
+      </Stack>
+    );
+  }
+
+  if (usePlaidLiveDataOnly && phase === "syncing") {
+    return (
+      <Stack spacing={2} sx={{ px: { xs: 2, lg: 0 }, py: { xs: 2.5, lg: 0 }, maxWidth: { sm: 672 }, mx: "auto" }}>
+        <Alert severity="info">
+          Importing your credit cards from Plaid…
+          <Button size="small" sx={{ ml: 1 }} disabled={syncBusy} onClick={() => void handleRefreshPlaidSync()}>
+            {syncBusy ? "Syncing…" : "Run sync"}
+          </Button>
+        </Alert>
+      </Stack>
+    );
+  }
+
+  if (usePlaidLiveDataOnly && phase === "empty") {
+    return (
+      <Stack spacing={2} sx={{ px: { xs: 2, lg: 0 }, py: { xs: 2.5, lg: 0 }, maxWidth: { sm: 672 }, mx: "auto" }}>
+        <Alert severity="warning">No linked credit cards to plan payoff for yet.</Alert>
+        <Button variant="outlined" disabled={syncBusy} onClick={() => void handleRefreshPlaidSync()}>
+          Run sync again
+        </Button>
+      </Stack>
+    );
+  }
+
   return (
     <Stack
       spacing={{ xs: 2.5, lg: 3 }}
@@ -388,18 +516,18 @@ export function PayoffPostConnection({
           <Stack spacing={3} sx={{ flex: "1 1 60%", minWidth: 0 }}>
             {chartCard}
             {strategyCard}
-            {scheduleCard}
-            {bufferDetail}
-            {history}
+            {showPayoffDemoChrome ? scheduleCard : null}
+            {showPayoffDemoChrome ? bufferDetail : null}
+            {showPayoffDemoChrome ? history : null}
           </Stack>
         </Stack>
       ) : (
         <>
           {chartCard}
           {strategyCard}
-          {scheduleCard}
-          {bufferDetail}
-          {history}
+          {showPayoffDemoChrome ? scheduleCard : null}
+          {showPayoffDemoChrome ? bufferDetail : null}
+          {showPayoffDemoChrome ? history : null}
         </>
       )}
     </Stack>
