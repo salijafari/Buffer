@@ -28,6 +28,7 @@ import {
   SiYoutube,
 } from "react-icons/si";
 import { MaterialShell } from "../material/MaterialShell";
+import { PlaidConnectButton } from "../dashboard/components/plaid/PlaidConnectButton";
 import {
   CANADIAN_PROVINCES,
   type AcquisitionSource,
@@ -36,9 +37,9 @@ import {
 } from "../lib/onboardingProfile";
 import { postOnboardingComplete, saveOnboardingProfile } from "../lib/onboardingApi";
 
-type StepId = 1 | 2 | 3 | 4 | 5;
+type StepId = 1 | 2 | 3 | 4 | 5 | 6;
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 /** Canadian / general FICO-style range used in validation and persist. */
 const CREDIT_SCORE_MIN = 300;
@@ -202,7 +203,8 @@ function mapStep(value: number): StepId {
   if (value === 2) return 2;
   if (value === 3) return 3;
   if (value === 4) return 4;
-  return 5;
+  if (value === 5) return 5;
+  return 6;
 }
 
 function draftFromProfile(profile: UserOnboardingProfile): OnboardingDraft {
@@ -285,6 +287,10 @@ function OnboardingFlowContent({
       return true;
     }
 
+    if (step === 6) {
+      return true;
+    }
+
     return false;
   }, [step, draft]);
 
@@ -293,7 +299,10 @@ function OnboardingFlowContent({
     if (step === 2) return "Choose your Canadian province or territory";
     if (step === 3) return "Your response is only used to offer the most relevant products.";
     if (step === 4) return "Your response is only used to offer the most relevant products.";
-    return "Select one option";
+    if (step === 5) {
+      return "Select one option. Next, you can connect your bank with Plaid (or skip and do it later).";
+    }
+    return "Securely link your accounts with Plaid, or skip and connect later from your dashboard.";
   }, [step]);
 
   async function persist(forStep: StepId) {
@@ -313,6 +322,13 @@ function OnboardingFlowContent({
     await saveOnboardingProfile(payload);
   }
 
+  async function completeOnboardingAndGoDashboard() {
+    await persist(6);
+    await postOnboardingComplete();
+    onCompletedNavigate?.();
+    navigate("/dashboard", { replace: true });
+  }
+
   async function onNext() {
     if (saving || !canContinue) return;
     setFieldError("");
@@ -327,18 +343,41 @@ function OnboardingFlowContent({
 
     setSaving(true);
     try {
-      if (step < 5) {
+      if (step < 6) {
         const nextStep = (step + 1) as StepId;
         await persist(nextStep);
         setStep(nextStep);
       } else {
-        await persist(5);
-        await postOnboardingComplete();
-        onCompletedNavigate?.();
-        navigate("/dashboard", { replace: true });
+        await completeOnboardingAndGoDashboard();
       }
     } catch {
       setFieldError("We couldn't save your progress. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function onSkipPlaid() {
+    if (saving) return;
+    setFieldError("");
+    setSaving(true);
+    try {
+      await completeOnboardingAndGoDashboard();
+    } catch {
+      setFieldError("We couldn't finish onboarding. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function onPlaidLinked() {
+    if (saving) return;
+    setFieldError("");
+    setSaving(true);
+    try {
+      await completeOnboardingAndGoDashboard();
+    } catch {
+      setFieldError("Bank linked, but we couldn't finish setup. Try Continue from the dashboard.");
     } finally {
       setSaving(false);
     }
@@ -408,7 +447,7 @@ function OnboardingFlowContent({
             <ChevronLeft size={24} />
           </Button>
 
-          <Stack direction="row" spacing={0.75} sx={{ flex: 1 }}>
+          <Stack direction="row" spacing={0.75} sx={{ flex: 1 }} aria-label={`Onboarding progress, step ${step} of ${TOTAL_STEPS}`}>
             {Array.from({ length: TOTAL_STEPS }).map((_, index) => {
               const active = index + 1 <= step;
               return (
@@ -424,6 +463,14 @@ function OnboardingFlowContent({
               );
             })}
           </Stack>
+
+          <Typography
+            component="span"
+            variant="caption"
+            sx={{ color: "#6B7280", fontWeight: 700, minWidth: "fit-content", flexShrink: 0 }}
+          >
+            {step}/{TOTAL_STEPS}
+          </Typography>
         </Stack>
 
         <Box sx={{ pt: { xs: 1.5, sm: 2 }, pb: 0.5 }}>
@@ -433,6 +480,7 @@ function OnboardingFlowContent({
             {step === 3 && "What's your credit score?"}
             {step === 4 && "What's your annual pre-tax income?"}
             {step === 5 && "How did you hear about us?"}
+            {step === 6 && "Connect your bank or credit card"}
           </Typography>
           <Typography sx={{ color: "#6B7280", fontSize: { xs: "1rem", sm: "1.06rem" } }}>{subtitle}</Typography>
         </Box>
@@ -647,41 +695,103 @@ function OnboardingFlowContent({
               </Stack>
             )}
 
+            {step === 6 && (
+              <Stack spacing={2.5}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: { xs: 2, sm: 2.5 },
+                    borderRadius: 2,
+                    border: "1px solid #E5E7EB",
+                    bgcolor: "#FFFFFF",
+                  }}
+                >
+                  <Typography sx={{ color: "#374151", fontSize: "0.95rem", lineHeight: 1.55, mb: 2 }}>
+                    Link your accounts with <strong>Plaid</strong> to see balances, APRs, and a personalized payoff plan. Your credentials are never stored on our
+                    servers.
+                  </Typography>
+                  <PlaidConnectButton
+                    variant="contained"
+                    fullWidth
+                    disabled={saving}
+                    onConnected={() => void onPlaidLinked()}
+                    sx={{
+                      minHeight: 52,
+                      borderRadius: 2,
+                      fontSize: "1.05rem",
+                      textTransform: "none",
+                      bgcolor: "#0E2430",
+                      color: "#FFFFFF",
+                      boxShadow: "none",
+                      "&:hover": { bgcolor: "#0B1D27", color: "#FFFFFF", boxShadow: "none" },
+                    }}
+                  >
+                    Connect bank or credit card
+                  </PlaidConnectButton>
+                  {saving ? (
+                    <Typography variant="caption" sx={{ display: "block", mt: 1.5, color: "#6B7280", textAlign: "center" }}>
+                      Finishing setup…
+                    </Typography>
+                  ) : null}
+                </Paper>
+              </Stack>
+            )}
+
             {fieldError ? (
               <Typography sx={{ mt: 1.25, color: "error.main", fontSize: "0.9rem" }}>{fieldError}</Typography>
             ) : null}
           </Box>
 
           <Box sx={{ pt: 3, pb: { xs: 1, md: 0 } }}>
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={() => void onNext()}
-              disabled={!canContinue || saving}
-              sx={{
-                minHeight: 52,
-                borderRadius: 2,
-                fontSize: "1.15rem",
-                textTransform: "none",
-                bgcolor: "#0E2430",
-                color: "#FFFFFF",
-                boxShadow: "none",
-                "&:hover": {
-                  bgcolor: "#0B1D27",
+            {step === 6 ? (
+              <Stack spacing={1.5}>
+                <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+                  <Button
+                    variant="text"
+                    onClick={() => void onSkipPlaid()}
+                    disabled={saving}
+                    sx={{
+                      textTransform: "none",
+                      color: "#6B7280",
+                      fontSize: "0.95rem",
+                      fontWeight: 600,
+                      "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                    }}
+                  >
+                    Skip for now
+                  </Button>
+                </Box>
+              </Stack>
+            ) : (
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={() => void onNext()}
+                disabled={!canContinue || saving}
+                sx={{
+                  minHeight: 52,
+                  borderRadius: 2,
+                  fontSize: "1.15rem",
+                  textTransform: "none",
+                  bgcolor: "#0E2430",
                   color: "#FFFFFF",
                   boxShadow: "none",
-                },
-                // Mandatory step: gray + white label; MUI default disabled uses dark text + opacity — override.
-                "&.Mui-disabled": {
-                  bgcolor: "#9CA3AF",
-                  color: "#FFFFFF",
-                  WebkitTextFillColor: "#FFFFFF",
-                  opacity: 1,
-                },
-              }}
-            >
-              {saving ? <CircularProgress size={20} color="inherit" /> : "Next"}
-            </Button>
+                  "&:hover": {
+                    bgcolor: "#0B1D27",
+                    color: "#FFFFFF",
+                    boxShadow: "none",
+                  },
+                  "&.Mui-disabled": {
+                    bgcolor: "#9CA3AF",
+                    color: "#FFFFFF",
+                    WebkitTextFillColor: "#FFFFFF",
+                    opacity: 1,
+                  },
+                }}
+              >
+                {saving ? <CircularProgress size={20} color="inherit" /> : "Next"}
+              </Button>
+            )}
           </Box>
         </Box>
       </Paper>

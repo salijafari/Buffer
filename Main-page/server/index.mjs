@@ -231,7 +231,7 @@ app.put("/api/onboarding-profile", ...requireSessionWithCsrf, async (req, res) =
   const next = await prisma.userOnboardingProfile.upsert({
     where: { clerkUserId: req.auth.userId },
     update: {
-      onboardingStep: Number.isFinite(onboardingStep) ? Math.min(Math.max(onboardingStep, 1), 5) : 1,
+      onboardingStep: Number.isFinite(onboardingStep) ? Math.min(Math.max(onboardingStep, 1), 6) : 1,
       interestSelection: body.interest_selection ?? null,
       interestCustomText: body.interest_custom_text ?? null,
       provinceCode: body.province_code ?? null,
@@ -244,7 +244,7 @@ app.put("/api/onboarding-profile", ...requireSessionWithCsrf, async (req, res) =
     create: {
       clerkUserId: req.auth.userId,
       onboardingCompleted: false,
-      onboardingStep: Number.isFinite(onboardingStep) ? Math.min(Math.max(onboardingStep, 1), 5) : 1,
+      onboardingStep: Number.isFinite(onboardingStep) ? Math.min(Math.max(onboardingStep, 1), 6) : 1,
       interestSelection: body.interest_selection ?? null,
       interestCustomText: body.interest_custom_text ?? null,
       provinceCode: body.province_code ?? null,

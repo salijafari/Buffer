@@ -52,12 +52,15 @@ export function PlaidConnectButton({ onConnected, children, ...buttonProps }: Pl
     },
   });
 
+  const openRef = useRef(open);
+  openRef.current = open;
+
   useEffect(() => {
     if (linkToken && ready && pendingOpen.current) {
       pendingOpen.current = false;
-      open();
+      openRef.current();
     }
-  }, [linkToken, ready, open]);
+  }, [linkToken, ready]);
 
   const handleClick = async () => {
     setError(null);
