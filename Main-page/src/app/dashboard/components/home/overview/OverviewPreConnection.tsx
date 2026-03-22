@@ -1,13 +1,7 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Card, CardContent, Stack, Typography, useTheme } from "@mui/material";
 import type { UserOnboardingProfile } from "@/app/lib/onboardingProfile";
+import { useDashboardShell } from "../../../context/DashboardShellContext";
+import { PlaidConnectButton } from "../../plaid/PlaidConnectButton";
 import { FINANCE } from "../../../lib/finance";
 import {
   affordablePaymentRangeCad,
@@ -33,6 +27,11 @@ function debtBracketLabel(debt: number): string {
 export function OverviewPreConnection({ profile }: { profile: UserOnboardingProfile | null }) {
   const theme = useTheme();
   const primary = theme.palette.primary.main;
+  const { refreshPlaidConnection, refreshProfile } = useDashboardShell();
+
+  const handlePlaidConnected = () => {
+    void Promise.all([refreshPlaidConnection(), refreshProfile()]);
+  };
 
   const debt = MOCK_ILLUSTRATIVE_DEBT;
   const apr = estimatedAprFromCreditScore(profile?.credit_score ?? null);
@@ -173,11 +172,13 @@ export function OverviewPreConnection({ profile }: { profile: UserOnboardingProf
             </Card>
           ))}
         </Stack>
-        <Button variant="contained" color="primary" fullWidth sx={{ mt: 2, py: 1.25 }} href="#" disabled>
-          Connect my accounts
-        </Button>
+        <Box sx={{ mt: 2 }}>
+          <PlaidConnectButton variant="contained" color="primary" fullWidth sx={{ py: 1.25 }} onConnected={handlePlaidConnected}>
+            Connect my accounts
+          </PlaidConnectButton>
+        </Box>
         <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block", textAlign: "center" }}>
-          Plaid connection launches here when available.
+          Secure connection via Plaid (Canada). Sandbox: use <strong>user_good</strong> / <strong>pass_good</strong>.
         </Typography>
       </Box>
 

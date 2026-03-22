@@ -7,7 +7,7 @@ import { OverviewPostConnection } from "./overview/OverviewPostConnection";
 export function HomeScreen() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
-  const { connectionMode, profile, profileLoading } = useDashboardShell();
+  const { connectionMode, plaidConnected, profile, profileLoading } = useDashboardShell();
   const [showSkeleton, setShowSkeleton] = useState(true);
 
   useEffect(() => {
@@ -23,10 +23,12 @@ export function HomeScreen() {
     return <SkeletonHome isDesktop={isDesktop} />;
   }
 
+  const usePlaidLiveDataOnly = connectionMode === "post" && plaidConnected === true;
+
   return connectionMode === "pre" ? (
     <OverviewPreConnection profile={profile} />
   ) : (
-    <OverviewPostConnection profile={profile} />
+    <OverviewPostConnection profile={profile} usePlaidLiveDataOnly={usePlaidLiveDataOnly} />
   );
 }
 

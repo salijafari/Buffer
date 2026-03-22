@@ -12,6 +12,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDashboardShell } from "../../context/DashboardShellContext";
+import { PlaidConnectButton } from "../plaid/PlaidConnectButton";
 import { FINANCE } from "../../lib/finance";
 import {
   canadianMinimumMonthlyPayment,
@@ -24,7 +25,11 @@ import { MOCK_ILLUSTRATIVE_DEBT, MOCK_ILLUSTRATIVE_MONTHLY_PAYMENT, MOCK_PRE_CON
 export function PayoffPreConnection() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
-  const { profile } = useDashboardShell();
+  const { profile, refreshPlaidConnection, refreshProfile } = useDashboardShell();
+
+  const handlePlaidConnected = () => {
+    void Promise.all([refreshPlaidConnection(), refreshProfile()]);
+  };
 
   const defaultApr = estimatedAprFromCreditScore(profile?.credit_score ?? null);
   const [debt, setDebt] = useState(MOCK_ILLUSTRATIVE_DEBT);
@@ -156,9 +161,9 @@ export function PayoffPreConnection() {
           <Typography variant="body1" fontWeight={600}>
             Buffer members get a credit line at {(FINANCE.BUFFER_APR_MIN * 100).toFixed(0)}–{(FINANCE.BUFFER_APR_MAX * 100).toFixed(0)}% APR — connect your accounts to see your rate.
           </Typography>
-          <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled>
+          <PlaidConnectButton variant="contained" color="primary" sx={{ mt: 2 }} onConnected={handlePlaidConnected}>
             Connect my accounts
-          </Button>
+          </PlaidConnectButton>
         </CardContent>
       </Card>
     </Stack>

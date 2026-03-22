@@ -6,6 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
 import { registerBffAuthRoutes } from "./bff/registerAuth.mjs";
+import { registerPlaidRoutes } from "./bff/registerPlaid.mjs";
+import { registerPlaidDashboardRoutes } from "./bff/registerPlaidDashboard.mjs";
 import { registerAdminRoutes } from "./bff/registerAdmin.mjs";
 import { deleteAuth0UserBySub, runM2mAdminSmokeTest } from "./bff/auth0Management.mjs";
 import { deleteSessionRecord } from "./bff/store.mjs";
@@ -102,6 +104,8 @@ async function ensureUserOnboardingProfile(authSubject, issuer, accessToken) {
 }
 
 registerBffAuthRoutes(app, { ensureUserOnboardingProfile });
+registerPlaidRoutes(app, { prisma, ensureUserOnboardingProfile });
+registerPlaidDashboardRoutes(app, { prisma, ensureUserOnboardingProfile });
 registerAdminRoutes(app, { prisma });
 
 /** Map Prisma errors to actionable hints (returned in API JSON). */
@@ -151,6 +155,7 @@ function sanitizeProfile(profile) {
     heard_about_us_other: profile.heardAboutUsOther ?? "",
     created_at: profile.createdAt,
     updated_at: profile.updatedAt,
+    plaid_connection_status: profile.plaidConnectionStatus ?? "disconnected",
   };
 }
 

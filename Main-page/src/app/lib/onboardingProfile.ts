@@ -47,6 +47,8 @@ export type UserOnboardingProfile = {
   annual_pre_tax_income: number | null;
   heard_about_us: AcquisitionSource | null;
   heard_about_us_other: string;
+  /** disconnected | connected — from server after Plaid Link (Phase 1). */
+  plaid_connection_status?: string;
   created_at: string;
   updated_at: string;
 };

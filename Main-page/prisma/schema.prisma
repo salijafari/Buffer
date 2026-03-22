@@ -27,8 +27,17 @@ model UserOnboardingProfile {
   /** Admin dashboard: soft-remove after Auth0 delete (audit). */
   removedAt           DateTime? @map("removed_at")
   isAdmin             Boolean  @default(false) @map("is_admin")
+  /** disconnected | connected — set when Plaid Link exchange succeeds (Phase 1+). */
+  plaidConnectionStatus String   @default("disconnected") @map("plaid_connection_status")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
+
+  plaidItems              PlaidItem[]
+  plaidAccounts           PlaidAccount[]
+  creditCardLiabilities   CreditCardLiability[]
+  plaidTransactions       PlaidTransaction[]
+  bankAccountDetails      BankAccountDetail[]
+  plaidWebhookLogs        PlaidWebhookLog[]
 
   @@index([onboardingCompleted, onboardingStep])
   @@index([provinceCode])
@@ -48,4 +57,141 @@ model AdminGrant {
 
   @@index([userEmail])
   @@map("admin_grants")
+}
+
+model PlaidItem {
+  id                     String    @id @default(cuid())
+  profileId              String    @map("profile_id")
+  profile                UserOnboardingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  encryptedAccessToken   String    @map("encrypted_access_token") @db.Text
+  itemId                 String    @unique @map("item_id")
+  institutionId          String?   @map("institution_id")
+  institutionName        String?   @map("institution_name")
+  status                 String    @default("active")
+  errorCode              String?   @map("error_code")
+  consentExpirationTime  DateTime? @map("consent_expiration_time")
+  transactionsCursor     String?   @map("transactions_cursor") @db.Text
+  lastSuccessfulUpdate   DateTime? @map("last_successful_update")
+  linkMetadata           Json?     @map("link_metadata")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  plaidAccounts PlaidAccount[]
+
+  @@index([profileId])
+  @@map("plaid_items")
+}
+
+/** Credit card fields from Plaid /liabilities/get (Phase 2). */
+model CreditCardLiability {
+  id                    String   @id @default(cuid())
+  profileId             String   @map("profile_id")
+  profile               UserOnboardingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  plaidAccountId        String   @unique @map("plaid_account_id")
+  plaidAccount          PlaidAccount @relation(fields: [plaidAccountId], references: [id], onDelete: Cascade)
+  purchaseApr           Decimal? @map("purchase_apr") @db.Decimal(12, 6)
+  balanceTransferApr    Decimal? @map("balance_transfer_apr") @db.Decimal(12, 6)
+  cashApr               Decimal? @map("cash_apr") @db.Decimal(12, 6)
+  currentBalance        Decimal? @map("current_balance") @db.Decimal(18, 2)
+  creditLimit           Decimal? @map("credit_limit") @db.Decimal(18, 2)
+  availableCredit       Decimal? @map("available_credit") @db.Decimal(18, 2)
+  utilizationPct        Decimal? @map("utilization_pct") @db.Decimal(8, 4)
+  minimumPayment        Decimal? @map("minimum_payment") @db.Decimal(18, 2)
+  nextPaymentDueDate    DateTime? @map("next_payment_due_date") @db.Date
+  lastPaymentAmount     Decimal? @map("last_payment_amount") @db.Decimal(18, 2)
+  lastPaymentDate       DateTime? @map("last_payment_date") @db.Date
+  lastStatementBalance  Decimal? @map("last_statement_balance") @db.Decimal(18, 2)
+  isOverdue             Boolean  @default(false) @map("is_overdue")
+  monthlyInterestCost   Decimal? @map("monthly_interest_cost") @db.Decimal(18, 2)
+  fetchedAt             DateTime @default(now()) @map("fetched_at")
+
+  @@index([profileId])
+  @@map("credit_card_liabilities")
+}
+
+model PlaidAccount {
+  id               String    @id @default(cuid())
+  profileId        String    @map("profile_id")
+  profile          UserOnboardingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  plaidItemId      String    @map("plaid_item_id")
+  plaidItem        PlaidItem @relation(fields: [plaidItemId], references: [id], onDelete: Cascade)
+  accountId        String    @map("account_id")
+  name             String?
+  officialName     String?   @map("official_name")
+  type             String?
+  subtype          String?
+  mask             String?
+  institutionId    String?   @map("institution_id")
+  currentBalance   Decimal?  @map("current_balance") @db.Decimal(18, 2)
+  availableBalance Decimal?  @map("available_balance") @db.Decimal(18, 2)
+  creditLimit      Decimal?  @map("credit_limit") @db.Decimal(18, 2)
+  isoCurrencyCode  String?   @default("CAD") @map("iso_currency_code")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  creditCardLiability CreditCardLiability?
+
+  @@unique([plaidItemId, accountId])
+  @@index([profileId])
+  @@map("plaid_accounts")
+}
+
+/** Plaid /transactions/sync rows (Phase 3). */
+model PlaidTransaction {
+  id                   String    @id @default(cuid())
+  profileId            String    @map("profile_id")
+  profile              UserOnboardingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  plaidTransactionId   String    @unique @map("plaid_transaction_id")
+  plaidAccountId       String    @map("plaid_account_id")
+  amount               Decimal   @map("amount") @db.Decimal(18, 2)
+  date                 DateTime  @map("date") @db.Date
+  datetime             DateTime? @map("datetime")
+  name                 String    @map("name")
+  merchantName         String?   @map("merchant_name")
+  categoryPrimary      String?   @map("category_primary")
+  categoryDetailed     String?   @map("category_detailed")
+  pending              Boolean   @default(false) @map("pending")
+  isoCurrencyCode      String?   @default("CAD") @map("iso_currency_code")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  @@index([profileId, date])
+  @@index([plaidAccountId])
+  @@map("plaid_transactions")
+}
+
+/** Canadian EFT numbers from Plaid /auth/get — encrypted at rest (Phase 4). */
+model BankAccountDetail {
+  id                     String   @id @default(cuid())
+  profileId              String   @map("profile_id")
+  profile                UserOnboardingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  plaidAccountId         String   @map("plaid_account_id")
+  encryptedInstitution   String?  @map("encrypted_institution") @db.Text
+  encryptedBranch        String?  @map("encrypted_branch") @db.Text
+  encryptedAccount       String?  @map("encrypted_account") @db.Text
+  accountMask            String?  @map("account_mask")
+  accountName            String?  @map("account_name")
+  accountType            String?  @map("account_type")
+  isPrimary              Boolean  @default(true) @map("is_primary")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  @@unique([profileId, plaidAccountId])
+  @@index([profileId])
+  @@map("bank_account_details")
+}
+
+model PlaidWebhookLog {
+  id           String   @id @default(cuid())
+  itemId       String?  @map("item_id")
+  webhookType  String   @map("webhook_type")
+  webhookCode  String   @map("webhook_code")
+  payload      Json     @map("payload")
+  processed    Boolean  @default(false) @map("processed")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  profileId    String?  @map("profile_id")
+  profile      UserOnboardingProfile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+
+  @@index([itemId])
+  @@index([createdAt])
+  @@map("plaid_webhook_logs")
 }
