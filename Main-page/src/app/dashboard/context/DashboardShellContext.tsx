@@ -30,8 +30,10 @@ function modeFromEnv(): DashboardConnectionMode {
 
 type DashboardShellContextValue = {
   connectionMode: DashboardConnectionMode;
-  /** True once Plaid Link exchange succeeded for this user (server). */
+  /** True when server reports active Plaid items (healthy link). Null until first fetch. */
   plaidConnected: boolean | null;
+  /** Raw status from `/api/plaid/connection-status` (e.g. connected, disconnected). */
+  plaidStatus: string | null;
   refreshPlaidConnection: () => Promise<void>;
   /** Reload onboarding profile from BFF (e.g. after Plaid exchange updates flags). */
   refreshProfile: () => Promise<void>;
@@ -43,14 +45,17 @@ const DashboardShellContext = createContext<DashboardShellContextValue | null>(n
 
 export function DashboardShellProvider({ children }: { children: ReactNode }) {
   const [searchParams] = useSearchParams();
-  const [plaidConnected, setPlaidConnected] = useState<boolean | null>(null);
+  const [plaidConn, setPlaidConn] = useState<{ connected: boolean; status: string } | null>(null);
+
+  const plaidConnected = plaidConn === null ? null : plaidConn.connected;
+  const plaidStatus = plaidConn?.status ?? null;
 
   const refreshPlaidConnection = useCallback(async () => {
     try {
       const s = await fetchPlaidConnectionStatus();
-      setPlaidConnected(Boolean(s.connected));
+      setPlaidConn({ connected: Boolean(s.connected), status: s.status });
     } catch {
-      setPlaidConnected(false);
+      setPlaidConn({ connected: false, status: "disconnected" });
     }
   }, []);
 
@@ -96,12 +101,13 @@ export function DashboardShellProvider({ children }: { children: ReactNode }) {
     () => ({
       connectionMode,
       plaidConnected,
+      plaidStatus,
       refreshPlaidConnection,
       refreshProfile,
       profile,
       profileLoading,
     }),
-    [connectionMode, plaidConnected, refreshPlaidConnection, refreshProfile, profile, profileLoading],
+    [connectionMode, plaidConnected, plaidStatus, refreshPlaidConnection, refreshProfile, profile, profileLoading],
   );
 
   return <DashboardShellContext.Provider value={value}>{children}</DashboardShellContext.Provider>;

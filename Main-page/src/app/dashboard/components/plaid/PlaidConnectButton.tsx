@@ -4,7 +4,7 @@ import { usePlaidLink } from "react-plaid-link";
 import { createPlaidLinkToken, exchangePlaidPublicToken } from "@/lib/plaidApi";
 
 type PlaidConnectButtonProps = {
-  onConnected?: () => void;
+  onConnected?: () => void | Promise<void>;
   children?: React.ReactNode;
 } & Omit<ButtonProps, "onClick" | "disabled">;
 
@@ -29,7 +29,7 @@ export function PlaidConnectButton({ onConnected, children, ...buttonProps }: Pl
           return;
         }
         setLinkToken(null);
-        onConnected?.();
+        await Promise.resolve(onConnected?.());
       } finally {
         setBusy(false);
       }

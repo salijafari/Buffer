@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Skeleton, Stack, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Skeleton, Stack, useMediaQuery, useTheme } from "@mui/material";
 import { useDashboardShell } from "../../context/DashboardShellContext";
 import { OverviewPreConnection } from "./overview/OverviewPreConnection";
 import { OverviewPostConnection } from "./overview/OverviewPostConnection";
@@ -47,27 +47,54 @@ function SkeletonHome({ isDesktop }: { isDesktop: boolean }) {
       aria-busy="true"
       aria-label="Loading dashboard"
     >
-      <Skeleton variant="rounded" height={144} sx={{ borderRadius: 2 }} />
-      {!isDesktop && (
-        <Stack direction="row" spacing={1.5}>
-          <Skeleton variant="rounded" height={88} sx={{ flex: 1 }} />
-          <Skeleton variant="rounded" height={88} sx={{ flex: 1 }} />
-        </Stack>
-      )}
-      {isDesktop && <Skeleton variant="rounded" height={260} />}
+      <Skeleton variant="rounded" height={48} width="55%" sx={{ borderRadius: 1 }} />
+      <Skeleton variant="rounded" height={140} sx={{ borderRadius: 2 }} />
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" },
+          gap: 2,
+        }}
+      >
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} variant="rounded" height={isDesktop ? 168 : 140} sx={{ borderRadius: 2 }} />
+        ))}
+      </Box>
       {isDesktop ? (
-        <Stack direction="row" spacing={2}>
-          <Skeleton variant="rounded" height={200} sx={{ flex: 1 }} />
-          <Skeleton variant="rounded" height={200} sx={{ flex: 1 }} />
-        </Stack>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { lg: "repeat(12, minmax(0, 1fr))" },
+            gap: 2,
+          }}
+        >
+          <Skeleton variant="rounded" height={320} sx={{ borderRadius: 2, gridColumn: { lg: "span 8" } }} />
+          <Skeleton variant="rounded" height={320} sx={{ borderRadius: 2, gridColumn: { lg: "span 4" } }} />
+        </Box>
       ) : (
         <>
-          <Skeleton variant="rounded" height={96} />
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} variant="rounded" height={64} />
-          ))}
+          <Skeleton variant="rounded" height={260} sx={{ borderRadius: 2 }} />
+          <Skeleton variant="rounded" height={200} sx={{ borderRadius: 2 }} />
         </>
       )}
+      {isDesktop ? (
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { lg: "repeat(12, minmax(0, 1fr))" },
+            gap: 2,
+          }}
+        >
+          <Skeleton variant="rounded" height={260} sx={{ borderRadius: 2, gridColumn: { lg: "span 7" } }} />
+          <Skeleton variant="rounded" height={260} sx={{ borderRadius: 2, gridColumn: { lg: "span 5" } }} />
+        </Box>
+      ) : (
+        <>
+          <Skeleton variant="rounded" height={220} sx={{ borderRadius: 2 }} />
+          <Skeleton variant="rounded" height={200} sx={{ borderRadius: 2 }} />
+        </>
+      )}
+      <Skeleton variant="rounded" height={120} sx={{ borderRadius: 2 }} />
     </Stack>
   );
 }
