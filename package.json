@@ -8,6 +8,7 @@
     "prisma:migrate": "npm --prefix \"Main-page\" run prisma:migrate",
     "prisma:generate": "npm --prefix \"Main-page\" run prisma:generate",
     "prisma:deploy": "npm --prefix \"Main-page\" run prisma:deploy",
-    "prisma:studio": "npm --prefix \"Main-page\" run prisma:studio"
+    "prisma:studio": "npm --prefix \"Main-page\" run prisma:studio",
+    "postinstall": "npm --prefix Main-page ci"
   }
 }
