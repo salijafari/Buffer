@@ -28,7 +28,7 @@ export function Footer() {
             
             <div className="pt-4 space-y-1">
               <p>1155 Pender St, Vancouver, BC, Canada.</p>
-              <p>Copyright 2025. All rights reserved.</p>
+              <p>© 2026 Buffer. mybuffer.ca</p>
             </div>
           </div>
         </div>

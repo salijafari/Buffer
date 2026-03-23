@@ -5,12 +5,9 @@ import {
   BottomNavigation,
   BottomNavigationAction,
   Box,
+  Button,
   Chip,
   IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Paper,
   Stack,
   Toolbar,
@@ -65,14 +62,12 @@ function initialNavBadges(pathnameHint?: string): { ai: number; credit: number }
   return { ai, credit };
 }
 
-const SIDEBAR_BG = "#FFFFFF";
 const RAIL_BG = "#F8FAFC";
 const NAV_MUTED = "#64748B";
 /** Main column when a right rail is visible (Payoff / Credit / AI). */
 const MAIN_MAX_WITH_RAIL = 760;
-/** Main column on Overview — no right rail, use full width between side nav and edge. */
-const MAIN_MAX_OVERVIEW = 1080;
-const SIDEBAR_W = 220;
+/** Main column on Overview — no right rail (`max-w-screen-2xl` ≈ 1536px in Stitch HTML). */
+const MAIN_MAX_OVERVIEW = 1536;
 const RAIL_W = 300;
 
 const TABS = [
@@ -116,47 +111,143 @@ const navAnim = {
 const NAV_ANIM_MS = 0.42;
 const NAV_ANIM_EASE = "cubic-bezier(0.34, 1.25, 0.64, 1)";
 
-function DesktopTopBar({
-  title,
+/** Desktop: logo (left) + tab row (center) + notifications & avatar (right). Mobile unchanged. */
+function DesktopTopTabBar({
+  activeTab,
+  isAccountPage,
+  navBadgeCounts,
+  onNavigate,
+  bumpNavIcon,
+  iconPulse,
   onProfileClick,
   user,
   loading,
 }: {
-  title: string;
+  activeTab: TabId;
+  isAccountPage: boolean;
+  navBadgeCounts: { ai: number; credit: number };
+  onNavigate: (path: string) => void;
+  bumpNavIcon: (id: TabId) => void;
+  iconPulse: Partial<Record<TabId, number>>;
   onProfileClick: () => void;
   user: BffUser | null;
   loading: boolean;
 }) {
+  const theme = useTheme();
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
+    <Box
+      component="header"
       sx={{
-        display: { xs: "none", lg: "flex" },
-        py: 2,
-        px: 0,
+        position: "sticky",
+        top: 0,
+        zIndex: (t) => t.zIndex.appBar,
+        bgcolor: "#ffffff",
         borderBottom: 1,
         borderColor: "divider",
-        mb: 2,
+        boxShadow: "0 1px 3px rgba(15, 23, 42, 0.06)",
       }}
     >
-      <Typography variant="h5" fontWeight={700} sx={{ fontSize: "1.375rem" }}>
-        {title}
-      </Typography>
-      <Stack direction="row" alignItems="center" spacing={1}>
-        <DashboardNotificationsButton size="medium" />
-        <IconButton onClick={onProfileClick} aria-label="Open account" disabled={loading}>
-          {loading ? (
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "action.hover" }} />
-          ) : user ? (
-            <BffUserAvatar picture={user.picture} name={user.name} email={user.email} size={36} />
-          ) : (
-            <BffUserAvatar picture={null} name={null} email={null} size={36} />
-          )}
-        </IconButton>
-      </Stack>
-    </Stack>
+      <Box
+        sx={{
+          maxWidth: "min(1536px, 100%)",
+          mx: "auto",
+          px: { lg: 3, xl: 4 },
+          py: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: { lg: 2, xl: 3 },
+          minHeight: 72,
+          boxSizing: "border-box",
+        }}
+      >
+        <Box
+          component="img"
+          src={bufferLogoTransparent}
+          alt="Buffer"
+          decoding="async"
+          sx={{
+            height: 32,
+            width: "auto",
+            maxWidth: { lg: 140, xl: 180 },
+            objectFit: "contain",
+            objectPosition: "left center",
+            flexShrink: 0,
+            display: "block",
+          }}
+        />
+
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          flexWrap="wrap"
+          useFlexGap
+          spacing={0.5}
+          sx={{ flex: 1, minWidth: 0, columnGap: 0.5, rowGap: 0.5 }}
+        >
+          {TABS.map(({ id, label, path }) => {
+            const active = !isAccountPage && activeTab === id;
+            const navBadge = id === "ai" ? navBadgeCounts.ai : id === "credit" ? navBadgeCounts.credit : 0;
+            return (
+              <Badge key={id} badgeContent={navBadge > 0 ? navBadge : undefined} color="error" invisible={navBadge <= 0} max={99}>
+                <Button
+                  onClick={() => {
+                    bumpNavIcon(id);
+                    onNavigate(path);
+                  }}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    fontSize: { lg: "0.8125rem", xl: "0.875rem" },
+                    fontFamily: '"Manrope", system-ui, sans-serif',
+                    letterSpacing: "-0.01em",
+                    color: active ? "primary.main" : NAV_MUTED,
+                    borderRadius: 0,
+                    px: { lg: 1.25, xl: 2 },
+                    py: 1,
+                    minWidth: "auto",
+                    borderBottom: "2px solid",
+                    borderColor: active ? "primary.main" : "transparent",
+                    bgcolor: "transparent",
+                    transition: "color 0.2s ease, border-color 0.2s ease",
+                    "&:hover": {
+                      bgcolor: alpha(theme.palette.primary.main, 0.06),
+                      borderColor: active ? "primary.main" : alpha(theme.palette.primary.main, 0.35),
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      animation:
+                        (iconPulse[id] ?? 0) > 0
+                          ? `${navAnim[id]} ${NAV_ANIM_MS}s ${NAV_ANIM_EASE} both`
+                          : "none",
+                    }}
+                  >
+                    {label}
+                  </Box>
+                </Button>
+              </Badge>
+            );
+          })}
+        </Stack>
+
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ flexShrink: 0 }}>
+          <DashboardNotificationsButton size="medium" />
+          <IconButton onClick={onProfileClick} aria-label="Open account" disabled={loading} size="small">
+            {loading ? (
+              <Avatar sx={{ width: 36, height: 36, bgcolor: "action.hover" }} />
+            ) : user ? (
+              <BffUserAvatar picture={user.picture} name={user.name} email={user.email} size={36} />
+            ) : (
+              <BffUserAvatar picture={null} name={null} email={null} size={36} />
+            )}
+          </IconButton>
+        </Stack>
+      </Box>
+    </Box>
   );
 }
 
@@ -198,8 +289,6 @@ function DashboardContent() {
   }, [activeTab]);
 
   const bottomPad = "calc(72px + env(safe-area-inset-bottom, 0px))";
-
-  const pageTitle = isAccountPage ? "Account" : TABS.find((t) => t.id === activeTab)?.shortTitle ?? "Home";
 
   /** Overview uses the full main column; right rail only for Payoff / Credit / AI. */
   const showRightRail = isDesktop && !isAccountPage && activeTab !== "home";
@@ -288,6 +377,19 @@ function DashboardContent() {
         bgcolor: "background.default",
       }}
     >
+      <DesktopTopTabBar
+        activeTab={activeTab}
+        isAccountPage={isAccountPage}
+        navBadgeCounts={navBadgeCounts}
+        onNavigate={(path) => {
+          void navigate(path);
+        }}
+        bumpNavIcon={bumpNavIcon}
+        iconPulse={iconPulse}
+        onProfileClick={() => void navigate("/dashboard/account")}
+        user={bffUser}
+        loading={bffLoading}
+      />
       <Box
         sx={{
           flex: 1,
@@ -305,6 +407,7 @@ function DashboardContent() {
             overflowX: "hidden",
             minWidth: 0,
             WebkitOverflowScrolling: "touch",
+            bgcolor: activeTab === "home" && !isAccountPage ? "#f8f9fa" : "background.default",
           }}
         >
           <Box
@@ -321,12 +424,6 @@ function DashboardContent() {
               boxSizing: "border-box",
             }}
           >
-            <DesktopTopBar
-              title={pageTitle}
-              onProfileClick={() => void navigate("/dashboard/account")}
-              user={bffUser}
-              loading={bffLoading}
-            />
             <Box sx={{ flex: { lg: activeTab === "ai" ? 1 : "none" }, minHeight: { lg: activeTab === "ai" ? 0 : "auto" }, display: "flex", flexDirection: "column" }}>
               {isAccountPage ? (
                 <AccountScreen />
@@ -363,91 +460,9 @@ function DashboardContent() {
     </Box>
   );
 
-  const desktopSidebar = (
-    <Box
-      sx={{
-        display: { xs: "none", lg: "flex" },
-        width: SIDEBAR_W,
-        flexShrink: 0,
-        flexDirection: "column",
-        bgcolor: SIDEBAR_BG,
-        borderRight: "1px solid",
-        borderColor: "divider",
-        minHeight: "100vh",
-        py: 2.5,
-        px: 1.5,
-      }}
-    >
-      <Box sx={{ px: 1, mb: 3 }}>
-        <Box
-          component="img"
-          src={bufferLogoTransparent}
-          alt="Buffer"
-          decoding="async"
-          sx={{ height: 32, width: "auto", maxWidth: "100%", objectFit: "contain", objectPosition: "left" }}
-        />
-      </Box>
-
-      <List disablePadding sx={{ flex: 1 }}>
-        {TABS.map(({ id, label, path, Icon }) => {
-          const active = activeTab === id;
-          const navBadge = id === "ai" ? navBadgeCounts.ai : id === "credit" ? navBadgeCounts.credit : 0;
-          return (
-            <ListItemButton
-              key={id}
-              onClick={() => {
-                bumpNavIcon(id);
-                void navigate(path);
-              }}
-              sx={{
-                borderRadius: 1.5,
-                mb: 0.5,
-                py: 1.25,
-                pl: 1.5,
-                borderLeft: active ? `3px solid ${theme.palette.primary.main}` : "3px solid transparent",
-                bgcolor: active ? alpha(theme.palette.primary.main, 0.12) : "transparent",
-                "&:hover": {
-                  bgcolor: active ? alpha(theme.palette.primary.main, 0.16) : "rgba(0,0,0,0.04)",
-                },
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 40, color: active ? "primary.main" : NAV_MUTED }}>
-                <Badge badgeContent={navBadge > 0 ? navBadge : undefined} color="error" invisible={navBadge <= 0} max={99}>
-                  <Box
-                    key={iconPulse[id] ?? 0}
-                    sx={{
-                      display: "inline-flex",
-                      animation:
-                        (iconPulse[id] ?? 0) > 0
-                          ? `${navAnim[id]} ${NAV_ANIM_MS}s ${NAV_ANIM_EASE} both`
-                          : "none",
-                      transformOrigin: "center",
-                    }}
-                  >
-                    <Icon size={22} strokeWidth={1.75} aria-hidden />
-                  </Box>
-                </Badge>
-              </ListItemIcon>
-              <ListItemText
-                primary={label}
-                primaryTypographyProps={{
-                  variant: "body2",
-                  fontWeight: active ? 600 : 500,
-                  sx: { color: active ? "text.primary" : NAV_MUTED, fontSize: "0.8125rem", lineHeight: 1.3 },
-                }}
-              />
-            </ListItemButton>
-          );
-        })}
-      </List>
-
-    </Box>
-  );
-
   if (isDesktop) {
     return (
       <Box sx={{ display: "flex", minHeight: "100vh", width: "100%", bgcolor: "background.default" }}>
-        {desktopSidebar}
         {desktopMain}
       </Box>
     );
