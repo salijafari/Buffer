@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useDashboardShell } from "../../context/DashboardShellContext";
 import { PlaidConnectButton } from "../plaid/PlaidConnectButton";
+import { BODY_FONT, HEADLINE_FONT, OT } from "../home/overview/overviewTokens";
 import { FINANCE } from "../../lib/finance";
 import {
   canadianMinimumMonthlyPayment,
@@ -82,12 +83,21 @@ export function PayoffPreConnection() {
         boxSizing: "border-box",
       }}
     >
-      <Box sx={{ display: { lg: "none" } }}>
-        <Typography variant="h5" fontWeight={700}>
-          Payoff Planner
+      <Box component="header" sx={{ display: { lg: "none" }, mb: 1, maxWidth: "48rem" }}>
+        <Typography
+          component="h1"
+          sx={{
+            fontFamily: HEADLINE_FONT,
+            fontSize: "1.75rem",
+            fontWeight: 800,
+            letterSpacing: "-0.02em",
+            color: OT.onSurface,
+          }}
+        >
+          Payments
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Explore scenarios before you connect accounts
+        <Typography sx={{ fontFamily: BODY_FONT, fontSize: "1rem", color: OT.onSurfaceVariant, mt: 0.5 }}>
+          Explore payoff scenarios before you connect accounts
         </Typography>
       </Box>
 

@@ -204,7 +204,27 @@ createRoot(document.getElementById("root")!).render(
           }
         />
         <Route
+          path="/dashboard/payoff/statements"
+          element={
+            <RequireAuth>
+              <RequireCompletedOnboarding>
+                <Dashboard />
+              </RequireCompletedOnboarding>
+            </RequireAuth>
+          }
+        />
+        <Route
           path="/dashboard/ai"
+          element={
+            <RequireAuth>
+              <RequireCompletedOnboarding>
+                <Dashboard />
+              </RequireCompletedOnboarding>
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/dashboard/support"
           element={
             <RequireAuth>
               <RequireCompletedOnboarding>
