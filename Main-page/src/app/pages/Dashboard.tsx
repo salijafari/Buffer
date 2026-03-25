@@ -7,7 +7,11 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
   Paper,
   Stack,
   Toolbar,
@@ -16,26 +20,26 @@ import {
   useTheme,
 } from "@mui/material";
 import { alpha, keyframes } from "@mui/material/styles";
-import { CreditCard, Home, LineChart, Sparkles } from "lucide-react";
+import { Bell, CreditCard, HelpCircle, Home, LineChart, LogOut, User } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { HomeScreen } from "../dashboard/components/home/HomeScreen";
-import { PayoffScreen, type PayoffRailMetrics } from "../dashboard/components/payoff/PayoffScreen";
+import { PayoffScreen } from "../dashboard/components/payoff/PayoffScreen";
 import { AiScreen, AI_SUGGESTED_PROMPTS, AI_SUGGESTED_PROMPTS_PRE } from "../dashboard/components/ai/AiScreen";
-import { CreditScreen, CreditGraduationRail } from "../dashboard/components/credit/CreditScreen";
+import { CreditScreen } from "../dashboard/components/credit/CreditScreen";
 import { AccountScreen } from "../dashboard/components/account/AccountScreen";
+import { StatementsPage } from "../dashboard/components/payoff/StatementsPage";
+import { SupportPage } from "../dashboard/components/support/SupportPage";
 import bufferLogoTransparent from "@/assets/Buffer Logo Transparent.png";
 import { useBffAuth } from "@/lib/BffAuthContext";
-import type { BffUser } from "@/lib/bffSession";
+import { bffLogout, type BffUser } from "@/lib/bffSession";
 import { MaterialShell } from "../material/MaterialShell";
 import { BffUserAvatar } from "../dashboard/components/BffUserAvatar";
-import { DebtFreeSavingsCallout } from "../dashboard/components/charts/DebtFreeChart";
 import { DashboardNotificationsButton } from "../dashboard/components/DashboardNotificationsButton";
 import { DashboardShellProvider, useDashboardShell } from "../dashboard/context/DashboardShellContext";
-import { MOCK_AI_UNREAD_INSIGHTS, MOCK_CREDIT_REPORT_EVENTS } from "../dashboard/data/mockDashboard";
+import { MOCK_CREDIT_REPORT_EVENTS } from "../dashboard/data/mockDashboard";
 
-/** Session keys: nav badges clear after visiting AI / Credit and stay cleared for the tab session. */
-const SS_NAV_AI_CLEARED = "buffer_dash_nav_ai_badge_cleared";
+/** Session key: Credit nav badge clears after visiting Credit Builder and stays cleared for the tab session. */
 const SS_NAV_CREDIT_CLEARED = "buffer_dash_nav_credit_badge_cleared";
 
 function readNavBadgeCleared(key: string): boolean {
@@ -54,30 +58,40 @@ function markNavBadgeCleared(key: string) {
   }
 }
 
-function initialNavBadges(pathnameHint?: string): { ai: number; credit: number } {
+function initialNavBadges(pathnameHint?: string): { credit: number } {
   const path = pathnameHint ?? (typeof window !== "undefined" ? window.location.pathname : "");
-  const ai = path === "/dashboard/ai" || readNavBadgeCleared(SS_NAV_AI_CLEARED) ? 0 : MOCK_AI_UNREAD_INSIGHTS;
   const credit =
     path === "/dashboard/credit" || readNavBadgeCleared(SS_NAV_CREDIT_CLEARED) ? 0 : MOCK_CREDIT_REPORT_EVENTS;
-  return { ai, credit };
+  return { credit };
 }
 
 const RAIL_BG = "#F8FAFC";
 const NAV_MUTED = "#64748B";
-/** Main column when a right rail is visible (Payoff / Credit / AI). */
+/** Main column when a right rail is visible (Payments / Credit / legacy AI route). */
 const MAIN_MAX_WITH_RAIL = 760;
 /** Main column on Overview — no right rail (`max-w-screen-2xl` ≈ 1536px in Stitch HTML). */
 const MAIN_MAX_OVERVIEW = 1536;
 const RAIL_W = 300;
 
 const TABS = [
-  { id: "home", label: "Overview", shortTitle: "Home", path: "/dashboard", Icon: Home },
-  { id: "payoff", label: "Payoff Planner", shortTitle: "Payoff", path: "/dashboard/payoff", Icon: LineChart },
+  { id: "home", label: "Overview", shortTitle: "Overview", path: "/dashboard", Icon: Home },
+  { id: "payoff", label: "Payments", shortTitle: "Payments", path: "/dashboard/payoff", Icon: LineChart },
   { id: "credit", label: "Credit Builder", shortTitle: "Credit", path: "/dashboard/credit", Icon: CreditCard },
-  { id: "ai", label: "AI Assistant", shortTitle: "AI", path: "/dashboard/ai", Icon: Sparkles },
+  { id: "account", label: "Accounts", shortTitle: "Accounts", path: "/dashboard/account", Icon: User },
 ] as const;
 
-type TabId = (typeof TABS)[number]["id"];
+type NavTabId = (typeof TABS)[number]["id"];
+/** Includes legacy `/dashboard/ai` and `/dashboard/support` (not in the tab bar). */
+type TabId = NavTabId | "ai" | "support";
+
+function activeTabFromPathname(pathname: string): TabId {
+  if (pathname === "/dashboard/ai") return "ai";
+  if (pathname === "/dashboard/support") return "support";
+  if (pathname.startsWith("/dashboard/payoff")) return "payoff";
+  const fromTabs = TABS.find((t) => t.path === pathname)?.id;
+  if (fromTabs) return fromTabs;
+  return "home";
+}
 
 const navAnim = {
   home: keyframes`
@@ -106,6 +120,16 @@ const navAnim = {
     75% { transform: scale(1.05) rotate(-6deg); }
     100% { transform: scale(1) rotate(0deg); }
   `,
+  account: keyframes`
+    0% { transform: scale(1) translateY(0); }
+    40% { transform: scale(1.08) translateY(-2px); }
+    100% { transform: scale(1) translateY(0); }
+  `,
+  support: keyframes`
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  `,
 } satisfies Record<TabId, ReturnType<typeof keyframes>>;
 
 const NAV_ANIM_MS = 0.42;
@@ -114,26 +138,35 @@ const NAV_ANIM_EASE = "cubic-bezier(0.34, 1.25, 0.64, 1)";
 /** Desktop: logo (left) + tab row (center) + notifications & avatar (right). Mobile unchanged. */
 function DesktopTopTabBar({
   activeTab,
-  isAccountPage,
   navBadgeCounts,
   onNavigate,
   bumpNavIcon,
   iconPulse,
-  onProfileClick,
+  onSupportClick,
+  onProfileMenuProfile,
+  onProfileMenuNotifications,
+  onProfileMenuSupport,
+  onSignOut,
   user,
   loading,
 }: {
   activeTab: TabId;
-  isAccountPage: boolean;
-  navBadgeCounts: { ai: number; credit: number };
+  navBadgeCounts: { credit: number };
   onNavigate: (path: string) => void;
-  bumpNavIcon: (id: TabId) => void;
-  iconPulse: Partial<Record<TabId, number>>;
-  onProfileClick: () => void;
+  bumpNavIcon: (id: NavTabId) => void;
+  iconPulse: Partial<Record<NavTabId, number>>;
+  onSupportClick: () => void;
+  onProfileMenuProfile: () => void;
+  onProfileMenuNotifications: () => void;
+  onProfileMenuSupport: () => void;
+  onSignOut: () => void;
   user: BffUser | null;
   loading: boolean;
 }) {
   const theme = useTheme();
+  const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
+  const accountMenuOpen = Boolean(accountMenuAnchor);
+
   return (
     <Box
       component="header"
@@ -185,9 +218,9 @@ function DesktopTopTabBar({
           spacing={0.5}
           sx={{ flex: 1, minWidth: 0, columnGap: 0.5, rowGap: 0.5 }}
         >
-          {TABS.map(({ id, label, path }) => {
-            const active = !isAccountPage && activeTab === id;
-            const navBadge = id === "ai" ? navBadgeCounts.ai : id === "credit" ? navBadgeCounts.credit : 0;
+          {TABS.map(({ id, label, path, Icon }) => {
+            const active = activeTab === id;
+            const navBadge = id === "credit" ? navBadgeCounts.credit : 0;
             return (
               <Badge key={id} badgeContent={navBadge > 0 ? navBadge : undefined} color="error" invisible={navBadge <= 0} max={99}>
                 <Button
@@ -209,10 +242,31 @@ function DesktopTopTabBar({
                     borderBottom: "2px solid",
                     borderColor: active ? "primary.main" : "transparent",
                     bgcolor: "transparent",
-                    transition: "color 0.2s ease, border-color 0.2s ease",
+                    transition:
+                      "color 0.22s ease, border-color 0.22s ease, background-color 0.22s ease, box-shadow 0.22s ease",
+                    "& .nav-tab-icon": {
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transformOrigin: "center center",
+                      transition:
+                        "transform 0.28s cubic-bezier(0.34, 1.25, 0.64, 1), color 0.22s ease, filter 0.22s ease",
+                      color: "inherit",
+                    },
                     "&:hover": {
                       bgcolor: alpha(theme.palette.primary.main, 0.06),
                       borderColor: active ? "primary.main" : alpha(theme.palette.primary.main, 0.35),
+                      color: "primary.main",
+                      "& .nav-tab-icon": {
+                        transform: "translateY(-2px) scale(1.08)",
+                        filter: "drop-shadow(0 2px 6px rgba(26, 158, 143, 0.22))",
+                      },
+                    },
+                    "&:active": {
+                      "& .nav-tab-icon": {
+                        transform: "translateY(0) scale(0.94)",
+                        transition: "transform 0.12s cubic-bezier(0.34, 1.25, 0.64, 1)",
+                      },
                     },
                   }}
                 >
@@ -220,13 +274,17 @@ function DesktopTopTabBar({
                     sx={{
                       display: "inline-flex",
                       alignItems: "center",
+                      gap: { lg: 0.5, xl: 0.75 },
                       animation:
                         (iconPulse[id] ?? 0) > 0
                           ? `${navAnim[id]} ${NAV_ANIM_MS}s ${NAV_ANIM_EASE} both`
                           : "none",
                     }}
                   >
-                    {label}
+                    <Box component="span" className="nav-tab-icon" aria-hidden>
+                      <Icon size={18} strokeWidth={1.85} />
+                    </Box>
+                    <Box component="span">{label}</Box>
                   </Box>
                 </Button>
               </Badge>
@@ -234,17 +292,112 @@ function DesktopTopTabBar({
           })}
         </Stack>
 
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ flexShrink: 0 }}>
-          <DashboardNotificationsButton size="medium" />
-          <IconButton onClick={onProfileClick} aria-label="Open account" disabled={loading} size="small">
-            {loading ? (
-              <Avatar sx={{ width: 36, height: 36, bgcolor: "action.hover" }} />
-            ) : user ? (
-              <BffUserAvatar picture={user.picture} name={user.name} email={user.email} size={36} />
-            ) : (
-              <BffUserAvatar picture={null} name={null} email={null} size={36} />
-            )}
+        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flexShrink: 0 }}>
+          <IconButton onClick={onSupportClick} aria-label="Support" size="small" sx={{ color: NAV_MUTED }}>
+            <Box
+              component="span"
+              className="material-symbols-outlined"
+              sx={{ fontSize: 22, lineHeight: 1, userSelect: "none" }}
+              aria-hidden
+            >
+              help
+            </Box>
           </IconButton>
+          <DashboardNotificationsButton size="medium" />
+          <>
+            <IconButton
+              id="dashboard-account-menu-button"
+              aria-controls={accountMenuOpen ? "dashboard-account-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={accountMenuOpen ? "true" : undefined}
+              onClick={(e) => setAccountMenuAnchor(e.currentTarget)}
+              aria-label="Account menu"
+              disabled={loading}
+              size="small"
+            >
+              {loading ? (
+                <Avatar sx={{ width: 36, height: 36, bgcolor: "action.hover" }} />
+              ) : user ? (
+                <BffUserAvatar picture={user.picture} name={user.name} email={user.email} size={36} />
+              ) : (
+                <BffUserAvatar picture={null} name={null} email={null} size={36} />
+              )}
+            </IconButton>
+            <Menu
+              id="dashboard-account-menu"
+              anchorEl={accountMenuAnchor}
+              open={accountMenuOpen}
+              onClose={() => setAccountMenuAnchor(null)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              slotProps={{
+                paper: {
+                  sx: {
+                    mt: 1,
+                    minWidth: 232,
+                    borderRadius: 2,
+                    border: `1px solid ${theme.palette.divider}`,
+                    boxShadow: "0 10px 40px rgba(15, 23, 42, 0.12)",
+                  },
+                },
+                list: {
+                  dense: true,
+                  "aria-labelledby": "dashboard-account-menu-button",
+                  sx: { py: 0.5 },
+                },
+              }}
+            >
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  onProfileMenuProfile();
+                }}
+                sx={{ py: 1.15, fontWeight: 600, fontSize: "0.875rem" }}
+              >
+                <ListItemIcon sx={{ minWidth: 36, color: NAV_MUTED }}>
+                  <User size={18} strokeWidth={1.85} />
+                </ListItemIcon>
+                Profile
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  onProfileMenuNotifications();
+                }}
+                sx={{ py: 1.15, fontWeight: 600, fontSize: "0.875rem" }}
+              >
+                <ListItemIcon sx={{ minWidth: 36, color: NAV_MUTED }}>
+                  <Bell size={18} strokeWidth={1.85} />
+                </ListItemIcon>
+                Notifications
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  onProfileMenuSupport();
+                }}
+                sx={{ py: 1.15, fontWeight: 600, fontSize: "0.875rem" }}
+              >
+                <ListItemIcon sx={{ minWidth: 36, color: NAV_MUTED }}>
+                  <HelpCircle size={18} strokeWidth={1.85} />
+                </ListItemIcon>
+                Help &amp; Support
+              </MenuItem>
+              <Divider sx={{ my: 0.5 }} />
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  onSignOut();
+                }}
+                sx={{ py: 1.15, fontWeight: 600, fontSize: "0.875rem", color: "error.main" }}
+              >
+                <ListItemIcon sx={{ minWidth: 36, color: "error.main" }}>
+                  <LogOut size={18} strokeWidth={1.85} />
+                </ListItemIcon>
+                Sign out
+              </MenuItem>
+            </Menu>
+          </>
         </Stack>
       </Box>
     </Box>
@@ -257,78 +410,52 @@ function DashboardContent() {
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const navigate = useNavigate();
   const location = useLocation();
+  const isStatementsPage = location.pathname === "/dashboard/payoff/statements";
   const { state: bffState } = useBffAuth();
   const bffUser = bffState.status === "auth" ? bffState.user : null;
   const bffLoading = bffState.status === "loading";
-  const activeTab = TABS.find((t) => location.pathname === t.path)?.id ?? "home";
-  const isAccountPage = location.pathname === "/dashboard/account";
+  const activeTab = activeTabFromPathname(location.pathname);
 
-  const [iconPulse, setIconPulse] = useState<Partial<Record<TabId, number>>>({});
-  const bumpNavIcon = useCallback((tabId: TabId) => {
+  const [iconPulse, setIconPulse] = useState<Partial<Record<NavTabId, number>>>({});
+  const bumpNavIcon = useCallback((tabId: NavTabId) => {
     setIconPulse((prev) => ({ ...prev, [tabId]: (prev[tabId] ?? 0) + 1 }));
   }, []);
 
-  const [payoffMetrics, setPayoffMetrics] = useState<PayoffRailMetrics | null>(null);
   const aiSendRef = useRef<((text: string) => void) | null>(null);
 
   const [navBadgeCounts, setNavBadgeCounts] = useState(() => initialNavBadges());
 
   useLayoutEffect(() => {
-    if (location.pathname === "/dashboard/ai") {
-      markNavBadgeCleared(SS_NAV_AI_CLEARED);
-      setNavBadgeCounts((prev) => (prev.ai === 0 ? prev : { ...prev, ai: 0 }));
-    }
     if (location.pathname === "/dashboard/credit") {
       markNavBadgeCleared(SS_NAV_CREDIT_CLEARED);
       setNavBadgeCounts((prev) => (prev.credit === 0 ? prev : { ...prev, credit: 0 }));
     }
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (activeTab !== "payoff") setPayoffMetrics(null);
-  }, [activeTab]);
-
   const bottomPad = "calc(72px + env(safe-area-inset-bottom, 0px))";
 
-  /** Overview uses the full main column; right rail only for Payoff / Credit / AI. */
-  const showRightRail = isDesktop && !isAccountPage && activeTab !== "home";
+  /** Right rail for legacy AI only (no rail on Overview, Accounts, Credit Builder, Payments, or Statements). */
+  const showRightRail =
+    isDesktop &&
+    !isStatementsPage &&
+    activeTab !== "home" &&
+    activeTab !== "account" &&
+    activeTab !== "credit" &&
+    activeTab !== "payoff" &&
+    activeTab !== "support";
 
-  const mainMaxWidthLg = activeTab === "home" ? MAIN_MAX_OVERVIEW : MAIN_MAX_WITH_RAIL;
+  const mainMaxWidthLg =
+    activeTab === "home" ||
+    activeTab === "account" ||
+    activeTab === "credit" ||
+    activeTab === "payoff" ||
+    activeTab === "support"
+      ? MAIN_MAX_OVERVIEW
+      : MAIN_MAX_WITH_RAIL;
 
   function renderRightRail() {
     if (!showRightRail) return null;
     switch (activeTab) {
-      case "payoff":
-        return (
-          <Stack spacing={2}>
-            <Typography variant="subtitle2" fontWeight={700} color="text.primary">
-              Payoff insights
-            </Typography>
-            {payoffMetrics && payoffMetrics.interestSaved >= 10 ? (
-              <DebtFreeSavingsCallout
-                interestSaved={payoffMetrics.interestSaved}
-                monthsSaved={payoffMetrics.monthsSaved}
-                totalBalance={payoffMetrics.totalBalance}
-              />
-            ) : null}
-            <Box
-              sx={{
-                borderRadius: 2,
-                p: 2,
-                bgcolor: "background.paper",
-                border: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              <Typography variant="caption" color="text.secondary" display="block">
-                Buffer Credit Line
-              </Typography>
-              <Typography variant="body2" fontWeight={600} color="primary" sx={{ mt: 0.5 }}>
-                Active
-              </Typography>
-            </Box>
-          </Stack>
-        );
       case "ai":
         return (
           <Stack spacing={1.5}>
@@ -359,8 +486,6 @@ function DashboardContent() {
             </Stack>
           </Stack>
         );
-      case "credit":
-        return <CreditGraduationRail />;
       default:
         return null;
     }
@@ -379,14 +504,17 @@ function DashboardContent() {
     >
       <DesktopTopTabBar
         activeTab={activeTab}
-        isAccountPage={isAccountPage}
         navBadgeCounts={navBadgeCounts}
         onNavigate={(path) => {
           void navigate(path);
         }}
         bumpNavIcon={bumpNavIcon}
         iconPulse={iconPulse}
-        onProfileClick={() => void navigate("/dashboard/account")}
+        onSupportClick={() => void navigate("/dashboard/support")}
+        onProfileMenuProfile={() => void navigate("/dashboard/account?section=profile")}
+        onProfileMenuNotifications={() => void navigate("/dashboard/account?section=notifications")}
+        onProfileMenuSupport={() => void navigate("/dashboard/support")}
+        onSignOut={() => void bffLogout()}
         user={bffUser}
         loading={bffLoading}
       />
@@ -407,7 +535,14 @@ function DashboardContent() {
             overflowX: "hidden",
             minWidth: 0,
             WebkitOverflowScrolling: "touch",
-            bgcolor: activeTab === "home" && !isAccountPage ? "#f8f9fa" : "background.default",
+            bgcolor:
+              activeTab === "home" ||
+              activeTab === "account" ||
+              activeTab === "credit" ||
+              activeTab === "payoff" ||
+              activeTab === "support"
+                ? "#f8f9fa"
+                : "background.default",
           }}
         >
           <Box
@@ -425,13 +560,16 @@ function DashboardContent() {
             }}
           >
             <Box sx={{ flex: { lg: activeTab === "ai" ? 1 : "none" }, minHeight: { lg: activeTab === "ai" ? 0 : "auto" }, display: "flex", flexDirection: "column" }}>
-              {isAccountPage ? (
+              {activeTab === "account" ? (
                 <AccountScreen />
+              ) : activeTab === "ai" ? (
+                <AiScreen sendMessageRef={aiSendRef} hideSuggestedChips />
+              ) : activeTab === "support" ? (
+                <SupportPage />
               ) : (
                 <>
                   {activeTab === "home" && <HomeScreen />}
-                  {activeTab === "payoff" && <PayoffScreen onPayoffMetrics={setPayoffMetrics} />}
-                  {activeTab === "ai" && <AiScreen sendMessageRef={aiSendRef} hideSuggestedChips />}
+                  {activeTab === "payoff" && (isStatementsPage ? <StatementsPage /> : <PayoffScreen />)}
                   {activeTab === "credit" && <CreditScreen />}
                 </>
               )}
@@ -517,6 +655,22 @@ function DashboardContent() {
             />
           </Box>
           <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flexShrink: 0, ml: "auto" }}>
+            <IconButton
+              onClick={() => void navigate("/dashboard/support")}
+              aria-label="Support"
+              edge="end"
+              size="small"
+              sx={{ color: NAV_MUTED }}
+            >
+              <Box
+                component="span"
+                className="material-symbols-outlined"
+                sx={{ fontSize: 22, lineHeight: 1, userSelect: "none" }}
+                aria-hidden
+              >
+                help
+              </Box>
+            </IconButton>
             <DashboardNotificationsButton size="small" />
             <IconButton
               onClick={() => void navigate("/dashboard/account")}
@@ -546,15 +700,26 @@ function DashboardContent() {
           minWidth: 0,
           width: "100%",
           WebkitOverflowScrolling: "touch",
+          bgcolor:
+            activeTab === "home" ||
+            activeTab === "account" ||
+            activeTab === "credit" ||
+            activeTab === "payoff" ||
+            activeTab === "support"
+              ? "#f8f9fa"
+              : "background.default",
         }}
       >
-        {isAccountPage ? (
+        {activeTab === "account" ? (
           <AccountScreen />
+        ) : activeTab === "ai" ? (
+          <AiScreen />
+        ) : activeTab === "support" ? (
+          <SupportPage />
         ) : (
           <>
             {activeTab === "home" && <HomeScreen />}
-            {activeTab === "payoff" && <PayoffScreen onPayoffMetrics={setPayoffMetrics} />}
-            {activeTab === "ai" && <AiScreen />}
+            {activeTab === "payoff" && (isStatementsPage ? <StatementsPage /> : <PayoffScreen />)}
             {activeTab === "credit" && <CreditScreen />}
           </>
         )}
@@ -577,7 +742,7 @@ function DashboardContent() {
         }}
       >
         <BottomNavigation
-          value={isAccountPage ? false : activeTab}
+          value={activeTab === "ai" || activeTab === "support" ? false : activeTab}
           showLabels
           onChange={(_, newValue) => {
             const tab = TABS.find((t) => t.id === newValue);
@@ -621,7 +786,7 @@ function DashboardContent() {
           {TABS.map(({ id, label, Icon }) => {
             const pulse = iconPulse[id] ?? 0;
             const kf = navAnim[id];
-            const navBadge = id === "ai" ? navBadgeCounts.ai : id === "credit" ? navBadgeCounts.credit : 0;
+            const navBadge = id === "credit" ? navBadgeCounts.credit : 0;
             return (
               <BottomNavigationAction
                 key={id}

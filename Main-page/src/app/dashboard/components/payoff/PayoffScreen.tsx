@@ -1,20 +1,12 @@
 import { useDashboardShell } from "../../context/DashboardShellContext";
 import { PayoffPreConnection } from "./PayoffPreConnection";
-import { PayoffPostConnection, type PayoffRailMetrics } from "./PayoffPostConnection";
+import { PayoffPostConnection } from "./PayoffPostConnection";
 
-export type { PayoffRailMetrics };
-
-export function PayoffScreen({
-  onPayoffMetrics,
-}: {
-  onPayoffMetrics?: (m: PayoffRailMetrics | null) => void;
-}) {
+export function PayoffScreen() {
   const { connectionMode, plaidConnected } = useDashboardShell();
   const usePlaidLiveDataOnly = connectionMode === "post" && plaidConnected === true;
   if (connectionMode === "pre") {
     return <PayoffPreConnection />;
   }
-  return (
-    <PayoffPostConnection usePlaidLiveDataOnly={usePlaidLiveDataOnly} onPayoffMetrics={onPayoffMetrics} />
-  );
+  return <PayoffPostConnection usePlaidLiveDataOnly={usePlaidLiveDataOnly} />;
 }

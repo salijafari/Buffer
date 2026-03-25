@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import {
   Box,
   Button,
@@ -11,8 +12,6 @@ import {
   Divider,
   IconButton,
   List,
-  ListItemButton,
-  ListItemText,
   Paper,
   Stack,
   Switch,
@@ -23,28 +22,10 @@ import {
 } from "@mui/material";
 import { bffLogout, deleteBffAccount } from "@/lib/bffSession";
 import { ChevronLeft } from "lucide-react";
-import { BffUserAvatar } from "../BffUserAvatar";
+import { AccountsDashboardView } from "./AccountsDashboardView";
 import { type AccountIdentity, useAccountIdentity } from "./useAccountIdentity";
 
-type Section = "main" | "profile" | "notifications" | "support";
-
-type NavItem = { id: Exclude<Section, "main">; label: string; desc: string };
-
-const NAV_ITEMS_TAIL: NavItem[] = [
-  { id: "notifications", label: "Notifications", desc: "Push, email, SMS" },
-  { id: "support", label: "Help & Support", desc: "FAQ, contact" },
-];
-
-/** Subtitle under "Profile" in the account nav — same merged identity as the header (BFF + onboarding profile). */
-function profileNavSubtitle(identity: AccountIdentity, loading: boolean): string {
-  if (loading) return "Loading…";
-  const name = identity.displayName.trim();
-  const email = identity.email.trim();
-  if (name && email) return `${name}, ${email}`;
-  if (email) return email;
-  if (name) return name;
-  return "—";
-}
+type Section = "main" | "profile" | "notifications";
 
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
@@ -240,30 +221,6 @@ function NotificationsSection({ onBack, showBack = true }: { onBack: () => void;
   );
 }
 
-function SupportSection({ onBack, showBack = true }: { onBack: () => void; showBack?: boolean }) {
-  return (
-    <Stack spacing={2.5}>
-      {showBack ? (
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          <BackButton onClick={onBack} />
-          <Typography variant="h6" fontWeight={700}>
-            Help &amp; Support
-          </Typography>
-        </Stack>
-      ) : (
-        <Typography variant="h6" fontWeight={700} sx={{ fontSize: "1.375rem" }}>
-          Help &amp; Support
-        </Typography>
-      )}
-      <Box sx={{ p: 2.5, borderRadius: 2, border: 1, borderColor: "divider", bgcolor: "background.paper" }}>
-        <Typography component="a" href="mailto:support@mybuffer.ca" variant="body2" color="primary.main" fontWeight={600}>
-          support@mybuffer.ca
-        </Typography>
-      </Box>
-    </Stack>
-  );
-}
-
 const wrap = (node: ReactNode) => (
   <Box sx={{ px: 2, py: 2.5, maxWidth: { xs: "100%", sm: 672 }, mx: "auto", width: "100%", minWidth: 0, boxSizing: "border-box" }}>
     {node}
@@ -283,8 +240,6 @@ function renderDetailSection(
       return <ProfileSection identity={identity} loading={loading} profileError={profileError} onBack={onBack} showBack={showBack} />;
     case "notifications":
       return <NotificationsSection onBack={onBack} showBack={showBack} />;
-    case "support":
-      return <SupportSection onBack={onBack} showBack={showBack} />;
     default:
       return null;
   }
@@ -292,132 +247,69 @@ function renderDetailSection(
 
 export function AccountScreen() {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
-  const [section, setSection] = useState<Section>("main");
   const { identity, loading, profileError } = useAccountIdentity();
 
-  const navItems = useMemo<NavItem[]>(
-    () => [
-      { id: "profile", label: "Profile", desc: profileNavSubtitle(identity, loading) },
-      ...NAV_ITEMS_TAIL,
-    ],
-    [identity, loading],
-  );
+  const sectionParam = searchParams.get("section");
+  const section: Section =
+    sectionParam === "profile" || sectionParam === "notifications" ? sectionParam : "main";
 
-  const goMain = () => setSection("main");
+  const goMain = () => {
+    void navigate("/dashboard/account", { replace: true });
+  };
+
+  const settingsHandlers = {
+    onProfile: () => void navigate("/dashboard/account?section=profile", { replace: true }),
+    onNotifications: () => void navigate("/dashboard/account?section=notifications", { replace: true }),
+    onSupport: () => void navigate("/dashboard/support"),
+    onSignOut: () => void bffLogout(),
+  };
 
   if (!isDesktop) {
     if (section === "profile") {
       return wrap(<ProfileSection identity={identity} loading={loading} profileError={profileError} onBack={goMain} />);
     }
     if (section === "notifications") return wrap(<NotificationsSection onBack={goMain} />);
-    if (section === "support") return wrap(<SupportSection onBack={goMain} />);
 
     return (
-      <Stack spacing={2.5} sx={{ px: 2, py: 2.5, maxWidth: { xs: "100%", sm: 672 }, mx: "auto", width: "100%", minWidth: 0, boxSizing: "border-box" }}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <BffUserAvatar picture={identity.picture} name={identity.displayName} email={identity.email} size={56} />
-          <Box sx={{ minWidth: 0 }}>
-            <Typography variant="subtitle1" fontWeight={600} noWrap>
-              {identity.displayName}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" noWrap>
-              {identity.email || "—"}
-            </Typography>
-          </Box>
-        </Stack>
-
-        <List disablePadding aria-label="Account sections" sx={{ borderRadius: 2, border: 1, borderColor: "divider", bgcolor: "background.paper", overflow: "hidden" }}>
-          {navItems.map((item, i, arr) => (
-            <Box key={item.id}>
-              <ListItemButton onClick={() => setSection(item.id)} sx={{ py: 2, px: 2.5 }}>
-                <ListItemText primary={item.label} secondary={item.desc} primaryTypographyProps={{ fontWeight: 500 }} secondaryTypographyProps={{ variant: "caption" }} />
-              </ListItemButton>
-              {i < arr.length - 1 ? <Divider /> : null}
-            </Box>
-          ))}
-        </List>
-
-        <Button
-          variant="outlined"
-          color="error"
-          fullWidth
-          sx={{ py: 1.5 }}
-          onClick={() => void bffLogout()}
-        >
-          Sign Out
-        </Button>
-      </Stack>
+      <Box
+        sx={{
+          width: "100%",
+          minWidth: 0,
+          boxSizing: "border-box",
+          px: { xs: 2, sm: 3 },
+          pt: { xs: 2, sm: 2.5 },
+        }}
+      >
+        <AccountsDashboardView {...settingsHandlers} />
+      </Box>
     );
   }
 
-  const detailKey: Exclude<Section, "main"> = section === "main" ? "profile" : section;
-
-  return (
-    <Stack
-      direction="row"
-      spacing={3}
-      sx={{
-        px: { lg: 0 },
-        py: { lg: 0 },
-        width: "100%",
-        minWidth: 0,
-        maxWidth: { lg: "none" },
-        alignItems: "flex-start",
-        boxSizing: "border-box",
-      }}
-    >
-      <Box
+  if (section !== "main") {
+    return (
+      <Paper
+        variant="outlined"
         sx={{
-          flex: { lg: "0 0 30%" },
-          maxWidth: { lg: 280 },
-          minWidth: { lg: 200 },
+          p: { xs: 2, sm: 3 },
+          borderRadius: 3,
+          maxWidth: 640,
+          mx: "auto",
           width: "100%",
+          minWidth: 0,
+          borderColor: "divider",
         }}
       >
-        <Stack spacing={2} sx={{ position: { lg: "sticky" }, top: { lg: 16 } }}>
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ px: 1 }}>
-            <BffUserAvatar picture={identity.picture} name={identity.displayName} email={identity.email} size={48} />
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="subtitle2" fontWeight={600} noWrap>
-                {identity.displayName}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap display="block">
-                {identity.email || "—"}
-              </Typography>
-            </Box>
-          </Stack>
-          <List disablePadding aria-label="Account sections" sx={{ borderRadius: 2, border: 1, borderColor: "divider", bgcolor: "background.paper", overflow: "hidden" }}>
-            {navItems.map((item, i, arr) => (
-              <Box key={item.id}>
-                <ListItemButton
-                  selected={detailKey === item.id}
-                  onClick={() => setSection(item.id)}
-                  sx={{ py: 1.75, px: 2 }}
-                >
-                  <ListItemText primary={item.label} secondary={item.desc} primaryTypographyProps={{ fontWeight: 500 }} secondaryTypographyProps={{ variant: "caption" }} />
-                </ListItemButton>
-                {i < arr.length - 1 ? <Divider /> : null}
-              </Box>
-            ))}
-          </List>
-          <Button
-            variant="outlined"
-            color="error"
-            fullWidth
-            sx={{ py: 1.25 }}
-            onClick={() => void bffLogout()}
-          >
-            Sign Out
-          </Button>
-        </Stack>
-      </Box>
+        {renderDetailSection(section, goMain, true, identity, loading, profileError)}
+      </Paper>
+    );
+  }
 
-      <Box sx={{ flex: { lg: "1 1 70%" }, minWidth: 0, width: "100%" }}>
-        <Paper variant="outlined" sx={{ p: { lg: 3 }, borderRadius: 2 }}>
-          {renderDetailSection(detailKey, goMain, false, identity, loading, profileError)}
-        </Paper>
-      </Box>
-    </Stack>
+  return (
+    <Box sx={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
+      <AccountsDashboardView {...settingsHandlers} />
+    </Box>
   );
 }
