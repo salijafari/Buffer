@@ -48,7 +48,6 @@ function SkeletonHome({ isDesktop }: { isDesktop: boolean }) {
       aria-label="Loading dashboard"
     >
       <Skeleton variant="rounded" height={48} width="55%" sx={{ borderRadius: 1 }} />
-      <Skeleton variant="rounded" height={140} sx={{ borderRadius: 2 }} />
       <Box
         sx={{
           display: "grid",

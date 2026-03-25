@@ -13,7 +13,6 @@ import { OverviewCreditHealth } from "./OverviewCreditHealth";
 import { OverviewMetricCards } from "./OverviewMetricCards";
 import { OverviewPageHeader } from "./OverviewPageHeader";
 import { OverviewPaymentPanel } from "./OverviewPaymentPanel";
-import { OverviewPayoffProgress } from "./OverviewPayoffProgress";
 import { OverviewQuickActions } from "./OverviewQuickActions";
 import { OVERVIEW_MOCK, OVERVIEW_MOCK_ACCOUNTS } from "./overviewMock";
 import type { CardData } from "../../../types/timeline";
@@ -138,7 +137,6 @@ export function OverviewPostConnection({
         }}
       >
         <Skeleton variant="rounded" height={48} width="60%" sx={{ borderRadius: 1 }} />
-        <Skeleton variant="rounded" height={140} sx={{ borderRadius: 2 }} />
         <Box
           sx={{
             display: "grid",
@@ -219,7 +217,6 @@ export function OverviewPostConnection({
     );
   }
 
-  const payoff = OVERVIEW_MOCK.payoff;
   const metrics = OVERVIEW_MOCK.metrics;
   const payment = OVERVIEW_MOCK.payment;
   const ch = OVERVIEW_MOCK.creditHealth;
@@ -242,6 +239,8 @@ export function OverviewPostConnection({
     >
       <OverviewPageHeader />
 
+      {/* Payoff Progress hero hidden for now — component preserved in ./OverviewPayoffProgress.tsx to restore later. */}
+
       {/* Single 12-col grid like Stitch HTML: `grid grid-cols-1 lg:grid-cols-12 gap-8` */}
       <Box
         sx={{
@@ -251,15 +250,6 @@ export function OverviewPostConnection({
           alignItems: "stretch",
         }}
       >
-        <Box sx={{ gridColumn: { lg: "span 12" }, minWidth: 0 }}>
-          <OverviewPayoffProgress
-            originalAmount={payoff.originalAmount}
-            totalPaid={payoff.totalPaid}
-            remaining={payoff.remaining}
-            completionPct={payoff.completionPct}
-          />
-        </Box>
-
         <OverviewMetricCards
           interestSavedThisMonth={metrics.interestSavedThisMonth}
           interestSavedCumulative={metrics.interestSavedCumulative}
