@@ -29,50 +29,32 @@ function formatHistoryDate(iso: string): string {
 function PaymentsHeader() {
   return (
     <header style={{ marginBottom: "3rem", width: "100%", maxWidth: "min(48rem, 100%)" }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={2} sx={{ mb: 0 }}>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography
-            component="h1"
-            sx={{
-              fontFamily: HEADLINE_FONT,
-              fontSize: { xs: "2.5rem", md: "3rem" },
-              fontWeight: 800,
-              letterSpacing: "-0.02em",
-              color: OT.onSurface,
-              mb: 1,
-            }}
-          >
-            Payments
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: BODY_FONT,
-              fontSize: { xs: "1.0625rem", md: "1.125rem" },
-              fontWeight: 500,
-              lineHeight: 1.625,
-              color: OT.onSurfaceVariant,
-            }}
-          >
-            Manage your monthly Buffer bill and repayment settings.
-          </Typography>
-        </Box>
+      <Box sx={{ minWidth: 0 }}>
         <Typography
-          component={RouterLink}
-          to={PAYMENTS_STATEMENTS_PATH}
+          component="h1"
           sx={{
-            fontFamily: BODY_FONT,
-            fontWeight: 700,
-            fontSize: "0.9375rem",
-            color: OT.primary,
-            textDecoration: "none",
-            flexShrink: 0,
-            pt: { xs: 0, sm: 1 },
-            "&:hover": { textDecoration: "underline" },
+            fontFamily: HEADLINE_FONT,
+            fontSize: { xs: "2.5rem", md: "3rem" },
+            fontWeight: 800,
+            letterSpacing: "-0.02em",
+            color: OT.onSurface,
+            mb: 1,
           }}
         >
-          Statements
+          Payments
         </Typography>
-      </Stack>
+        <Typography
+          sx={{
+            fontFamily: BODY_FONT,
+            fontSize: { xs: "1.0625rem", md: "1.125rem" },
+            fontWeight: 500,
+            lineHeight: 1.625,
+            color: OT.onSurfaceVariant,
+          }}
+        >
+          Manage your monthly Buffer bill and repayment settings.
+        </Typography>
+      </Box>
     </header>
   );
 }
