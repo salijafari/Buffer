@@ -18,13 +18,24 @@ export const OT = {
   onSurfaceVariant: "#3d4947",
   outline: "#6d7a77",
   primaryFixed: "#89f5e7",
+  /** Dark text / icons on `primaryFixed` circles (M3 exported HTML). */
+  onPrimaryFixed: "#00201d",
+  primaryFixedDim: "#6bd8cb",
+  tertiary: "#924628",
+  outlineVariant: "#bcc9c6",
+  surfaceContainerHighest: "#e0e3e5",
   /** Tailwind `teal-600` for icon accents */
   teal600: "#0d9488",
   teal50: "#f0fdfa",
-  /** Design: large rounded cards (~24px) */
-  cardRadius: "24px",
-  cardShadow: "0 4px 24px rgba(15, 23, 42, 0.06)",
+  /** Stitch `stich_new_designs/*`: cards use ~1rem radius; statement rows slightly larger */
+  cardRadius: "1rem",
+  cardRadiusLg: "1.5rem",
+  cardShadow: "0 1px 2px rgba(15, 23, 42, 0.06)",
+  cardShadowHover: "0 4px 14px rgba(15, 23, 42, 0.1)",
   cardBorder: "rgba(226, 232, 240, 0.9)",
+  /** Top bar: `backdrop-blur-xl` + `shadow-teal-900/5` */
+  navBlur: "blur(24px)",
+  navShadow: "0 1px 2px rgba(15, 77, 69, 0.05)",
 } as const;
 
 export const HEADLINE_FONT = '"Manrope", system-ui, sans-serif';

@@ -8,11 +8,11 @@ export const HELP_TOPICS: {
   description: string;
   to: string;
 }[] = [
-  { icon: "credit_card", title: "Payments", description: "Manage billing and history.", to: "/dashboard/payoff" },
-  { icon: "autorenew", title: "Autopay", description: "Automatic payment settings.", to: "/dashboard/payoff" },
-  { icon: "account_balance", title: "Bank Account", description: "Linked accounts and security.", to: "/dashboard/account" },
-  { icon: "trending_up", title: "Credit Builder", description: "Improve your credit score.", to: "/dashboard/credit" },
-  { icon: "description", title: "Statements", description: "Monthly report downloads.", to: "/dashboard/payoff/statements" },
+  { icon: "payments", title: "Payments", description: "Manage billing and history", to: "/dashboard/payoff" },
+  { icon: "autorenew", title: "Autopay", description: "Automatic payment settings", to: "/dashboard/payoff" },
+  { icon: "account_balance", title: "Bank Account", description: "Linked accounts and security", to: "/dashboard/account" },
+  { icon: "trending_up", title: "Credit Builder", description: "Improve your credit score", to: "/dashboard/credit" },
+  { icon: "description", title: "Statements", description: "Monthly report downloads", to: "/dashboard/payoff/statements" },
 ];
 
 export const FAQ_ITEMS: { q: string; a: string }[] = [

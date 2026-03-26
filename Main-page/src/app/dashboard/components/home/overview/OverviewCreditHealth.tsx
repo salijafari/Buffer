@@ -1,4 +1,5 @@
 import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
+import { FINANCIAL_MASK } from "../../../lib/financialDisplay";
 import { MsIcon } from "./MsIcon";
 import { BODY_FONT, HEADLINE_FONT, OT } from "./overviewTokens";
 
@@ -7,21 +8,29 @@ type Props = {
   utilAfterPct: number;
   onTimeStreakMonths: number;
   scoreTrendPts: number;
+  showLiveFinancials: boolean;
 };
 
-export function OverviewCreditHealth({ utilBeforePct, utilAfterPct, onTimeStreakMonths, scoreTrendPts }: Props) {
+export function OverviewCreditHealth({
+  utilBeforePct,
+  utilAfterPct,
+  onTimeStreakMonths,
+  scoreTrendPts,
+  showLiveFinancials,
+}: Props) {
+  const live = showLiveFinancials;
   return (
     <Card
       elevation={0}
       sx={{
         borderRadius: OT.cardRadius,
-        border: `1px solid ${OT.cardBorder}`,
+        border: `1px solid ${OT.surfaceContainer}`,
         bgcolor: OT.surfaceContainerLowest,
         boxShadow: OT.cardShadow,
         height: "100%",
       }}
     >
-      <CardContent sx={{ p: { xs: 3, md: 4 }, "&:last-child": { pb: { xs: 3, md: 4 } } }}>
+      <CardContent sx={{ p: { xs: 3, md: 5 }, "&:last-child": { pb: { xs: 3, md: 5 } } }}>
         <Typography variant="h6" sx={{ fontFamily: HEADLINE_FONT, fontSize: "1.25rem", fontWeight: 700, color: OT.onSurface, mb: 3 }}>
           Credit Health
         </Typography>
@@ -43,11 +52,11 @@ export function OverviewCreditHealth({ utilBeforePct, utilAfterPct, onTimeStreak
             </Typography>
             <Stack direction="row" alignItems="baseline" spacing={1}>
               <Typography sx={{ fontFamily: HEADLINE_FONT, fontSize: "1.25rem", fontWeight: 700, color: OT.onSurface }}>
-                {utilBeforePct}%
+                {live ? `${utilBeforePct}%` : FINANCIAL_MASK}
               </Typography>
               <MsIcon name="arrow_forward" sx={{ fontSize: 18, color: OT.primary }} />
               <Typography sx={{ fontFamily: HEADLINE_FONT, fontSize: "1.5rem", fontWeight: 700, color: OT.primary }}>
-                {utilAfterPct}%
+                {live ? `${utilAfterPct}%` : FINANCIAL_MASK}
               </Typography>
             </Stack>
           </Box>
@@ -62,7 +71,7 @@ export function OverviewCreditHealth({ utilBeforePct, utilAfterPct, onTimeStreak
               On-time streak
             </Typography>
             <Typography sx={{ fontFamily: HEADLINE_FONT, fontSize: "1.125rem", fontWeight: 700, color: OT.onSurface }}>
-              {onTimeStreakMonths} months
+              {live ? `${onTimeStreakMonths} months` : FINANCIAL_MASK}
             </Typography>
           </Stack>
 
@@ -76,7 +85,7 @@ export function OverviewCreditHealth({ utilBeforePct, utilAfterPct, onTimeStreak
               Score trend
             </Typography>
             <Typography sx={{ fontFamily: HEADLINE_FONT, fontSize: "1.125rem", fontWeight: 700, color: OT.primary }}>
-              +{scoreTrendPts} pts
+              {live ? `+${scoreTrendPts} pts` : FINANCIAL_MASK}
             </Typography>
           </Stack>
         </Stack>

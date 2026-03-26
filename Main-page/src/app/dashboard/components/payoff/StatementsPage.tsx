@@ -1,6 +1,8 @@
 import { Box, Button, Card, CardContent, IconButton, Link, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router";
+import { useLiveFinancialDisplay } from "../../hooks/useLiveFinancialDisplay";
+import { displayMoney, FINANCIAL_MASK } from "../../lib/financialDisplay";
 import { OVERVIEW_MOCK } from "../home/overview/overviewMock";
 import { BODY_FONT, HEADLINE_FONT, OT } from "../home/overview/overviewTokens";
 import { MsIcon } from "../home/overview/MsIcon";
@@ -8,6 +10,10 @@ import { fmtCurrency } from "../../lib/dashboardFormat";
 import { STATEMENTS_LIST_MOCK, STATEMENTS_YTD_PAID } from "./statementsMock";
 
 const PAYMENTS_HOME = "/dashboard/payoff";
+
+/** Stitch `buffer_statements_page` decorative image */
+const STATEMENTS_DECOR_IMAGE =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuC4dpQ9x64RlxlhT-syDyoh5RITFJTcBPx1sgOhkgCCycIqP9NWwBqfURu-_8zUsO3LsNw0j-IF_pF1NI9FZHyfeWG1HQGjAHt6IUY8rlnzrMV0X9cglCCN6aPFOFxLNMOs4fZDc16k8IedkeCAUee_7q90ps8wh-es_frio6ARVatycA5c4vQVt7mmx8VBcYkMMkvBXs75wuvYhCVkiulgT8Bh1CjaXiKiUoHp09ddVuz62FwDwVORmi1Fdm2KEmJaQLbsQ5-9_Xo";
 
 const usd = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -19,6 +25,8 @@ function formatNextDue(iso: string): string {
 
 export function StatementsPage() {
   const p = OVERVIEW_MOCK.payment;
+  const { showLiveFinancials } = useLiveFinancialDisplay();
+  const live = showLiveFinancials;
 
   return (
     <Stack
@@ -28,11 +36,12 @@ export function StatementsPage() {
       sx={{
         px: { xs: 2, lg: 0 },
         py: { xs: 2.5, lg: 0 },
-        maxWidth: { xs: "100%", lg: "min(1536px, 100%)" },
+        maxWidth: { xs: "100%", lg: "min(1280px, 100%)" },
         mx: "auto",
         width: "100%",
         minWidth: 0,
         boxSizing: "border-box",
+        gap: { xs: 4, lg: 6 },
       }}
     >
       <Typography
@@ -55,28 +64,21 @@ export function StatementsPage() {
         Back to Payments
       </Typography>
 
-      <header style={{ marginBottom: "2rem", maxWidth: "48rem" }}>
+      <header style={{ marginBottom: "3rem", maxWidth: "48rem" }}>
         <Typography
           component="h1"
           sx={{
             fontFamily: HEADLINE_FONT,
-            fontSize: { xs: "2.25rem", md: "2.75rem" },
+            fontSize: { xs: "2.5rem", md: "3rem" },
             fontWeight: 800,
             letterSpacing: "-0.02em",
             color: OT.onSurface,
-            mb: 2,
+            mb: 1,
           }}
         >
           Statements
         </Typography>
-        <Typography
-          sx={{
-            fontFamily: BODY_FONT,
-            fontSize: "1.125rem",
-            lineHeight: 1.625,
-            color: OT.onSurfaceVariant,
-          }}
-        >
+        <Typography sx={{ fontFamily: BODY_FONT, fontSize: "1.125rem", fontWeight: 500, lineHeight: 1.625, color: OT.onSurfaceVariant }}>
           View your monthly Buffer statements and billing records.
         </Typography>
       </header>
@@ -84,151 +86,152 @@ export function StatementsPage() {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1.65fr) minmax(0, 1fr)" },
+          gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 2fr) minmax(0, 1fr)" },
           gap: { xs: 3, lg: 4 },
           alignItems: "start",
         }}
       >
-        {/* Statement list */}
         <Card
           elevation={0}
           sx={{
             borderRadius: OT.cardRadius,
-            border: `1px solid ${OT.cardBorder}`,
             bgcolor: OT.surfaceContainerLowest,
             boxShadow: OT.cardShadow,
             minWidth: 0,
           }}
         >
-          <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2.5 }}>
-              <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.125rem", color: OT.onSurface }}>
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 4 }}>
+              <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: { xs: "1.375rem", md: "1.5rem" }, color: OT.onSurface }}>
                 Statement List
               </Typography>
-              <IconButton size="small" aria-label="Filter or sort statements" sx={{ color: OT.outline }}>
-                <MsIcon name="filter_list" sx={{ fontSize: 22 }} />
+              <IconButton size="small" aria-label="Filter or sort statements" sx={{ color: OT.onSurfaceVariant }}>
+                <MsIcon name="filter_list" sx={{ fontSize: 24 }} />
               </IconButton>
             </Stack>
-            <Stack spacing={1.5}>
+            <Stack spacing={2}>
               {STATEMENTS_LIST_MOCK.map((row) => (
-                <Box
+                <Stack
                   key={row.id}
+                  direction={{ xs: "column", sm: "row" }}
+                  alignItems={{ xs: "flex-start", sm: "center" }}
+                  justifyContent="space-between"
+                  spacing={2}
                   sx={{
-                    borderRadius: "16px",
+                    p: 2.5,
+                    borderRadius: OT.cardRadiusLg,
                     bgcolor: OT.surfaceContainerLow,
-                    border: `1px solid ${OT.cardBorder}`,
-                    p: 2,
+                    transition: "background-color 0.2s ease",
+                    "&:hover": { bgcolor: OT.surfaceContainerHigh },
                   }}
                 >
-                  <Stack direction={{ xs: "column", sm: "row" }} alignItems={{ xs: "flex-start", sm: "center" }} justifyContent="space-between" spacing={2}>
-                    <Stack direction="row" alignItems="center" spacing={2}>
-                      <Box
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: "50%",
-                          bgcolor: alpha(OT.primary, 0.12),
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <MsIcon name="calendar_month" sx={{ fontSize: 24, color: OT.primary }} />
-                      </Box>
-                      <Box>
-                        <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1rem", color: OT.onSurface }}>
-                          {row.periodLabel}
-                        </Typography>
-                        <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.8125rem", color: OT.outline, mt: 0.25 }}>
-                          Amount due: {usd(row.amountDue)}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap" useFlexGap>
-                      <Box
-                        sx={{
-                          px: 1.5,
-                          py: 0.35,
-                          borderRadius: 999,
-                          bgcolor: alpha(OT.primary, 0.12),
-                          color: OT.primary,
-                          fontFamily: BODY_FONT,
-                          fontSize: "0.7rem",
-                          fontWeight: 800,
-                          letterSpacing: "0.06em",
-                        }}
-                      >
-                        PAID
-                      </Box>
-                      <Link
-                        component="button"
-                        type="button"
-                        onClick={(e) => e.preventDefault()}
-                        sx={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 0.5,
-                          fontFamily: BODY_FONT,
-                          fontSize: "0.875rem",
-                          fontWeight: 700,
-                          color: OT.primary,
-                          cursor: "pointer",
-                          border: "none",
-                          bgcolor: "transparent",
-                          p: 0,
-                          "&:hover": { textDecoration: "underline" },
-                        }}
-                      >
-                        <MsIcon name="download" sx={{ fontSize: 18 }} />
-                        Download PDF
-                      </Link>
-                    </Stack>
+                  <Stack direction="row" alignItems="center" spacing={3}>
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        bgcolor: alpha(OT.primaryContainer, 0.15),
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <MsIcon name="calendar_today" sx={{ fontSize: 24, color: OT.primary }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1rem", color: OT.onSurface }}>
+                        {row.periodLabel}
+                      </Typography>
+                      <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.875rem", color: OT.onSurfaceVariant, mt: 0.25 }}>
+                        Amount due: {displayMoney(live, () => usd(row.amountDue))}
+                      </Typography>
+                    </Box>
                   </Stack>
-                </Box>
+                  <Stack direction="row" alignItems="center" spacing={3} flexWrap="wrap" useFlexGap>
+                    <Box
+                      sx={{
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: 999,
+                        bgcolor: OT.secondaryContainer,
+                        color: OT.onSecondaryContainer,
+                        fontFamily: BODY_FONT,
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Paid
+                    </Box>
+                    <Link
+                      component="button"
+                      type="button"
+                      onClick={(e) => e.preventDefault()}
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.75,
+                        fontFamily: BODY_FONT,
+                        fontSize: "0.9375rem",
+                        fontWeight: 600,
+                        color: OT.primary,
+                        cursor: "pointer",
+                        border: "none",
+                        bgcolor: "transparent",
+                        p: 0,
+                        textDecoration: "underline",
+                        textDecorationThickness: 2,
+                        textUnderlineOffset: 6,
+                        "&:hover": { opacity: 0.9 },
+                      }}
+                    >
+                      <MsIcon name="download" sx={{ fontSize: 18 }} />
+                      Download PDF
+                    </Link>
+                  </Stack>
+                </Stack>
               ))}
             </Stack>
           </CardContent>
         </Card>
 
-        {/* Sidebar */}
-        <Stack spacing={2.5} sx={{ position: { lg: "sticky" }, top: { lg: 16 }, minWidth: 0 }}>
+        <Stack spacing={4} sx={{ position: { lg: "sticky" }, top: { lg: 16 }, minWidth: 0 }}>
           <Card
             elevation={0}
             sx={{
               borderRadius: OT.cardRadius,
-              border: `1px solid ${OT.cardBorder}`,
               bgcolor: OT.surfaceContainerLowest,
               boxShadow: OT.cardShadow,
             }}
           >
-            <CardContent sx={{ p: 2.5 }}>
-              <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.0625rem", color: OT.onSurface, mb: 2 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.25rem", letterSpacing: "-0.02em", color: OT.onSurface, mb: 3 }}>
                 Billing Summary
               </Typography>
-              <Stack divider={<Box sx={{ borderTop: `1px solid ${OT.surfaceContainer}`, my: 1.5 }} />}>
+              <Stack spacing={3} divider={<Box sx={{ borderTop: `1px solid ${OT.surfaceContainerHigh}` }} />}>
                 <Box>
-                  <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: OT.outline, mb: 0.5 }}>
-                    TOTAL PAID THIS YEAR
+                  <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: OT.onSurfaceVariant, mb: 0.5 }}>
+                    Total paid this year
                   </Typography>
-                  <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 800, fontSize: "1.5rem", color: OT.primary }}>
-                    {usd(STATEMENTS_YTD_PAID)}
+                  <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 800, fontSize: "1.875rem", color: OT.primary }}>
+                    {displayMoney(live, () => usd(STATEMENTS_YTD_PAID))}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: OT.outline, mb: 0.5 }}>
-                    CURRENT BALANCE
+                  <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: OT.onSurfaceVariant, mb: 0.5 }}>
+                    Current balance
                   </Typography>
-                  <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.125rem", color: OT.onSurface }}>
-                    {fmtCurrency(p.currentBalance, 0)}
+                  <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 800, fontSize: "1.875rem", color: OT.onSurface }}>
+                    {displayMoney(live, () => fmtCurrency(p.currentBalance, 0))}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: OT.outline, mb: 0.5 }}>
-                    NEXT DUE DATE
+                  <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: OT.onSurfaceVariant, mb: 0.5 }}>
+                    Next due date
                   </Typography>
-                  <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.0625rem", color: OT.onSurface }}>
-                    {formatNextDue(p.nextPaymentDateIso)}
+                  <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.25rem", color: OT.onSurface }}>
+                    {live ? formatNextDue(p.nextPaymentDateIso) : FINANCIAL_MASK}
                   </Typography>
                 </Box>
               </Stack>
@@ -240,33 +243,31 @@ export function StatementsPage() {
             sx={{
               borderRadius: OT.cardRadius,
               border: "none",
-              bgcolor: OT.primary,
-              color: "#fff",
-              boxShadow: `0 12px 28px ${alpha(OT.primary, 0.35)}`,
+              background: `linear-gradient(135deg, ${OT.primary} 0%, ${OT.primaryContainer} 100%)`,
+              color: OT.onPrimaryContainer,
+              boxShadow: `0 16px 40px ${alpha(OT.primary, 0.35)}`,
             }}
           >
-            <CardContent sx={{ p: 2.5 }}>
-              <Stack direction="row" alignItems="flex-start" spacing={1.5} sx={{ mb: 2 }}>
-                <Box
-                  sx={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    bgcolor: alpha("#fff", 0.2),
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <MsIcon name="help" sx={{ fontSize: 22, color: "#fff" }} />
-                </Box>
-                <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.0625rem", lineHeight: 1.35 }}>
-                  Need help with a statement?
-                </Typography>
-              </Stack>
-              <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.875rem", lineHeight: 1.55, opacity: 0.95, mb: 2 }}>
-                Our team can explain line items, due dates, or payment confirmations. Reach out anytime.
+            <CardContent sx={{ p: 3 }}>
+              <Box
+                sx={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  bgcolor: alpha("#fff", 0.12),
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mb: 3,
+                }}
+              >
+                <MsIcon name="contact_support" sx={{ fontSize: 28, color: "#fff" }} />
+              </Box>
+              <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.25rem", mb: 1.5, color: "#fff" }}>
+                Need help with a statement?
+              </Typography>
+              <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.875rem", lineHeight: 1.6, color: alpha(OT.onPrimaryContainer, 0.85), mb: 4 }}>
+                If you have a question about a charge, payment, or statement, contact Buffer support.
               </Typography>
               <Button
                 component={RouterLink}
@@ -277,11 +278,13 @@ export function StatementsPage() {
                   textTransform: "none",
                   fontWeight: 700,
                   fontFamily: BODY_FONT,
+                  py: 1.75,
                   bgcolor: "#fff",
                   color: OT.primary,
-                  py: 1.25,
                   boxShadow: "none",
-                  "&:hover": { bgcolor: alpha("#fff", 0.92), boxShadow: "none" },
+                  transition: "transform 0.2s ease, background-color 0.2s ease",
+                  "&:hover": { bgcolor: alpha("#fff", 0.95), boxShadow: "none", transform: "scale(1.02)" },
+                  "&:active": { transform: "scale(0.98)" },
                 }}
               >
                 Contact Support
@@ -289,38 +292,10 @@ export function StatementsPage() {
             </CardContent>
           </Card>
 
-          <Card
-            elevation={0}
-            sx={{
-              borderRadius: OT.cardRadius,
-              overflow: "hidden",
-              border: `1px solid ${alpha("#0f172a", 0.2)}`,
-              minHeight: 140,
-              bgcolor: "#0c4a6e",
-              position: "relative",
-            }}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                opacity: 0.9,
-                background: `
-                  linear-gradient(135deg, ${alpha("#0e7490", 0.5)} 0%, #0c4a6e 40%, #082f49 100%),
-                  repeating-linear-gradient(0deg, transparent, transparent 11px, ${alpha("#fff", 0.04)} 11px, ${alpha("#fff", 0.04)} 12px),
-                  repeating-linear-gradient(90deg, transparent, transparent 11px, ${alpha("#fff", 0.04)} 11px, ${alpha("#fff", 0.04)} 12px)
-                `,
-              }}
-            />
-            <Box sx={{ position: "relative", p: 2.5, height: "100%" }}>
-              <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.08em", color: alpha("#fff", 0.75) }}>
-                BILLING
-              </Typography>
-              <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 800, fontSize: "1rem", color: "#fff", mt: 0.5 }}>
-                Records &amp; receipts
-              </Typography>
-            </Box>
-          </Card>
+          <Box sx={{ height: 160, borderRadius: OT.cardRadius, overflow: "hidden", position: "relative" }}>
+            <Box component="img" src={STATEMENTS_DECOR_IMAGE} alt="" sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <Box sx={{ position: "absolute", inset: 0, bgcolor: alpha(OT.primary, 0.2), backdropFilter: "blur(2px)" }} />
+          </Box>
         </Stack>
       </Box>
     </Stack>

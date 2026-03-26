@@ -1,12 +1,5 @@
-import { useDashboardShell } from "../../context/DashboardShellContext";
-import { PayoffPreConnection } from "./PayoffPreConnection";
-import { PayoffPostConnection } from "./PayoffPostConnection";
+import { PaymentsPage } from "./PaymentsPage";
 
 export function PayoffScreen() {
-  const { connectionMode, plaidConnected } = useDashboardShell();
-  const usePlaidLiveDataOnly = connectionMode === "post" && plaidConnected === true;
-  if (connectionMode === "pre") {
-    return <PayoffPreConnection />;
-  }
-  return <PayoffPostConnection usePlaidLiveDataOnly={usePlaidLiveDataOnly} />;
+  return <PaymentsPage />;
 }

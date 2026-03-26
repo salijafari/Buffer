@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#924628",
+              "surface-container": "#eceef0",
+              "surface": "#f7f9fb",
+              "on-primary-fixed-variant": "#005049",
+              "primary-fixed": "#89f5e7",
+              "tertiary-fixed": "#ffdbce",
+              "inverse-surface": "#2d3133",
+              "surface-container-high": "#e6e8ea",
+              "surface-dim": "#d8dadc",
+              "on-background": "#191c1e",
+              "surface-container-lowest": "#ffffff",
+              "on-error": "#ffffff",
+              "inverse-primary": "#6bd8cb",
+              "on-secondary-container": "#456b66",
+              "on-error-container": "#93000a",
+              "on-primary-container": "#f4fffc",
+              "surface-tint": "#006a61",
+              "surface-container-low": "#f2f4f6",
+              "on-secondary-fixed-variant": "#274d48",
+              "secondary-fixed": "#c2ebe3",
+              "secondary-container": "#c2ebe3",
+              "tertiary-container": "#b05e3d",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#ffb59a",
+              "outline": "#6d7a77",
+              "secondary": "#3f6560",
+              "on-secondary-fixed": "#00201d",
+              "surface-container-highest": "#e0e3e5",
+              "secondary-fixed-dim": "#a6cfc8",
+              "error": "#ba1a1a",
+              "surface-bright": "#f7f9fb",
+              "on-tertiary": "#ffffff",
+              "on-tertiary-container": "#fffbff",
+              "on-tertiary-fixed-variant": "#773215",
+              "on-surface-variant": "#3d4947",
+              "primary-fixed-dim": "#6bd8cb",
+              "on-surface": "#191c1e",
+              "on-primary": "#ffffff",
+              "primary-container": "#008378",
+              "on-tertiary-fixed": "#370e00",
+              "background": "#f7f9fb",
+              "primary": "#00685f",
+              "on-primary-fixed": "#00201d",
+              "inverse-on-surface": "#eff1f3",
+              "outline-variant": "#bcc9c6",
+              "surface-variant": "#e0e3e5",
+              "on-secondary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- TopAppBar Component -->
+<nav class="fixed top-0 w-full z-50 bg-[#f7f9fb]/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm shadow-teal-900/5">
+<div class="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-teal-700 dark:text-teal-500">Buffer</div>
+<div class="hidden md:flex items-center gap-8 font-manrope font-semibold tracking-tight">
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-600 hover:scale-105 transition-transform duration-200" href="#">Dashboard</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-600 hover:scale-105 transition-transform duration-200" href="#">Payments</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-600 hover:scale-105 transition-transform duration-200" href="#">Accounts</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-600 hover:scale-105 transition-transform duration-200" href="#">Credit Builder</a>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-slate-500 hover:scale-105 transition-all">help</button>
+<button class="material-symbols-outlined text-slate-500 hover:scale-105 transition-all">notifications</button>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/20">
+<img alt="User Profile" data-alt="professional headshot of a smiling woman with a soft blurred architectural background, warm natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWb5F0LMAIj2m2h_B_m1MPgWj-c-5uJPlzwOGMSBMAhN4SG_G9ibjtfxLupKM8rPUMGfXEQw--swGD3pMt7hcFwiteMlua05MLIyYdxK-zn5mNbtEqB82H4cdHXtpkDUtExymv63t4LyfplyHirSNQwwY69uPVXzao4LkpTppBJp6WoFXKoK4lByEO6ot1SFTI6kUYv1C7X33Uouhf_0aKYwoetDYlFS8ikbeBa8KjREg_HziWDy-mTANxNAs5E70RdYOGLn5iFRw"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-20 px-8 max-w-7xl mx-auto space-y-12">
+<!-- Header Section -->
+<header class="space-y-4 max-w-2xl">
+<h1 class="text-5xl font-extrabold tracking-tight text-on-surface">Support</h1>
+<p class="text-xl text-on-surface-variant font-medium">Get help with payments, connected accounts, autopay, and your Buffer plan.</p>
+</header>
+<!-- Top Section: Two Columns -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Card: Help Topics -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-lg p-10 shadow-sm">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold tracking-tight text-on-surface">Help Topics</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Payments -->
+<button class="group flex flex-col items-start p-6 bg-surface-container-low rounded-lg hover:scale-[1.02] active:scale-95 transition-all text-left">
+<span class="material-symbols-outlined text-primary text-3xl mb-4">payments</span>
+<span class="font-bold text-on-surface">Payments</span>
+<span class="text-sm text-on-surface-variant mt-1">Manage billing and history</span>
+</button>
+<!-- Autopay -->
+<button class="group flex flex-col items-start p-6 bg-surface-container-low rounded-lg hover:scale-[1.02] active:scale-95 transition-all text-left">
+<span class="material-symbols-outlined text-primary text-3xl mb-4">autorenew</span>
+<span class="font-bold text-on-surface">Autopay</span>
+<span class="text-sm text-on-surface-variant mt-1">Automatic payment settings</span>
+</button>
+<!-- Bank Account -->
+<button class="group flex flex-col items-start p-6 bg-surface-container-low rounded-lg hover:scale-[1.02] active:scale-95 transition-all text-left">
+<span class="material-symbols-outlined text-primary text-3xl mb-4">account_balance</span>
+<span class="font-bold text-on-surface">Bank Account</span>
+<span class="text-sm text-on-surface-variant mt-1">Linked accounts and security</span>
+</button>
+<!-- Credit Builder -->
+<button class="group flex flex-col items-start p-6 bg-surface-container-low rounded-lg hover:scale-[1.02] active:scale-95 transition-all text-left">
+<span class="material-symbols-outlined text-primary text-3xl mb-4">trending_up</span>
+<span class="font-bold text-on-surface">Credit Builder</span>
+<span class="text-sm text-on-surface-variant mt-1">Improve your credit score</span>
+</button>
+<!-- Statements -->
+<button class="group flex flex-col items-start p-6 bg-surface-container-low rounded-lg hover:scale-[1.02] active:scale-95 transition-all text-left">
+<span class="material-symbols-outlined text-primary text-3xl mb-4">description</span>
+<span class="font-bold text-on-surface">Statements</span>
+<span class="text-sm text-on-surface-variant mt-1">Monthly report downloads</span>
+</button>
+</div>
+</div>
+<!-- Right Card: Contact Support -->
+<div class="lg:col-span-4 bg-surface-container-lowest rounded-lg p-10 shadow-sm flex flex-col h-full">
+<h2 class="text-2xl font-bold tracking-tight text-on-surface mb-8">Contact Support</h2>
+<div class="flex flex-col gap-4 flex-grow">
+<!-- Start Chat -->
+<button class="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-md shadow-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat</span>
+                        Start Chat
+                    </button>
+<!-- Send Message -->
+<button class="flex items-center justify-center gap-3 w-full py-4 bg-surface-container-high text-on-surface rounded-full font-bold hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined">mail</span>
+                        Send Message
+                    </button>
+<!-- Call Support -->
+<button class="flex items-center justify-center gap-3 w-full py-4 bg-surface-container-high text-on-surface rounded-full font-bold hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined">call</span>
+                        Call Support
+                    </button>
+</div>
+<p class="text-xs text-on-surface-variant text-center mt-8 font-medium">Available 24/7 for urgent matters.</p>
+</div>
+</section>
+<!-- Full-width: Common Questions -->
+<section class="bg-surface-container-lowest rounded-lg p-10 shadow-sm">
+<h2 class="text-3xl font-bold tracking-tight text-on-surface mb-10">Common Questions</h2>
+<div class="divide-y divide-surface-container-high">
+<!-- Question 1 -->
+<div class="py-6 group cursor-pointer">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-semibold text-on-surface">How does Buffer lower my interest cost?</h3>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+<!-- Question 2 -->
+<div class="py-6 group cursor-pointer">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-semibold text-on-surface">Can I make an extra payment?</h3>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+<!-- Question 3 -->
+<div class="py-6 group cursor-pointer">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-semibold text-on-surface">How do I update my bank account?</h3>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+<!-- Question 4 -->
+<div class="py-6 group cursor-pointer">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-semibold text-on-surface">What happens if autopay fails?</h3>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+<!-- Question 5 -->
+<div class="py-6 group cursor-pointer border-b border-surface-container-high">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-semibold text-on-surface">How does Buffer help my credit profile?</h3>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Full-width: Reassurance Footer Card -->
+<section class="relative overflow-hidden bg-primary-container rounded-lg p-12 text-on-primary-container flex flex-col md:flex-row items-center gap-8 shadow-xl shadow-primary/10">
+<div class="relative z-10 flex-1">
+<p class="text-3xl md:text-4xl font-bold tracking-tight leading-tight">We’re here to help you stay on track and make repayment easier to manage.</p>
+</div>
+<div class="relative z-10">
+<div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+</div>
+<!-- Aesthetic Background Polish -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary opacity-20 blur-3xl -mr-32 -mt-32 rounded-full"></div>
+<div class="absolute bottom-0 left-0 w-48 h-48 bg-secondary opacity-10 blur-2xl -ml-24 -mb-24 rounded-full"></div>
+</section>
+</main>
+<!-- Footer Component -->
+<footer class="w-full py-12 px-8 bg-[#f2f4f6] dark:bg-slate-900 border-t border-slate-200/50 dark:border-slate-800/50">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
+<div class="text-xs font-inter text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                © 2024 Buffer Fintech. Member FDIC. Equal Housing Lender.
+            </div>
+<div class="flex gap-8">
+<a class="text-xs font-inter text-slate-400 hover:text-teal-500 hover:underline transition-all uppercase tracking-widest" href="#">Privacy Policy</a>
+<a class="text-xs font-inter text-slate-400 hover:text-teal-500 hover:underline transition-all uppercase tracking-widest" href="#">Terms of Service</a>
+<a class="text-xs font-inter text-slate-400 hover:text-teal-500 hover:underline transition-all uppercase tracking-widest" href="#">Cookie Policy</a>
+<a class="text-xs font-inter text-slate-400 hover:text-teal-500 hover:underline transition-all uppercase tracking-widest" href="#">Security</a>
+<a class="text-xs font-inter text-slate-400 hover:text-teal-500 hover:underline transition-all uppercase tracking-widest" href="#">Accessibility</a>
+</div>
+</div>
+</footer>
+</body></html>

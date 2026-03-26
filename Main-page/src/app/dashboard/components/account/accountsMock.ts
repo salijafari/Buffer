@@ -7,6 +7,6 @@ export type PaidDownCardRow = {
 
 export const ACCOUNTS_PAID_DOWN_CARDS: PaidDownCardRow[] = [
   { name: "Visa", mask: "8841", originalBalance: 3_200 },
-  { name: "Mastercard", mask: "2209", originalBalance: 4_100 },
-  { name: "Amex", mask: "7710", originalBalance: 1_850 },
+  { name: "Mastercard", mask: "2209", originalBalance: 2_700 },
+  { name: "Amex", mask: "7710", originalBalance: 3_600 },
 ];

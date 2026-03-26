@@ -16,7 +16,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { ChevronDown, Lock, SendHorizontal, Sparkles, X } from "lucide-react";
+import { ChevronDown, SendHorizontal, Sparkles, X } from "lucide-react";
 import { useDashboardShell } from "../../context/DashboardShellContext";
 
 type Role = "user" | "assistant";
@@ -76,24 +76,6 @@ function MessageBubble({ msg }: { msg: Message }) {
   );
 }
 
-const PRE_INSIGHTS = [
-  {
-    title: "Prime rates within reach",
-    body: "Based on a score of 682, you're ~18 points from prime rates. Credit Builder could help you get there in ~3 months (illustrative).",
-    cta: "Start Credit Builder",
-  },
-  {
-    title: "Interest adds up",
-    body: "At your current pace, you could pay thousands in interest this year. Connecting your cards lets us find exactly where to save.",
-    cta: "Connect cards",
-  },
-  {
-    title: "Automation wins",
-    body: "Canadians in your debt bracket who automate payoff pay off debt 2.1× faster on average (benchmark).",
-    cta: "See your payoff plan",
-  },
-] as const;
-
 const POST_INSIGHTS_SEED = [
   {
     id: "1",
@@ -116,15 +98,13 @@ export function AiScreen({
   sendMessageRef?: React.MutableRefObject<((text: string) => void) | null>;
   hideSuggestedChips?: boolean;
 }) {
-  const { connectionMode } = useDashboardShell();
+  const { plaidConnected } = useDashboardShell();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "0",
       role: "assistant",
       text:
-        connectionMode === "pre"
-          ? "Hi! I'm Buffer AI. Ask me about payoff strategies using your onboarding estimates, or connect accounts for personalized numbers."
-          : "Hi! I'm Buffer AI. I can help with debt payoff and credit improvement using your connected data (mock).",
+        "Hi! I'm Buffer AI. Ask me about payoff and credit health — connect accounts to see live figures on your dashboard.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -135,6 +115,22 @@ export function AiScreen({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, thinking]);
+
+  useEffect(() => {
+    setMessages((prev) => {
+      if (prev.length !== 1 || prev[0].id !== "0") return prev;
+      return [
+        {
+          id: "0",
+          role: "assistant",
+          text:
+            plaidConnected === true
+              ? "Hi! I'm Buffer AI. I can help with debt payoff and credit improvement using your connected data."
+              : "Hi! I'm Buffer AI. Ask me about payoff and credit health — connect accounts to see live figures on your dashboard.",
+        },
+      ];
+    });
+  }, [plaidConnected]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -159,51 +155,7 @@ export function AiScreen({
     };
   }, [sendMessageRef, sendMessage]);
 
-  const suggested = connectionMode === "pre" ? AI_SUGGESTED_PROMPTS_PRE : AI_SUGGESTED_PROMPTS;
-
-  const preHeader = (
-    <Stack spacing={2} sx={{ mb: 2 }}>
-      <Typography variant="subtitle2" fontWeight={700} color="text.primary">
-        Insights for you
-      </Typography>
-      {PRE_INSIGHTS.map((ins, i) => (
-        <Card key={i} variant="outlined">
-          <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-            <Stack direction="row" spacing={1} alignItems="flex-start">
-              <Sparkles size={18} style={{ marginTop: 2, opacity: 0.85 }} aria-hidden />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle2" fontWeight={700}>
-                  {ins.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                  {ins.body}
-                </Typography>
-                <Button size="small" variant="outlined" sx={{ mt: 1 }} disabled>
-                  {ins.cta}
-                </Button>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-      ))}
-      <Card variant="outlined" sx={{ position: "relative", overflow: "hidden", bgcolor: "grey.50" }}>
-        <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 1, bgcolor: "rgba(255,255,255,0.72)", zIndex: 1 }}>
-          <Lock size={28} aria-hidden />
-          <Typography variant="body2" fontWeight={600} textAlign="center" px={2}>
-            Connect your accounts to get your personalized plan
-          </Typography>
-        </Box>
-        <CardContent sx={{ p: 2, opacity: 0.35, filter: "blur(1px)" }}>
-          <Typography variant="subtitle2" fontWeight={700}>
-            Monthly action plan
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            Pay $430 to Buffer on the 15th. Put $50 extra toward your TD card. Score could improve 8–15 points this month.
-          </Typography>
-        </CardContent>
-      </Card>
-    </Stack>
-  );
+  const suggested = plaidConnected !== true ? AI_SUGGESTED_PROMPTS_PRE : AI_SUGGESTED_PROMPTS;
 
   const postHeader = (
     <Stack spacing={2} sx={{ mb: 2 }}>
@@ -337,7 +289,7 @@ export function AiScreen({
       </Box>
 
       <Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, lg: 0 }, py: 2, minHeight: 0 }}>
-        {connectionMode === "pre" ? preHeader : postHeader}
+        {postHeader}
         <Stack spacing={1.5}>
           {messages.map((msg) => (
             <MessageBubble key={msg.id} msg={msg} />

@@ -1,7 +1,20 @@
 import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
-import { MsIcon } from "./MsIcon";
+import { displayMoney, FINANCIAL_MASK } from "../../../lib/financialDisplay";
 import { fmtCurrency } from "../../../lib/dashboardFormat";
+import { MsIcon } from "./MsIcon";
 import { BODY_FONT, HEADLINE_FONT, OT } from "./overviewTokens";
+
+const metricCardSx = {
+  height: "100%",
+  borderRadius: OT.cardRadius,
+  border: `1px solid ${OT.surfaceContainer}`,
+  bgcolor: OT.surfaceContainerLowest,
+  boxShadow: OT.cardShadow,
+  transition: "box-shadow 0.2s ease, transform 0.2s ease",
+  "&:hover": {
+    boxShadow: OT.cardShadowHover,
+  },
+} as const;
 
 const iconWrap = {
   display: "inline-flex",
@@ -17,6 +30,7 @@ type Props = {
   interestSavedCumulative: number;
   availableCredit: number;
   breathingRoomMonthly: number;
+  showLiveFinancials: boolean;
 };
 
 /**
@@ -27,15 +41,17 @@ export function OverviewMetricCards({
   interestSavedCumulative,
   availableCredit,
   breathingRoomMonthly,
+  showLiveFinancials,
 }: Props) {
   const col = { gridColumn: { lg: "span 3" } };
+  const live = showLiveFinancials;
 
   return (
     <>
       <Box sx={col}>
         <MetricCard
           icon="savings"
-          value={fmtCurrency(interestSavedThisMonth, 0)}
+          value={displayMoney(live, () => fmtCurrency(interestSavedThisMonth, 0))}
           label="Interest Saved This Month"
           caption="Less interest than before Buffer"
           captionItalic
@@ -44,7 +60,7 @@ export function OverviewMetricCards({
       <Box sx={col}>
         <MetricCard
           icon="account_balance_wallet"
-          value={fmtCurrency(interestSavedCumulative, 0)}
+          value={displayMoney(live, () => fmtCurrency(interestSavedCumulative, 0))}
           label="Interest Saved So Far"
           caption="Estimated total savings to date"
         />
@@ -52,13 +68,13 @@ export function OverviewMetricCards({
       <Box sx={col}>
         <MetricCard
           icon="credit_score"
-          value={fmtCurrency(availableCredit, 0)}
+          value={displayMoney(live, () => fmtCurrency(availableCredit, 0))}
           label="Available Credit"
           caption="Remaining line amount"
         />
       </Box>
       <Box sx={col}>
-        <BreathingRoomCard amountMonthly={breathingRoomMonthly} />
+        <BreathingRoomCard amountMonthly={breathingRoomMonthly} showLiveFinancials={live} />
       </Box>
     </>
   );
@@ -80,13 +96,7 @@ function MetricCard({
   return (
     <Card
       elevation={0}
-      sx={{
-        height: "100%",
-        borderRadius: OT.cardRadius,
-        border: `1px solid ${OT.cardBorder}`,
-        bgcolor: OT.surfaceContainerLowest,
-        boxShadow: OT.cardShadow,
-      }}
+      sx={metricCardSx}
     >
       <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
         <Box sx={iconWrap}>
@@ -130,7 +140,7 @@ function MetricCard({
   );
 }
 
-function BreathingRoomCard({ amountMonthly }: { amountMonthly: number }) {
+function BreathingRoomCard({ amountMonthly, showLiveFinancials }: { amountMonthly: number; showLiveFinancials: boolean }) {
   return (
     <Card
       elevation={0}
@@ -141,7 +151,8 @@ function BreathingRoomCard({ amountMonthly }: { amountMonthly: number }) {
         borderRadius: OT.cardRadius,
         bgcolor: OT.primary,
         color: "#fff",
-        boxShadow: "0 16px 40px -12px rgba(0, 104, 95, 0.35)",
+        boxShadow: "0 20px 40px -12px rgba(0, 104, 95, 0.35)",
+        transition: "box-shadow 0.2s ease",
         "&:hover .breathing-deco": {
           transform: "scale(1.1)",
         },
@@ -182,7 +193,7 @@ function BreathingRoomCard({ amountMonthly }: { amountMonthly: number }) {
             mb: 2,
           }}
         >
-          {fmtCurrency(amountMonthly, 0)}/mo Freed
+          {showLiveFinancials ? `${fmtCurrency(amountMonthly, 0)}/mo Freed` : FINANCIAL_MASK}
         </Typography>
         <Stack component="ul" spacing={1} sx={{ listStyle: "none", m: 0, p: 0 }}>
           <Stack component="li" direction="row" alignItems="center" sx={{ fontSize: "0.75rem" }}>

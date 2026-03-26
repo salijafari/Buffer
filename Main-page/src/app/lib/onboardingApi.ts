@@ -1,5 +1,5 @@
 import type { AcquisitionSource, InterestSelection, UserOnboardingProfile } from "./onboardingProfile";
-import { bffAuthHeadersForMutation } from "@/lib/bffSession";
+import { bffApiUrl, bffAuthHeadersForMutation } from "@/lib/bffSession";
 
 /** Step saves only — completion is POST /api/onboarding/complete */
 export type OnboardingProfilePatch = {
@@ -40,7 +40,7 @@ export async function fetchOnboardingProfile(signal?: AbortSignal): Promise<User
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller, signal);
   try {
-    const response = await fetch("/api/onboarding-profile", {
+    const response = await fetch(bffApiUrl("/api/onboarding-profile"), {
       signal: controller.signal,
       credentials: "include",
     });
@@ -62,7 +62,7 @@ export async function fetchSyncUser(signal?: AbortSignal): Promise<{ userId: str
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller, signal);
   try {
-    const response = await fetch("/api/auth/sync-user", {
+    const response = await fetch(bffApiUrl("/api/auth/sync-user"), {
       method: "GET",
       signal: controller.signal,
       credentials: "include",
@@ -94,7 +94,7 @@ export async function postOnboardingComplete(signal?: AbortSignal): Promise<{ su
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller, signal);
   try {
-    const response = await fetch("/api/onboarding/complete", {
+    const response = await fetch(bffApiUrl("/api/onboarding/complete"), {
       method: "POST",
       signal: controller.signal,
       credentials: "include",
@@ -113,7 +113,7 @@ export async function saveOnboardingProfile(payload: OnboardingProfilePatch): Pr
   const controller = new AbortController();
   const cleanup = linkAbortSignals(controller);
   try {
-    const response = await fetch("/api/onboarding-profile", {
+    const response = await fetch(bffApiUrl("/api/onboarding-profile"), {
       method: "PUT",
       signal: controller.signal,
       credentials: "include",

@@ -2,6 +2,23 @@
  * Browser helpers for Auth0 BFF: session is HTTP-only; CSRF cookie is readable for double-submit.
  */
 
+const BFF_ME_TIMEOUT_MS = 12_000;
+
+/** Empty string = same origin (dev: Vite proxies `/api` → BFF). Set when the SPA and API differ. */
+export function getBffApiBase(): string {
+  const raw = import.meta.env.VITE_BFF_ORIGIN;
+  if (typeof raw === "string" && raw.trim()) {
+    return raw.replace(/\/+$/, "");
+  }
+  return "";
+}
+
+export function bffApiUrl(path: string): string {
+  const base = getBffApiBase();
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return base ? `${base}${p}` : p;
+}
+
 export type BffUser = {
   sub: string;
   email: string | null;
@@ -25,8 +42,32 @@ export function bffAuthHeadersForMutation(): Record<string, string> {
   return headers;
 }
 
-export async function fetchBffMe(signal?: AbortSignal): Promise<BffMeResult> {
-  const res = await fetch("/api/auth/me", { credentials: "include", signal });
+export async function fetchBffMe(externalSignal?: AbortSignal): Promise<BffMeResult> {
+  const url = bffApiUrl("/api/auth/me");
+  const ctrl = new AbortController();
+  const timeoutId = setTimeout(() => ctrl.abort(), BFF_ME_TIMEOUT_MS);
+  const onExternalAbort = () => {
+    clearTimeout(timeoutId);
+    ctrl.abort();
+  };
+  if (externalSignal?.aborted) {
+    clearTimeout(timeoutId);
+    return { authenticated: false };
+  }
+  if (externalSignal) {
+    externalSignal.addEventListener("abort", onExternalAbort, { once: true });
+  }
+  let res: Response;
+  try {
+    res = await fetch(url, { credentials: "include", signal: ctrl.signal });
+    clearTimeout(timeoutId);
+  } catch {
+    clearTimeout(timeoutId);
+    if (externalSignal) externalSignal.removeEventListener("abort", onExternalAbort);
+    return { authenticated: false };
+  }
+  if (externalSignal) externalSignal.removeEventListener("abort", onExternalAbort);
+
   let data: {
     authenticated?: boolean;
     sub?: string;
@@ -58,7 +99,7 @@ export function bffLoginUrl(options?: { returnTo?: string; screenHint?: "signup"
   if (options?.returnTo) params.set("returnTo", options.returnTo);
   if (options?.screenHint) params.set("screen_hint", options.screenHint);
   const q = params.toString();
-  return `/api/auth/login${q ? `?${q}` : ""}`;
+  return bffApiUrl(`/api/auth/login${q ? `?${q}` : ""}`);
 }
 
 /**
@@ -73,7 +114,7 @@ export function bffLoginUrl(options?: { returnTo?: string; screenHint?: "signup"
 export async function deleteBffAccount(): Promise<
   { ok: true; redirect: string } | { ok: false; error: string; hint?: string }
 > {
-  const res = await fetch("/api/account/delete", {
+  const res = await fetch(bffApiUrl("/api/account/delete"), {
     method: "POST",
     credentials: "include",
     headers: bffAuthHeadersForMutation(),
@@ -96,7 +137,7 @@ export async function deleteBffAccount(): Promise<
 
 export async function bffLogout(returnTo?: string | null): Promise<void> {
   const csrf = getBffCsrfTokenFromDocument();
-  const res = await fetch("/api/auth/logout", {
+  const res = await fetch(bffApiUrl("/api/auth/logout"), {
     method: "POST",
     credentials: "include",
     headers: {

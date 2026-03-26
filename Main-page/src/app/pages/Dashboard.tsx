@@ -37,6 +37,7 @@ import { MaterialShell } from "../material/MaterialShell";
 import { BffUserAvatar } from "../dashboard/components/BffUserAvatar";
 import { DashboardNotificationsButton } from "../dashboard/components/DashboardNotificationsButton";
 import { DashboardShellProvider, useDashboardShell } from "../dashboard/context/DashboardShellContext";
+import { OT } from "../dashboard/components/home/overview/overviewTokens";
 import { MOCK_CREDIT_REPORT_EVENTS } from "../dashboard/data/mockDashboard";
 
 /** Session key: Credit nav badge clears after visiting Credit Builder and stays cleared for the tab session. */
@@ -174,10 +175,11 @@ function DesktopTopTabBar({
         position: "sticky",
         top: 0,
         zIndex: (t) => t.zIndex.appBar,
-        bgcolor: "#ffffff",
-        borderBottom: 1,
-        borderColor: "divider",
-        boxShadow: "0 1px 3px rgba(15, 23, 42, 0.06)",
+        bgcolor: "rgba(255, 255, 255, 0.82)",
+        backdropFilter: OT.navBlur,
+        WebkitBackdropFilter: OT.navBlur,
+        borderBottom: "1px solid rgba(226, 232, 240, 0.65)",
+        boxShadow: OT.navShadow,
       }}
     >
       <Box
@@ -189,7 +191,7 @@ function DesktopTopTabBar({
           display: "flex",
           alignItems: "center",
           gap: { lg: 2, xl: 3 },
-          minHeight: 72,
+          minHeight: 80,
           boxSizing: "border-box",
         }}
       >
@@ -304,6 +306,21 @@ function DesktopTopTabBar({
             </Box>
           </IconButton>
           <DashboardNotificationsButton size="medium" />
+          <IconButton
+            onClick={() => void onNavigate("/dashboard/account")}
+            aria-label="Settings"
+            size="small"
+            sx={{ color: NAV_MUTED }}
+          >
+            <Box
+              component="span"
+              className="material-symbols-outlined"
+              sx={{ fontSize: 22, lineHeight: 1, userSelect: "none" }}
+              aria-hidden
+            >
+              settings
+            </Box>
+          </IconButton>
           <>
             <IconButton
               id="dashboard-account-menu-button"
@@ -406,7 +423,7 @@ function DesktopTopTabBar({
 
 function DashboardContent() {
   const theme = useTheme();
-  const { connectionMode } = useDashboardShell();
+  const { plaidConnected } = useDashboardShell();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const navigate = useNavigate();
   const location = useLocation();
@@ -463,7 +480,7 @@ function DashboardContent() {
               Suggested prompts
             </Typography>
             <Stack spacing={1}>
-              {(connectionMode === "pre" ? AI_SUGGESTED_PROMPTS_PRE : AI_SUGGESTED_PROMPTS).map((s) => (
+              {(plaidConnected !== true ? AI_SUGGESTED_PROMPTS_PRE : AI_SUGGESTED_PROMPTS).map((s) => (
                 <Chip
                   key={s}
                   label={s}
@@ -541,7 +558,7 @@ function DashboardContent() {
               activeTab === "credit" ||
               activeTab === "payoff" ||
               activeTab === "support"
-                ? "#f8f9fa"
+                ? "#f7f9fb"
                 : "background.default",
           }}
         >
@@ -550,8 +567,8 @@ function DashboardContent() {
               width: "100%",
               maxWidth: { xs: "100%", lg: mainMaxWidthLg },
               px: { xs: 2, sm: 3, lg: 4 },
-              py: { lg: 2 },
-              pb: { xs: undefined, lg: 3 },
+              py: { lg: 4 },
+              pb: { xs: undefined, lg: 5 },
               display: "flex",
               flexDirection: "column",
               minHeight: { lg: "100%" },
@@ -615,7 +632,16 @@ function DashboardContent() {
         flexDirection: "column",
       }}
     >
-      <AppBar position="sticky" sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}>
+      <AppBar
+        position="sticky"
+        sx={{
+          zIndex: (t) => t.zIndex.drawer + 1,
+          bgcolor: "rgba(255, 255, 255, 0.88)",
+          backdropFilter: OT.navBlur,
+          WebkitBackdropFilter: OT.navBlur,
+          boxShadow: OT.navShadow,
+        }}
+      >
         <Toolbar
           sx={{
             width: "100%",
@@ -672,6 +698,11 @@ function DashboardContent() {
               </Box>
             </IconButton>
             <DashboardNotificationsButton size="small" />
+            <IconButton onClick={() => void navigate("/dashboard/account")} aria-label="Settings" edge="end" size="small" sx={{ color: NAV_MUTED }}>
+              <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 22, lineHeight: 1 }} aria-hidden>
+                settings
+              </Box>
+            </IconButton>
             <IconButton
               onClick={() => void navigate("/dashboard/account")}
               aria-label="Open account"
@@ -706,7 +737,7 @@ function DashboardContent() {
             activeTab === "credit" ||
             activeTab === "payoff" ||
             activeTab === "support"
-              ? "#f8f9fa"
+              ? "#f7f9fb"
               : "background.default",
         }}
       >

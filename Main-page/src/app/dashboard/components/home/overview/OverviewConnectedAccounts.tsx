@@ -1,4 +1,6 @@
 import { Box, Card, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import { FINANCIAL_MASK } from "../../../lib/financialDisplay";
 import type { OverviewConnectedAccountRow } from "./overviewMock";
 import { PlaidConnectButton } from "../../plaid/PlaidConnectButton";
 import { MsIcon } from "./MsIcon";
@@ -7,23 +9,17 @@ import { BODY_FONT, HEADLINE_FONT, OT } from "./overviewTokens";
 type Props = {
   updatedLabel: string;
   accounts: OverviewConnectedAccountRow[];
-  /** Live: true when Plaid reports an active connection. Demo: always treated as healthy. */
-  bankLinkHealthy: boolean;
   /** Live: true when user should reconnect (broken / no active items). */
   bankLinkBroken: boolean;
+  showLiveFinancials: boolean;
   onPlaidConnected?: () => void | Promise<void>;
 };
-
-const GREEN_BG = "rgba(34, 197, 94, 0.12)";
-const GREEN_BORDER = "rgba(34, 197, 94, 0.45)";
-const AMBER_BG = "rgba(251, 191, 36, 0.18)";
-const AMBER_BORDER = "rgba(245, 158, 11, 0.55)";
 
 export function OverviewConnectedAccounts({
   updatedLabel,
   accounts,
-  bankLinkHealthy,
   bankLinkBroken,
+  showLiveFinancials,
   onPlaidConnected,
 }: Props) {
   return (
@@ -31,13 +27,13 @@ export function OverviewConnectedAccounts({
       elevation={0}
       sx={{
         borderRadius: OT.cardRadius,
-        border: `1px solid ${OT.cardBorder}`,
+        border: `1px solid ${OT.surfaceContainer}`,
         bgcolor: OT.surfaceContainerLowest,
         boxShadow: OT.cardShadow,
         height: "100%",
       }}
     >
-      <Box sx={{ p: { xs: 3, md: 4 } }}>
+      <Box sx={{ p: { xs: 3, md: 5 } }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 4 }} flexWrap="wrap" gap={1}>
           <Typography sx={{ fontFamily: HEADLINE_FONT, fontSize: "1.25rem", fontWeight: 700, color: OT.onSurface }}>
             Connected Accounts
@@ -49,8 +45,8 @@ export function OverviewConnectedAccounts({
             <AccountRow
               key={`${row.kind}-${row.name}-${i}`}
               row={row}
-              bankLinkHealthy={bankLinkHealthy}
               bankLinkBroken={bankLinkBroken}
+              showLiveFinancials={showLiveFinancials}
             />
           ))}
         </Stack>
@@ -66,7 +62,7 @@ export function OverviewConnectedAccounts({
             onConnected={onPlaidConnected}
             sx={{
               py: 1.25,
-              borderRadius: "16px",
+              borderRadius: OT.cardRadius,
               textTransform: "none",
               fontWeight: 700,
               fontFamily: BODY_FONT,
@@ -83,15 +79,14 @@ export function OverviewConnectedAccounts({
 
 function AccountRow({
   row,
-  bankLinkHealthy,
   bankLinkBroken,
+  showLiveFinancials,
 }: {
   row: OverviewConnectedAccountRow;
-  bankLinkHealthy: boolean;
   bankLinkBroken: boolean;
+  showLiveFinancials: boolean;
 }) {
   if (row.kind === "bank") {
-    const healthy = bankLinkHealthy && !bankLinkBroken;
     const broken = bankLinkBroken;
     return (
       <Stack
@@ -100,11 +95,9 @@ function AccountRow({
         justifyContent="space-between"
         sx={{
           p: 2,
-          borderRadius: "16px",
-          bgcolor: healthy ? GREEN_BG : broken ? AMBER_BG : OT.surfaceContainerLow,
-          border: "2px solid",
-          borderColor: healthy ? GREEN_BORDER : broken ? AMBER_BORDER : "transparent",
-          boxShadow: healthy ? "0 1px 3px rgba(34, 197, 94, 0.15)" : "none",
+          borderRadius: OT.cardRadius,
+          bgcolor: OT.surfaceContainerLow,
+          border: broken ? `1px solid ${alpha("#f59e0b", 0.45)}` : "none",
         }}
       >
         <Stack direction="row" alignItems="center" spacing={2}>
@@ -120,16 +113,15 @@ function AccountRow({
               justifyContent: "center",
             }}
           >
-            <MsIcon
-              name="account_balance"
-              sx={{ fontSize: 22, color: healthy ? "#16a34a" : broken ? "#d97706" : "#2563eb" }}
-            />
+            <MsIcon name="account_balance" sx={{ fontSize: 22, color: "#2563eb" }} />
           </Box>
           <Box>
             <Typography sx={{ fontFamily: BODY_FONT, fontWeight: 700, fontSize: "0.875rem", color: OT.onSurface }}>
               {row.name}
             </Typography>
-            <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", color: OT.outline }}>••••{row.mask}</Typography>
+            <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", color: OT.outline }}>
+              {showLiveFinancials ? `••••${row.mask}` : FINANCIAL_MASK}
+            </Typography>
           </Box>
         </Stack>
         <Box
@@ -138,21 +130,16 @@ function AccountRow({
             display: "inline-flex",
             alignItems: "center",
             gap: 0.5,
-            fontSize: "0.7rem",
-            fontWeight: 800,
+            fontSize: "0.75rem",
+            fontWeight: 700,
             px: 1.25,
-            py: 0.5,
+            py: 0.35,
             borderRadius: 999,
-            bgcolor: healthy ? "rgba(34, 197, 94, 0.25)" : broken ? "rgba(251, 191, 36, 0.35)" : OT.secondaryContainer,
-            color: healthy ? "#166534" : broken ? "#9a3412" : OT.onSecondaryContainer,
+            bgcolor: OT.secondaryContainer,
+            color: OT.onSecondaryContainer,
           }}
         >
-          {healthy ? (
-            <>
-              <MsIcon name="check_circle" filled sx={{ fontSize: 14 }} />
-              CONNECTED
-            </>
-          ) : broken ? (
+          {broken ? (
             <>
               <MsIcon name="warning" sx={{ fontSize: 14 }} />
               RECONNECT
@@ -172,8 +159,8 @@ function AccountRow({
       justifyContent="space-between"
       sx={{
         p: 2,
-        borderRadius: "16px",
-        border: `1px solid ${OT.cardBorder}`,
+        borderRadius: OT.cardRadius,
+        border: `1px solid ${OT.surfaceContainer}`,
         opacity: 0.6,
       }}
     >
@@ -196,7 +183,9 @@ function AccountRow({
           <Typography sx={{ fontFamily: BODY_FONT, fontWeight: 700, fontSize: "0.875rem", color: OT.onSurface }}>
             {row.name}
           </Typography>
-          <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", color: OT.outline }}>••••{row.mask}</Typography>
+          <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", color: OT.outline }}>
+            {showLiveFinancials ? `••••${row.mask}` : FINANCIAL_MASK}
+          </Typography>
         </Box>
       </Stack>
       <Stack direction="row" alignItems="center" spacing={0.5} sx={{ color: OT.primary, fontWeight: 700, fontSize: "0.75rem", fontFamily: BODY_FONT }}>

@@ -58,7 +58,8 @@ export function registerBffAuthRoutes(app, deps = {}) {
   if (!cfg.ok) {
     console.warn(`[bff] OAuth not fully configured (${cfg.error}); login/callback disabled.`);
     app.get("/api/auth/login", (_req, res) => {
-      res.status(503).json({ error: "Auth not configured", missing: cfg.error });
+      // Redirect so the SPA shows LOGIN_ERROR_HELP instead of a raw JSON error page.
+      res.redirect(302, "/onboarding?error=config");
     });
     app.get("/api/auth/callback", (_req, res) => {
       res.redirect(302, "/onboarding?error=config");
