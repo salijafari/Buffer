@@ -1,6 +1,6 @@
 import { CreditBuilderPage } from "./CreditBuilderPage";
 
-/** Linked accounts — Credit Builder layout (overview-aligned). */
+/** Credit Builder layout (same whether or not Plaid is linked; figures mask until live data). */
 export function CreditPostConnection() {
-  return <CreditBuilderPage variant="post" />;
+  return <CreditBuilderPage />;
 }

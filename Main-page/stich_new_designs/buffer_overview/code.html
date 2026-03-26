@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Buffer | Your Financial Sanctuary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary": "#3f6560",
+              "surface-bright": "#f7f9fb",
+              "surface-tint": "#006a61",
+              "surface-container-low": "#f2f4f6",
+              "on-tertiary": "#ffffff",
+              "primary-fixed": "#89f5e7",
+              "secondary-container": "#c2ebe3",
+              "on-primary-fixed-variant": "#005049",
+              "tertiary": "#924628",
+              "on-error": "#ffffff",
+              "error": "#ba1a1a",
+              "inverse-surface": "#2d3133",
+              "on-background": "#191c1e",
+              "inverse-primary": "#6bd8cb",
+              "secondary-fixed": "#c2ebe3",
+              "secondary-fixed-dim": "#a6cfc8",
+              "surface-dim": "#d8dadc",
+              "tertiary-container": "#b05e3d",
+              "on-tertiary-container": "#fffbff",
+              "on-secondary-container": "#456b66",
+              "surface-container-highest": "#e0e3e5",
+              "primary-fixed-dim": "#6bd8cb",
+              "on-primary-fixed": "#00201d",
+              "on-surface": "#191c1e",
+              "surface-variant": "#e0e3e5",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-container": "#f4fffc",
+              "tertiary-fixed-dim": "#ffb59a",
+              "on-primary": "#ffffff",
+              "surface-container": "#eceef0",
+              "primary-container": "#008378",
+              "surface-container-high": "#e6e8ea",
+              "outline-variant": "#bcc9c6",
+              "on-tertiary-fixed-variant": "#773215",
+              "on-surface-variant": "#3d4947",
+              "primary": "#00685f",
+              "on-secondary-fixed": "#00201d",
+              "error-container": "#ffdad6",
+              "background": "#f7f9fb",
+              "surface": "#f7f9fb",
+              "on-tertiary-fixed": "#370e00",
+              "on-secondary-fixed-variant": "#274d48",
+              "outline": "#6d7a77",
+              "on-secondary": "#ffffff",
+              "on-error-container": "#93000a",
+              "tertiary-fixed": "#ffdbce",
+              "inverse-on-surface": "#eff1f3"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1, h2, h3, .font-headline {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm shadow-teal-900/5">
+<div class="flex justify-between items-center px-8 h-20 w-full max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-teal-700 dark:text-teal-400 font-headline">Buffer</div>
+<div class="hidden md:flex space-x-8 items-center">
+<a class="font-manrope font-bold text-sm tracking-tight text-teal-700 dark:text-teal-300 border-b-2 border-teal-600 pb-1" href="#">Dashboard</a>
+<a class="font-manrope font-bold text-sm tracking-tight text-slate-500 dark:text-slate-400 hover:text-teal-600 transition-colors" href="#">Accounts</a>
+<a class="font-manrope font-bold text-sm tracking-tight text-slate-500 dark:text-slate-400 hover:text-teal-600 transition-colors" href="#">Planning</a>
+<a class="font-manrope font-bold text-sm tracking-tight text-slate-500 dark:text-slate-400 hover:text-teal-600 transition-colors" href="#">Analysis</a>
+</div>
+<div class="flex items-center space-x-5">
+<button class="text-on-surface-variant hover:bg-slate-50 p-2 rounded-full transition-all duration-300">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="text-on-surface-variant hover:bg-slate-50 p-2 rounded-full transition-all duration-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-slate-50 p-2 rounded-full transition-all duration-300">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border-2 border-white">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUVbstUzDrxyreGVOgOpV3A7TFpRGBklD8MYz9nG1phHznAxHU0DhuS4UbIvpSNypnWOTLPM_yvAb7e-hWnN42nPqxzMhZOS9qHIWqtCf8aG6OI5Vk4zr3XPxT2uQHdyMA3_qFMdAYCnkZ4HVoP3TmrW2ylBfbCs8NyPLZuLD1YiyF0OSK8HntbL-8LrHZlpvbk7OrRXb3TXhIsdVLe9PweBoPpKMnj2tFaJVEnUnrfOoyZOFOVZ39Xw11bCt8-liT4cPemF0fAB4"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="flex-grow pt-32 pb-20 px-6 max-w-screen-2xl mx-auto w-full">
+<!-- Hero Header -->
+<header class="mb-12 max-w-3xl">
+<h1 class="text-5xl font-extrabold tracking-tight text-on-surface mb-4">Your Buffer Plan</h1>
+<p class="text-xl text-on-surface-variant leading-relaxed">Your credit cards were paid down and replaced with one simpler monthly payment.</p>
+</header>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Summary Metrics Row (Now Prominently Above Fold) -->
+<!-- 2. Interest Saved This Month -->
+<div class="lg:col-span-3 bg-surface-container-lowest rounded-lg p-6 shadow-sm border border-surface-container">
+<span class="material-symbols-outlined text-teal-600 mb-4 bg-teal-50 p-2 rounded-lg">savings</span>
+<p class="text-4xl font-headline font-extrabold text-on-surface">$89</p>
+<p class="text-sm font-bold text-on-surface-variant mt-1">Interest Saved This Month</p>
+<p class="text-xs text-outline mt-2 italic">Less interest than before Buffer</p>
+</div>
+<!-- 3. Interest Saved So Far -->
+<div class="lg:col-span-3 bg-surface-container-lowest rounded-lg p-6 shadow-sm border border-surface-container">
+<span class="material-symbols-outlined text-teal-600 mb-4 bg-teal-50 p-2 rounded-lg">account_balance_wallet</span>
+<p class="text-4xl font-headline font-extrabold text-on-surface">$412</p>
+<p class="text-sm font-bold text-on-surface-variant mt-1">Interest Saved So Far</p>
+<p class="text-xs text-outline mt-2 italic">Estimated total savings to date</p>
+</div>
+<!-- 4. Available Credit -->
+<div class="lg:col-span-3 bg-surface-container-lowest rounded-lg p-6 shadow-sm border border-surface-container">
+<span class="material-symbols-outlined text-teal-600 mb-4 bg-teal-50 p-2 rounded-lg">credit_score</span>
+<p class="text-4xl font-headline font-extrabold text-on-surface">$2,800</p>
+<p class="text-sm font-bold text-on-surface-variant mt-1">Available Credit</p>
+<p class="text-xs text-outline mt-2 italic">Remaining line amount</p>
+</div>
+<!-- 5. Monthly Breathing Room -->
+<section class="lg:col-span-3 bg-primary text-white rounded-lg p-6 shadow-xl relative overflow-hidden group">
+<div class="absolute -bottom-6 -right-6 opacity-10 group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined text-8xl">energy_savings_leaf</span>
+</div>
+<h3 class="text-sm font-bold mb-4 opacity-80 uppercase tracking-widest">Breathing Room</h3>
+<div class="relative z-10">
+<div class="text-2xl font-headline font-bold text-primary-fixed mb-2">$140/mo Freed</div>
+<ul class="space-y-2">
+<li class="flex items-center text-xs">
+<span class="material-symbols-outlined mr-1.5 text-[14px]">done</span>
+                        Less interest
+                    </li>
+<li class="flex items-center text-xs">
+<span class="material-symbols-outlined mr-1.5 text-[14px]">done</span>
+                        More budget room
+                    </li>
+</ul>
+</div>
+</section>
+<!-- Payment Overview (Operational Section) -->
+<section class="lg:col-span-8 bg-surface-container-lowest rounded-lg p-8 shadow-sm relative overflow-hidden border border-surface-container">
+<div class="absolute top-0 right-0 p-6">
+<span class="inline-flex items-center px-4 py-1 rounded-full bg-secondary-container text-on-secondary-container font-semibold text-sm">
+<span class="material-symbols-outlined text-xs mr-2" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    On Track
+                </span>
+</div>
+<div class="mb-10">
+<span class="text-xs font-label text-on-surface-variant uppercase tracking-widest font-semibold">Current Balance</span>
+<h2 class="text-6xl font-headline font-extrabold text-primary mt-2">$7,200</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+<div class="p-6 rounded-lg bg-surface-container-low">
+<p class="text-sm text-on-surface-variant font-medium">Next Payment</p>
+<p class="text-2xl font-bold text-on-surface mt-1">$245 <span class="text-base font-normal text-on-surface-variant">on April 12</span></p>
+</div>
+<div class="p-6 rounded-lg bg-surface-container-low flex justify-between items-center">
+<div>
+<p class="text-sm text-on-surface-variant font-medium">Autopay</p>
+<p class="text-2xl font-bold text-primary mt-1">ON</p>
+</div>
+<div class="text-right">
+<p class="text-xs text-on-surface-variant font-medium">TD Chequing</p>
+<p class="text-sm font-mono text-on-surface">••••1234</p>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-4">
+<button class="bg-gradient-to-br from-primary to-primary-container text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg shadow-teal-900/20 hover:scale-102 active:scale-98 transition-all">
+                    Make Extra Payment
+                </button>
+<button class="bg-surface-container-high text-on-surface px-8 py-4 rounded-full font-bold text-lg hover:scale-102 active:scale-98 transition-all">
+                    Manage Payments
+                </button>
+</div>
+</section>
+<!-- Credit Health -->
+<section class="lg:col-span-4 bg-surface-container-lowest rounded-lg p-8 shadow-sm border border-surface-container">
+<h3 class="text-xl font-bold mb-6">Credit Health</h3>
+<div class="space-y-6">
+<div>
+<p class="text-xs font-bold text-outline uppercase tracking-wider mb-2">Utilization</p>
+<div class="flex items-baseline space-x-2">
+<span class="text-xl font-bold text-on-surface">78%</span>
+<span class="material-symbols-outlined text-primary text-sm">arrow_forward</span>
+<span class="text-2xl font-bold text-primary">41%</span>
+</div>
+</div>
+<div class="flex justify-between items-center border-t border-surface-container py-4">
+<span class="text-sm text-on-surface-variant font-medium">On-time streak</span>
+<span class="text-lg font-bold text-on-surface">4 months</span>
+</div>
+<div class="flex justify-between items-center border-t border-surface-container pt-4">
+<span class="text-sm text-on-surface-variant font-medium">Score trend</span>
+<span class="text-lg font-bold text-primary">+22 pts</span>
+</div>
+</div>
+</section>
+<!-- Connected Accounts -->
+<section class="lg:col-span-7 bg-surface-container-lowest rounded-lg p-8 shadow-sm border border-surface-container">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-xl font-bold">Connected Accounts</h3>
+<span class="text-xs text-outline">Updated: Today 9:42 AM</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4">
+<span class="material-symbols-outlined text-blue-600">account_balance</span>
+</div>
+<div>
+<p class="font-bold text-sm">TD Chequing</p>
+<p class="text-xs text-outline">••••1234</p>
+</div>
+</div>
+<span class="text-xs font-bold px-2 py-1 bg-secondary-container text-on-secondary-container rounded">BANK</span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-lg border border-surface-container opacity-60">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4">
+<span class="material-symbols-outlined text-slate-400">credit_card</span>
+</div>
+<div>
+<p class="font-bold text-sm">Visa</p>
+<p class="text-xs text-outline">••••8841</p>
+</div>
+</div>
+<span class="text-xs font-bold text-primary flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">check_circle</span>
+                        PAID
+                    </span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-lg border border-surface-container opacity-60">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4">
+<span class="material-symbols-outlined text-slate-400">credit_card</span>
+</div>
+<div>
+<p class="font-bold text-sm">Mastercard</p>
+<p class="text-xs text-outline">••••2209</p>
+</div>
+</div>
+<span class="text-xs font-bold text-primary flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">check_circle</span>
+                        PAID
+                    </span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-lg border border-surface-container opacity-60">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4">
+<span class="material-symbols-outlined text-slate-400">credit_card</span>
+</div>
+<div>
+<p class="font-bold text-sm">Amex</p>
+<p class="text-xs text-outline">••••7710</p>
+</div>
+</div>
+<span class="text-xs font-bold text-primary flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">check_circle</span>
+                        PAID
+                    </span>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="lg:col-span-5 bg-surface-container-low rounded-lg p-8 shadow-sm">
+<h3 class="text-xl font-bold mb-6">Quick Actions</h3>
+<div class="grid grid-cols-1 gap-3">
+<button class="flex items-center p-4 bg-white rounded-lg hover:bg-slate-50 transition-all font-medium text-sm text-on-surface text-left group">
+<span class="material-symbols-outlined mr-3 text-primary group-hover:scale-110 transition-transform">add_circle</span>
+                    Make Extra Payment
+                </button>
+<button class="flex items-center p-4 bg-white rounded-lg hover:bg-slate-50 transition-all font-medium text-sm text-on-surface text-left group">
+<span class="material-symbols-outlined mr-3 text-primary group-hover:scale-110 transition-transform">description</span>
+                    View Statements
+                </button>
+<button class="flex items-center p-4 bg-white rounded-lg hover:bg-slate-50 transition-all font-medium text-sm text-on-surface text-left group">
+<span class="material-symbols-outlined mr-3 text-primary group-hover:scale-110 transition-transform">event</span>
+                    Change Payment Date
+                </button>
+<button class="flex items-center p-4 bg-white rounded-lg hover:bg-slate-50 transition-all font-medium text-sm text-on-surface text-left group">
+<span class="material-symbols-outlined mr-3 text-primary group-hover:scale-110 transition-transform">account_balance</span>
+                    Update Bank Account
+                </button>
+<button class="flex items-center p-4 bg-white rounded-lg hover:bg-slate-50 transition-all font-medium text-sm text-on-surface text-left group">
+<span class="material-symbols-outlined mr-3 text-primary group-hover:scale-110 transition-transform">link</span>
+                    Manage Connected Accounts
+                </button>
+<button class="flex items-center p-4 bg-white rounded-lg hover:bg-slate-50 transition-all font-medium text-sm text-on-surface text-left group">
+<span class="material-symbols-outlined mr-3 text-primary group-hover:scale-110 transition-transform">support_agent</span>
+                    Contact Support
+                </button>
+</div>
+</section>
+<!-- Footer Card: Reassurance -->
+<footer class="lg:col-span-12 bg-surface-container rounded-lg p-10 mt-12 text-center">
+<div class="max-w-2xl mx-auto">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" style="font-variation-settings: 'FILL' 1;">security</span>
+<p class="text-lg text-on-surface-variant leading-relaxed">
+                    You’re on track. Buffer replaced multiple due dates, APRs, and minimum payments with one simpler monthly bill designed to reduce interest and make repayment easier to manage.
+                </p>
+</div>
+</footer>
+</div>
+</main>
+<!-- Site Footer -->
+<footer class="w-full mt-auto py-12 bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center space-y-4 px-8 border-t border-slate-200/50">
+<div class="flex space-x-6">
+<a class="font-manrope text-xs text-slate-400 tracking-wide uppercase opacity-80 hover:opacity-100 transition-opacity underline decoration-teal-500/30 underline-offset-4" href="#">Privacy Policy</a>
+<a class="font-manrope text-xs text-slate-400 tracking-wide uppercase opacity-80 hover:opacity-100 transition-opacity underline decoration-teal-500/30 underline-offset-4" href="#">Security Guarantee</a>
+<a class="font-manrope text-xs text-slate-400 tracking-wide uppercase opacity-80 hover:opacity-100 transition-opacity underline decoration-teal-500/30 underline-offset-4" href="#">Terms of Service</a>
+<a class="font-manrope text-xs text-slate-400 tracking-wide uppercase opacity-80 hover:opacity-100 transition-opacity underline decoration-teal-500/30 underline-offset-4" href="#">Support</a>
+</div>
+<p class="font-manrope text-xs text-slate-400 tracking-wide uppercase">© 2024 Buffer Financial Sanctuary. Member FDIC. Equal Housing Lender.</p>
+</footer>
+</body></html>

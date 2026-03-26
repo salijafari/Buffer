@@ -9,8 +9,8 @@ export const CREDIT_BUILDER_METRICS = {
 } as const;
 
 export const HOW_BUFFER_HELPS: { icon: string; text: string }[] = [
-  { icon: "credit_card", text: "Pays down revolving credit card balances" },
-  { icon: "compare_arrows", text: "Reduces utilization pressure" },
+  { icon: "account_balance_wallet", text: "Pays down revolving credit card balances" },
+  { icon: "compress", text: "Reduces utilization pressure" },
   { icon: "event_repeat", text: "Replaces multiple due dates with one bill" },
-  { icon: "event_available", text: "Supports more consistent on-time repayment behavior" },
+  { icon: "calendar_today", text: "Supports more consistent on-time repayment behavior" },
 ];

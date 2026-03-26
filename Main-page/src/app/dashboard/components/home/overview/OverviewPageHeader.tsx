@@ -1,10 +1,10 @@
 import { Typography } from "@mui/material";
 import { BODY_FONT, HEADLINE_FONT, OT } from "./overviewTokens";
 
-/** Stitch HTML: `header.mb-12.max-w-3xl` + h1 text-5xl + p text-xl */
+/** Stitch `buffer_overview`: `mb-12` header, `text-5xl` title, `text-xl` subtitle */
 export function OverviewPageHeader() {
   return (
-    <header style={{ marginBottom: "2.5rem", maxWidth: "48rem" }}>
+    <header style={{ marginBottom: "3rem", maxWidth: "48rem" }}>
       <Typography
         component="h1"
         sx={{
@@ -21,8 +21,9 @@ export function OverviewPageHeader() {
       <Typography
         sx={{
           fontFamily: BODY_FONT,
-          fontSize: "1.25rem",
+          fontSize: { xs: "1.125rem", md: "1.25rem" },
           lineHeight: 1.625,
+          fontWeight: 500,
           color: OT.onSurfaceVariant,
         }}
       >

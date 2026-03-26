@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { Box, Skeleton, Stack, useMediaQuery, useTheme } from "@mui/material";
 import { useDashboardShell } from "../../context/DashboardShellContext";
-import { OverviewPreConnection } from "./overview/OverviewPreConnection";
 import { OverviewPostConnection } from "./overview/OverviewPostConnection";
 
 export function HomeScreen() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
-  const { connectionMode, plaidConnected, profile, profileLoading } = useDashboardShell();
+  const { profile, profileLoading } = useDashboardShell();
   const [showSkeleton, setShowSkeleton] = useState(true);
 
   useEffect(() => {
@@ -23,13 +22,7 @@ export function HomeScreen() {
     return <SkeletonHome isDesktop={isDesktop} />;
   }
 
-  const usePlaidLiveDataOnly = connectionMode === "post" && plaidConnected === true;
-
-  return connectionMode === "pre" ? (
-    <OverviewPreConnection profile={profile} />
-  ) : (
-    <OverviewPostConnection profile={profile} usePlaidLiveDataOnly={usePlaidLiveDataOnly} />
-  );
+  return <OverviewPostConnection profile={profile} />;
 }
 
 function SkeletonHome({ isDesktop }: { isDesktop: boolean }) {

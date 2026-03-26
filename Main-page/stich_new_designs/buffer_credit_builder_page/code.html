@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Buffer | Credit Builder</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#e0e3e5",
+              "surface-container-high": "#e6e8ea",
+              "primary-fixed": "#89f5e7",
+              "secondary-fixed": "#c2ebe3",
+              "inverse-on-surface": "#eff1f3",
+              "surface-container-lowest": "#ffffff",
+              "surface-dim": "#d8dadc",
+              "surface-container-low": "#f2f4f6",
+              "surface-bright": "#f7f9fb",
+              "tertiary-fixed-dim": "#ffb59a",
+              "on-tertiary-fixed": "#370e00",
+              "on-secondary-fixed-variant": "#274d48",
+              "secondary": "#3f6560",
+              "primary": "#00685f",
+              "surface-container": "#eceef0",
+              "primary-container": "#008378",
+              "tertiary-container": "#b05e3d",
+              "on-secondary-container": "#456b66",
+              "on-tertiary": "#ffffff",
+              "background": "#f7f9fb",
+              "on-tertiary-container": "#fffbff",
+              "tertiary-fixed": "#ffdbce",
+              "surface-tint": "#006a61",
+              "on-secondary": "#ffffff",
+              "inverse-surface": "#2d3133",
+              "error": "#ba1a1a",
+              "surface-container-highest": "#e0e3e5",
+              "secondary-fixed-dim": "#a6cfc8",
+              "secondary-container": "#c2ebe3",
+              "on-primary": "#ffffff",
+              "outline": "#6d7a77",
+              "on-surface": "#191c1e",
+              "surface": "#f7f9fb",
+              "primary-fixed-dim": "#6bd8cb",
+              "on-background": "#191c1e",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#3d4947",
+              "on-error": "#ffffff",
+              "on-secondary-fixed": "#00201d",
+              "on-primary-fixed": "#00201d",
+              "on-primary-container": "#f4fffc",
+              "tertiary": "#924628",
+              "on-tertiary-fixed-variant": "#773215",
+              "on-primary-fixed-variant": "#005049",
+              "on-error-container": "#93000a",
+              "outline-variant": "#bcc9c6",
+              "inverse-primary": "#6bd8cb"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm shadow-teal-900/5 transition-all duration-300">
+<div class="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-teal-600 dark:text-teal-400 font-headline">Buffer</div>
+<div class="hidden md:flex items-center gap-8 font-headline antialiased tracking-tight">
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-500 transition-colors hover:scale-105 duration-200" href="#">Dashboard</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-500 transition-colors hover:scale-105 duration-200" href="#">Payments</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-500 transition-colors hover:scale-105 duration-200" href="#">Accounts</a>
+<a class="text-teal-600 dark:text-teal-400 font-semibold border-b-2 border-teal-600 hover:scale-105 transition-transform duration-200" href="#">Credit Builder</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-slate-500 hover:scale-105 transition-transform" data-icon="help">help</button>
+<button class="material-symbols-outlined text-slate-500 hover:scale-105 transition-transform" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-slate-500 hover:scale-105 transition-transform" data-icon="settings">settings</button>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="professional portrait of a confident woman with a friendly expression in a modern bright office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs7HN0xe1FRF9SAGzoesDDxVBHhENBfVr1QqjM4JKTHZi8sTyA91i0_l74cPK0sPNrBRUgGFU0HbGj0ZtK0EXQ289rLk6k1_f1iKDX8nBtLm-pVseE_LorK35TU8flA-yb1LAqkMmlFky-ccshaVf95eoe4ueYmsKntWxzEskCCQvidbxU-kciHKCFsW0UpsZBYKqLceI1dNiVySzPA2xPVqsKyOoq9aCVFmtJF0_W6_JvEscMb0PkBk7LbhbwzzKL6LTLqOAva5w"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-20 px-6 max-w-5xl mx-auto space-y-10">
+<!-- Page Header -->
+<header class="space-y-2">
+<h1 class="text-4xl md:text-5xl font-extrabold font-headline tracking-tight text-on-surface">Credit Builder</h1>
+<p class="text-lg text-on-surface-variant max-w-2xl leading-relaxed">Small consistent actions can help strengthen your credit profile over time.</p>
+</header>
+<!-- Summary Cards Row -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Utilization Card -->
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm group hover:scale-[1.02] transition-transform duration-300">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium text-sm tracking-wide">Utilization</span>
+<span class="material-symbols-outlined text-primary bg-primary-fixed/30 p-2 rounded-full" data-icon="trending_down">trending_down</span>
+</div>
+<div class="text-3xl font-bold font-headline text-primary mb-1">78% → 41%</div>
+<p class="text-on-surface-variant text-sm">Lower revolving use</p>
+</div>
+<!-- On-Time Payments Card -->
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm group hover:scale-[1.02] transition-transform duration-300">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium text-sm tracking-wide">On-Time Payments</span>
+<span class="material-symbols-outlined text-primary bg-primary-fixed/30 p-2 rounded-full" data-icon="verified">verified</span>
+</div>
+<div class="text-3xl font-bold font-headline text-primary mb-1">4 months</div>
+<p class="text-on-surface-variant text-sm">Staying on track</p>
+</div>
+<!-- Score Trend Card -->
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm group hover:scale-[1.02] transition-transform duration-300">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium text-sm tracking-wide">Score Trend</span>
+<span class="material-symbols-outlined text-primary bg-primary-fixed/30 p-2 rounded-full" data-icon="keyboard_double_arrow_up">keyboard_double_arrow_up</span>
+</div>
+<div class="text-3xl font-bold font-headline text-primary mb-1">+22 pts</div>
+<p class="text-on-surface-variant text-sm">Estimated change</p>
+</div>
+</section>
+<!-- How Buffer Helps Bento-ish Card -->
+<section class="bg-surface-container-low rounded-lg p-1">
+<div class="bg-surface-container-lowest rounded-lg p-10 md:p-12 shadow-sm flex flex-col md:flex-row gap-12 items-center">
+<div class="w-full md:w-1/2 space-y-6">
+<h2 class="text-3xl font-bold font-headline tracking-tight">How Buffer Helps</h2>
+<div class="space-y-5">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="account_balance_wallet">account_balance_wallet</span>
+<p class="text-on-surface-variant leading-relaxed">Pays down revolving credit card balances</p>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="compress">compress</span>
+<p class="text-on-surface-variant leading-relaxed">Reduces utilization pressure</p>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="event_repeat">event_repeat</span>
+<p class="text-on-surface-variant leading-relaxed">Replaces multiple due dates with one bill</p>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="calendar_today">calendar_today</span>
+<p class="text-on-surface-variant leading-relaxed">Supports more consistent on-time repayment behavior</p>
+</div>
+</div>
+</div>
+<div class="w-full md:w-1/2 aspect-video rounded-lg overflow-hidden bg-surface-container relative">
+<img alt="Financial stability illustration" class="w-full h-full object-cover grayscale mix-blend-multiply opacity-80" data-alt="abstract artistic shot of architectural minimalist curves in soft white and teal tones representing balance and growth" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChdtBC4fLl7_uRxsmgGWiFYPGE7eCIMbtQMw9b78efHeNRknSfvJd1aTtt6Wobq6q5QiikVzCM5yLCYYJq2pLEOfsBnaaiZXSlq9Pt4u9383xgakyjITi41Q0bXeZvsFOXd1x5jJcaQOEM2jr0T0yGLJm8qhgv3WUEkm0BsWrcYU56qOpy745GWJw5mL-uKSNH6TwPT5Nl2yDACryJCBoPOtn6mt1jw3kmOSiHEJuJazL9jLF_1Dtq_lpMk-fSe4a3_46OzlFwvkM"/>
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
+</div>
+</div>
+</section>
+<!-- Keep Building Card -->
+<section class="bg-surface-container-lowest rounded-lg p-10 shadow-sm">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="text-center md:text-left">
+<h3 class="text-2xl font-bold font-headline mb-2">Keep Building</h3>
+<p class="text-on-surface-variant">Stay consistent to reach your financial milestones.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-4">
+<button class="px-8 py-3.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full font-semibold shadow-md hover:scale-105 active:scale-95 transition-all duration-200">
+                        Keep Autopay On
+                    </button>
+<button class="px-8 py-3.5 bg-surface-container-high text-on-surface rounded-full font-semibold hover:scale-105 active:scale-95 transition-all duration-200">
+                        Make Extra Payment
+                    </button>
+<button class="px-8 py-3.5 bg-surface-container-high text-on-surface rounded-full font-semibold hover:scale-105 active:scale-95 transition-all duration-200">
+                        View Payment History
+                    </button>
+</div>
+</div>
+</section>
+<!-- Disclaimer Card -->
+<section class="bg-surface-container p-8 rounded-lg">
+<div class="flex items-start gap-4 max-w-3xl">
+<span class="material-symbols-outlined text-outline-variant mt-1" data-icon="info">info</span>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                    Credit improvement takes time and outcomes vary. Buffer helps by simplifying repayment and lowering revolving credit pressure. Our tools are designed to provide a structural framework for better financial health, but individual results depend on your overall credit history and external factors beyond the Buffer ecosystem.
+                </p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 w-full py-12 px-8">
+<div class="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-8">
+<div class="space-y-2 text-center md:text-left">
+<div class="font-manrope font-bold text-teal-600 text-lg">Buffer</div>
+<p class="text-sm font-inter text-slate-500 dark:text-slate-400">© 2024 Buffer Financial. A Sanctuary for Your Wealth.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors text-sm font-inter" href="#">Privacy Policy</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors text-sm font-inter" href="#">Terms of Service</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors text-sm font-inter" href="#">Security</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors text-sm font-inter" href="#">Help Center</a>
+</div>
+</div>
+</footer>
+</body></html>

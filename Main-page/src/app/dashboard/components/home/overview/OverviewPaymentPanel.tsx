@@ -1,5 +1,6 @@
 import { Box, Button, Card, CardContent, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router";
+import { displayMoney, FINANCIAL_MASK } from "../../../lib/financialDisplay";
 import { fmtCurrency } from "../../../lib/dashboardFormat";
 import { MsIcon } from "./MsIcon";
 import { BODY_FONT, HEADLINE_FONT, OT } from "./overviewTokens";
@@ -11,6 +12,7 @@ type Props = {
   autopayOn: boolean;
   bankLabel: string;
   bankMask: string;
+  showLiveFinancials: boolean;
 };
 
 function formatPaymentWhen(d: Date): string {
@@ -24,15 +26,17 @@ export function OverviewPaymentPanel({
   autopayOn,
   bankLabel,
   bankMask,
+  showLiveFinancials,
 }: Props) {
   const navigate = useNavigate();
+  const live = showLiveFinancials;
 
   return (
     <Card
       elevation={0}
       sx={{
         borderRadius: OT.cardRadius,
-        border: `1px solid ${OT.cardBorder}`,
+        border: `1px solid ${OT.surfaceContainer}`,
         bgcolor: OT.surfaceContainerLowest,
         boxShadow: OT.cardShadow,
         position: "relative",
@@ -61,7 +65,7 @@ export function OverviewPaymentPanel({
         </Box>
       </Box>
 
-      <CardContent sx={{ p: { xs: 3, md: 4 }, "&:last-child": { pb: { xs: 3, md: 4 } } }}>
+      <CardContent sx={{ p: { xs: 3, md: 5 }, "&:last-child": { pb: { xs: 3, md: 5 } } }}>
         <Box sx={{ mb: 5 }}>
           <Typography
             sx={{
@@ -78,14 +82,14 @@ export function OverviewPaymentPanel({
           <Typography
             sx={{
               fontFamily: HEADLINE_FONT,
-              fontSize: { xs: "3rem", sm: "3.75rem" },
+              fontSize: { xs: "2.75rem", sm: "3.75rem" },
               lineHeight: 1.05,
               fontWeight: 800,
               color: OT.primary,
               mt: 1,
             }}
           >
-            {fmtCurrency(currentBalance, 0)}
+            {displayMoney(live, () => fmtCurrency(currentBalance, 0))}
           </Typography>
         </Box>
 
@@ -97,21 +101,21 @@ export function OverviewPaymentPanel({
             mb: 5,
           }}
         >
-          <Box sx={{ bgcolor: OT.surfaceContainerLow, borderRadius: "16px", p: 3 }}>
+          <Box sx={{ bgcolor: OT.surfaceContainerLow, borderRadius: OT.cardRadius, p: 3 }}>
             <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.875rem", fontWeight: 500, color: OT.onSurfaceVariant }}>
               Next Payment
             </Typography>
             <Typography sx={{ fontFamily: HEADLINE_FONT, fontSize: "1.5rem", fontWeight: 700, color: OT.onSurface, mt: 0.5 }}>
-              {fmtCurrency(nextPaymentAmount, 0)}{" "}
+              {displayMoney(live, () => fmtCurrency(nextPaymentAmount, 0))}{" "}
               <Box component="span" sx={{ fontSize: "1rem", fontWeight: 400, color: OT.onSurfaceVariant, fontFamily: BODY_FONT }}>
-                on {formatPaymentWhen(nextPaymentDate)}
+                {live ? `on ${formatPaymentWhen(nextPaymentDate)}` : FINANCIAL_MASK}
               </Box>
             </Typography>
           </Box>
           <Box
             sx={{
               bgcolor: OT.surfaceContainerLow,
-              borderRadius: "16px",
+              borderRadius: OT.cardRadius,
               p: 3,
               display: "flex",
               justifyContent: "space-between",
@@ -132,7 +136,7 @@ export function OverviewPaymentPanel({
                 {bankLabel}
               </Typography>
               <Typography sx={{ fontFamily: "ui-monospace, monospace", fontSize: "0.875rem", color: OT.onSurface }}>
-                ••••{bankMask}
+                {live ? `••••${bankMask}` : FINANCIAL_MASK}
               </Typography>
             </Box>
           </Box>

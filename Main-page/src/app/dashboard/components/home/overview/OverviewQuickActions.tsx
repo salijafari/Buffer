@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { PlaidConnectButton } from "../../plaid/PlaidConnectButton";
 import { MsIcon } from "./MsIcon";
 import { BODY_FONT, HEADLINE_FONT, OT } from "./overviewTokens";
+import { PAYMENTS_STATEMENTS_PATH } from "../../payoff/statementsMock";
 
 type Props = {
   onPlaidConnected?: () => void;
@@ -17,19 +18,18 @@ export function OverviewQuickActions({ onPlaidConnected }: Props) {
       elevation={0}
       sx={{
         borderRadius: OT.cardRadius,
-        border: `1px solid ${OT.cardBorder}`,
         bgcolor: OT.surfaceContainerLow,
         boxShadow: OT.cardShadow,
         height: "100%",
       }}
     >
-      <CardContent sx={{ p: { xs: 3, md: 4 }, "&:last-child": { pb: { xs: 3, md: 4 } } }}>
+      <CardContent sx={{ p: { xs: 3, md: 5 }, "&:last-child": { pb: { xs: 3, md: 5 } } }}>
         <Typography sx={{ fontFamily: HEADLINE_FONT, fontSize: "1.25rem", fontWeight: 700, color: OT.onSurface, mb: 3 }}>
           Quick Actions
         </Typography>
         <Stack spacing={1.25}>
           <ActionRow icon="add_circle" label="Make Extra Payment" onClick={() => void navigate("/dashboard/payoff")} />
-          <ActionRow icon="description" label="View Statements" onClick={() => void navigate("/dashboard/account")} />
+          <ActionRow icon="description" label="View Statements" onClick={() => void navigate(PAYMENTS_STATEMENTS_PATH)} />
           <ActionRow icon="event" label="Change Payment Date" onClick={() => void navigate("/dashboard/account")} />
           <Box sx={{ width: "100%" }}>
             <PlaidConnectButton
@@ -45,14 +45,15 @@ export function OverviewQuickActions({ onPlaidConnected }: Props) {
                 minHeight: 48,
                 py: 1.5,
                 px: 2.5,
-                borderRadius: 9999,
+                borderRadius: OT.cardRadius,
                 bgcolor: "#fff",
                 color: OT.onSurface,
                 border: "none",
                 boxShadow: "0 1px 2px rgba(15, 23, 42, 0.05)",
-                transition: "background-color 0.2s ease",
+                transition: "background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
                 gap: 2,
-                "&:hover": { bgcolor: "#f1f5f9" },
+                "&:hover": { bgcolor: "#f8fafc", boxShadow: OT.cardShadowHover, "& .qa-icon": { transform: "scale(1.1)" } },
+                "&:active": { transform: "scale(0.95)" },
               }}
             >
               <Box className="qa-icon" sx={{ display: "inline-flex", transition: "transform 0.2s ease", flexShrink: 0, mr: 0.5 }}>
@@ -91,7 +92,7 @@ function ActionRow({ icon, label, onClick }: { icon: string; label: string; onCl
         textAlign: "left",
         cursor: "pointer",
         border: "none",
-        borderRadius: 9999,
+        borderRadius: OT.cardRadius,
         minHeight: 48,
         py: 1.5,
         px: 2.5,
@@ -101,12 +102,13 @@ function ActionRow({ icon, label, onClick }: { icon: string; label: string; onCl
         fontSize: "0.875rem",
         color: OT.onSurface,
         boxShadow: "0 1px 2px rgba(15, 23, 42, 0.05)",
-        transition: "background-color 0.2s ease, transform 0.15s ease",
+        transition: "background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
         "&:hover": {
-          bgcolor: "#f1f5f9",
+          bgcolor: "#f8fafc",
+          boxShadow: OT.cardShadowHover,
           "& .qa-icon": { transform: "scale(1.1)" },
         },
-        "&:active": { transform: "scale(0.98)" },
+        "&:active": { transform: "scale(0.95)" },
       }}
     >
       <Box className="qa-icon" sx={{ display: "inline-flex", mr: 1.5, transition: "transform 0.2s ease" }}>
