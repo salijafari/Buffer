@@ -1,4 +1,5 @@
 import { Box, Button, Card, CardContent, Stack, Typography } from "@mui/material";
+import { DashboardPageMain } from "../../layout/DashboardPageMain";
 import { alpha } from "@mui/material/styles";
 import { useNavigate } from "react-router";
 import { useLiveFinancialDisplay } from "../../hooks/useLiveFinancialDisplay";
@@ -289,21 +290,7 @@ export function CreditBuilderPage() {
   const live = showLiveFinancials;
 
   return (
-    <Stack
-      component="main"
-      role="main"
-      aria-label="Credit Builder"
-      spacing={0}
-      sx={{
-        px: { xs: 2, lg: 0 },
-        py: { xs: 2.5, lg: 0 },
-        maxWidth: { xs: "100%", lg: "min(1024px, 100%)" },
-        mx: "auto",
-        width: "100%",
-        minWidth: 0,
-        boxSizing: "border-box",
-      }}
-    >
+    <DashboardPageMain aria-label="Credit Builder">
       <CreditBuilderHeader />
 
       <Box
@@ -340,6 +327,6 @@ export function CreditBuilderPage() {
       <HowBufferHelpsSection />
       <KeepBuildingSection />
       <DisclaimerCard />
-    </Stack>
+    </DashboardPageMain>
   );
 }
