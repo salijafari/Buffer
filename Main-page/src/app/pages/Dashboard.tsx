@@ -38,6 +38,7 @@ import { BffUserAvatar } from "../dashboard/components/BffUserAvatar";
 import { DashboardNotificationsButton } from "../dashboard/components/DashboardNotificationsButton";
 import { DashboardShellProvider, useDashboardShell } from "../dashboard/context/DashboardShellContext";
 import { OT } from "../dashboard/components/home/overview/overviewTokens";
+import { MAIN_MAX_OVERVIEW } from "../dashboard/layout/DashboardPageMain";
 import { MOCK_CREDIT_REPORT_EVENTS } from "../dashboard/data/mockDashboard";
 
 /** Session key: Credit nav badge clears after visiting Credit Builder and stays cleared for the tab session. */
@@ -70,8 +71,6 @@ const RAIL_BG = "#F8FAFC";
 const NAV_MUTED = "#64748B";
 /** Main column when a right rail is visible (Payments / Credit / legacy AI route). */
 const MAIN_MAX_WITH_RAIL = 760;
-/** Main column on Overview — no right rail (`max-w-screen-2xl` ≈ 1536px in Stitch HTML). */
-const MAIN_MAX_OVERVIEW = 1536;
 const RAIL_W = 300;
 
 const TABS = [

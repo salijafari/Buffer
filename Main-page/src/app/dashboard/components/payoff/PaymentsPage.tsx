@@ -2,6 +2,7 @@ import { Box, Button, Card, CardContent, Link as MuiLink, Stack, Typography } fr
 import { alpha } from "@mui/material/styles";
 import { useCallback, useState } from "react";
 import { Link as RouterLink } from "react-router";
+import { DashboardPageMain } from "../../layout/DashboardPageMain";
 import { useDashboardShell } from "../../context/DashboardShellContext";
 import { useLiveFinancialDisplay } from "../../hooks/useLiveFinancialDisplay";
 import { PlaidConnectButton } from "../plaid/PlaidConnectButton";
@@ -128,22 +129,7 @@ export function PaymentsPage() {
   };
 
   return (
-    <Stack
-      component="main"
-      role="main"
-      aria-label="Payments"
-      spacing={0}
-      sx={{
-        px: { xs: 2, lg: 0 },
-        py: { xs: 2.5, lg: 0 },
-        maxWidth: { xs: "100%", lg: "min(1280px, 100%)" },
-        mx: "auto",
-        width: "100%",
-        minWidth: 0,
-        boxSizing: "border-box",
-        gap: { xs: 4, lg: 6 },
-      }}
-    >
+    <DashboardPageMain aria-label="Payments" sx={{ gap: { xs: 4, lg: 6 } }}>
       <PaymentsHeader />
 
       <Box
@@ -535,6 +521,6 @@ export function PaymentsPage() {
           We&apos;ll notify you 3 days before any scheduled withdrawal.
         </Typography>
       </Box>
-    </Stack>
+    </DashboardPageMain>
   );
 }

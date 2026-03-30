@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
-import { Alert, Box, Button, Stack, Typography, useTheme } from "@mui/material";
+import { Alert, Box, Button, Typography, useTheme } from "@mui/material";
 import type { UserOnboardingProfile } from "@/app/lib/onboardingProfile";
 import { triggerPlaidFullSync } from "@/lib/dashboardApi";
+import { DashboardPageMain } from "../../../layout/DashboardPageMain";
 import { useDashboardShell } from "../../../context/DashboardShellContext";
 import { useLiveFinancialDisplay } from "../../../hooks/useLiveFinancialDisplay";
 import { OverviewConnectedAccounts } from "./OverviewConnectedAccounts";
@@ -107,21 +108,7 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
     !overview.meta?.syncPending;
 
   return (
-    <Stack
-      component="main"
-      role="main"
-      aria-label="Dashboard overview"
-      sx={{
-        px: { xs: 2, lg: 0 },
-        py: { xs: 2.5, lg: 0 },
-        maxWidth: { xs: "100%", lg: "min(1536px, 100%)" },
-        mx: "auto",
-        width: "100%",
-        minWidth: 0,
-        pb: { xs: 3, lg: 5 },
-        boxSizing: "border-box",
-      }}
-    >
+    <DashboardPageMain aria-label="Dashboard overview" sx={{ pb: { xs: 3, lg: 5 } }}>
       {loadingLinked ? (
         <Alert severity="info" sx={{ mb: 2, borderRadius: "16px" }} icon={false}>
           <Typography variant="body2">Loading your linked account data…</Typography>
@@ -212,6 +199,6 @@ export function OverviewPostConnection({ profile: _profile }: { profile: UserOnb
 
         <OverviewReassuranceFooter />
       </Box>
-    </Stack>
+    </DashboardPageMain>
   );
 }

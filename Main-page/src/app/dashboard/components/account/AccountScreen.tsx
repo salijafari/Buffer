@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import { bffLogout, deleteBffAccount } from "@/lib/bffSession";
 import { ChevronLeft } from "lucide-react";
+import { DashboardPageMain } from "../../layout/DashboardPageMain";
 import { AccountsDashboardView } from "./AccountsDashboardView";
 import { type AccountIdentity, useAccountIdentity } from "./useAccountIdentity";
 
@@ -279,7 +280,7 @@ export function AccountScreen() {
           width: "100%",
           minWidth: 0,
           boxSizing: "border-box",
-          px: { xs: 2, sm: 3 },
+          px: { xs: 2 },
           pt: { xs: 2, sm: 2.5 },
         }}
       >
@@ -308,8 +309,8 @@ export function AccountScreen() {
   }
 
   return (
-    <Box sx={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
+    <DashboardPageMain aria-label="Accounts">
       <AccountsDashboardView {...settingsHandlers} />
-    </Box>
+    </DashboardPageMain>
   );
 }
