@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { useSeoMeta } from "@/lib/useSeoMeta";
@@ -172,6 +172,10 @@ export default function PayoffCalculator() {
     description: "Free credit card payoff calculator. Enter your balance, APR, and monthly payment to see your debt-free date, total interest, and how much you save with Buffer.",
     canonical: "https://mybuffer.ca/payoff-calculator",
   });
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Inject page-specific JSON-LD
   useEffect(() => {
