@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardContent, Link as MuiLink, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { useCallback, useState } from "react";
-import { Link as RouterLink } from "react-router";
+import { useNavigate } from "react-router";
 import { DashboardPageMain } from "../../layout/DashboardPageMain";
 import { useDashboardShell } from "../../context/DashboardShellContext";
 import { useLiveFinancialDisplay } from "../../hooks/useLiveFinancialDisplay";
@@ -103,6 +103,7 @@ function SummaryCard({
 }
 
 export function PaymentsPage() {
+  const navigate = useNavigate();
   const p = OVERVIEW_MOCK.payment;
   const [autopayOn, setAutopayOn] = useState(p.autopayOn);
   const { refreshPlaidConnection, refreshProfile } = useDashboardShell();
@@ -385,11 +386,11 @@ export function PaymentsPage() {
                     </Typography>
                   </Box>
                   <Button
-                    component={RouterLink}
-                    to={PAYMENTS_STATEMENTS_PATH}
+                    type="button"
                     variant="outlined"
                     size="small"
                     startIcon={<MsIcon name="description" sx={{ fontSize: 18 }} />}
+                    onClick={() => void navigate(PAYMENTS_STATEMENTS_PATH)}
                     sx={{
                       borderRadius: "999px",
                       textTransform: "none",

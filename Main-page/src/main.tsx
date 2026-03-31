@@ -193,18 +193,9 @@ createRoot(document.getElementById("root")!).render(
             </RequireAuth>
           }
         />
+        {/* Single branch for Payments + Statements so /payoff/statements always resolves to Dashboard */}
         <Route
-          path="/dashboard/payoff"
-          element={
-            <RequireAuth>
-              <RequireCompletedOnboarding>
-                <Dashboard />
-              </RequireCompletedOnboarding>
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/dashboard/payoff/statements"
+          path="/dashboard/payoff/*"
           element={
             <RequireAuth>
               <RequireCompletedOnboarding>

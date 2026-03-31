@@ -1,8 +1,10 @@
+import { SHOW_CREDIT_BUILDER_IN_DASHBOARD } from "../../featureFlags";
+
 export const SUPPORT_EMAIL = "support@mybuffer.ca";
 /** Placeholder — replace with real support line when available. */
 export const SUPPORT_PHONE_TEL = "+18005550100";
 
-export const HELP_TOPICS: {
+const HELP_TOPICS_ALL: {
   icon: string;
   title: string;
   description: string;
@@ -14,6 +16,10 @@ export const HELP_TOPICS: {
   { icon: "trending_up", title: "Credit Builder", description: "Improve your credit score", to: "/dashboard/credit" },
   { icon: "description", title: "Statements", description: "Monthly report downloads", to: "/dashboard/payoff/statements" },
 ];
+
+export const HELP_TOPICS = SHOW_CREDIT_BUILDER_IN_DASHBOARD
+  ? HELP_TOPICS_ALL
+  : HELP_TOPICS_ALL.filter((t) => t.to !== "/dashboard/credit");
 
 export const FAQ_ITEMS: { q: string; a: string }[] = [
   {
@@ -34,6 +40,6 @@ export const FAQ_ITEMS: { q: string; a: string }[] = [
   },
   {
     q: "How does Buffer help my credit profile?",
-    a: "On-time payments and lower utilization can help over time. Credit Builder shows illustrative trends; actual bureau scores depend on your full credit file.",
+    a: "On-time payments and lower utilization can help over time. Your dashboard can show illustrative trends where available; actual bureau scores depend on your full credit file.",
   },
 ];
