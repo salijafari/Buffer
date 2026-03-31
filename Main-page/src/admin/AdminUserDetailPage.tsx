@@ -76,6 +76,8 @@ export function AdminUserDetailPage() {
     ["Province", user.provinceCode ? `${user.provinceCode} — ${user.provinceName}` : "—"],
     ["Credit score", user.creditScore != null ? String(user.creditScore) : "—"],
     ["Annual pre-tax income", user.annualPreTaxIncome != null ? String(user.annualPreTaxIncome) : "—"],
+    ["Job status", user.jobStatus ?? "—"],
+    ["Job status (other)", user.jobStatusOther || "—"],
     ["Heard about us", user.heardAboutUs ?? "—"],
     ["Heard about (other)", user.heardAboutUsOther || "—"],
     ["Updated", new Date(user.updatedAt).toLocaleString()],

@@ -1,4 +1,4 @@
-import type { AcquisitionSource, InterestSelection, UserOnboardingProfile } from "./onboardingProfile";
+import type { AcquisitionSource, InterestSelection, JobStatus, UserOnboardingProfile } from "./onboardingProfile";
 import { bffApiUrl, bffAuthHeadersForMutation } from "@/lib/bffSession";
 
 /** Step saves only — completion is POST /api/onboarding/complete */
@@ -10,6 +10,8 @@ export type OnboardingProfilePatch = {
   province_name: string;
   credit_score: number | null;
   annual_pre_tax_income: number | null;
+  job_status: JobStatus | null;
+  job_status_other: string;
   heard_about_us: AcquisitionSource | null;
   heard_about_us_other: string;
 };
