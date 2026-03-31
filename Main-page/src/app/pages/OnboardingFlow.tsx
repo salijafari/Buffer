@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
   FormControl,
+  InputLabel,
   MenuItem,
   Paper,
   Select,
@@ -31,8 +33,12 @@ import { MaterialShell } from "../material/MaterialShell";
 import { PlaidConnectButton } from "../dashboard/components/plaid/PlaidConnectButton";
 import {
   CANADIAN_PROVINCES,
+  JOB_STATUS_OPTIONS,
+  isProvinceUnavailable,
+  parseJobStatus,
   type AcquisitionSource,
   type InterestSelection,
+  type JobStatus,
   type UserOnboardingProfile,
 } from "../lib/onboardingProfile";
 import { postOnboardingComplete, saveOnboardingProfile } from "../lib/onboardingApi";
@@ -167,6 +173,8 @@ type OnboardingDraft = {
   province_code: string;
   province_name: string;
   credit_score_input: string;
+  job_status: JobStatus | null;
+  job_status_other: string;
   annual_pre_tax_income_input: string;
   heard_about_us: AcquisitionSource | null;
   heard_about_us_other: string;
@@ -178,6 +186,8 @@ const DEFAULT_DRAFT: OnboardingDraft = {
   province_code: "",
   province_name: "",
   credit_score_input: "",
+  job_status: null,
+  job_status_other: "",
   annual_pre_tax_income_input: "",
   heard_about_us: null,
   heard_about_us_other: "",
@@ -214,6 +224,8 @@ function draftFromProfile(profile: UserOnboardingProfile): OnboardingDraft {
     province_code: profile.province_code,
     province_name: profile.province_name,
     credit_score_input: profile.credit_score ? String(profile.credit_score) : "",
+    job_status: parseJobStatus(profile.job_status),
+    job_status_other: profile.job_status_other ?? "",
     annual_pre_tax_income_input: profile.annual_pre_tax_income ? formatNumber(profile.annual_pre_tax_income) : "",
     heard_about_us: profile.heard_about_us,
     heard_about_us_other: profile.heard_about_us_other,
@@ -268,7 +280,8 @@ function OnboardingFlowContent({
     }
 
     if (step === 2) {
-      return CANADIAN_PROVINCES.some((p) => p.code === draft.province_code);
+      const okProvince = CANADIAN_PROVINCES.some((p) => p.code === draft.province_code);
+      return okProvince && !isProvinceUnavailable(draft.province_code);
     }
 
     if (step === 3) {
@@ -277,6 +290,8 @@ function OnboardingFlowContent({
     }
 
     if (step === 4) {
+      if (!draft.job_status) return false;
+      if (draft.job_status === "other" && draft.job_status_other.trim().length === 0) return false;
       const income = parseOptionalNumber(draft.annual_pre_tax_income_input);
       return income !== null && income > 0;
     }
@@ -315,6 +330,8 @@ function OnboardingFlowContent({
       province_name: selectedProvince?.name ?? "",
       credit_score: parseOptionalNumber(draft.credit_score_input),
       annual_pre_tax_income: parseOptionalNumber(draft.annual_pre_tax_income_input),
+      job_status: draft.job_status,
+      job_status_other: draft.job_status === "other" ? draft.job_status_other.trim() : "",
       heard_about_us: draft.heard_about_us,
       heard_about_us_other: draft.heard_about_us === "other" ? draft.heard_about_us_other.trim() : "",
     };
@@ -521,31 +538,39 @@ function OnboardingFlowContent({
             )}
 
             {step === 2 && (
-              <FormControl fullWidth>
-                <Select
-                  value={draft.province_code}
-                  displayEmpty
-                  onChange={(e) => {
-                    const province = CANADIAN_PROVINCES.find((p) => p.code === String(e.target.value));
-                    setDraft((prev) => ({
-                      ...prev,
-                      province_code: province?.code ?? "",
-                      province_name: province?.name ?? "",
-                    }));
-                    setFieldError("");
-                  }}
-                  sx={{ bgcolor: "#FFFFFF", borderRadius: 2, minHeight: 56 }}
-                >
-                  <MenuItem value="" disabled>
-                    Select province or territory
-                  </MenuItem>
-                  {CANADIAN_PROVINCES.map((province) => (
-                    <MenuItem key={province.code} value={province.code}>
-                      {province.code} - {province.name}
+              <Stack spacing={1.5}>
+                <FormControl fullWidth>
+                  <Select
+                    value={draft.province_code}
+                    displayEmpty
+                    onChange={(e) => {
+                      const province = CANADIAN_PROVINCES.find((p) => p.code === String(e.target.value));
+                      setDraft((prev) => ({
+                        ...prev,
+                        province_code: province?.code ?? "",
+                        province_name: province?.name ?? "",
+                      }));
+                      setFieldError("");
+                    }}
+                    sx={{ bgcolor: "#FFFFFF", borderRadius: 2, minHeight: 56 }}
+                  >
+                    <MenuItem value="" disabled>
+                      Select province or territory
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    {CANADIAN_PROVINCES.map((province) => (
+                      <MenuItem key={province.code} value={province.code}>
+                        {province.code} - {province.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {draft.province_code && isProvinceUnavailable(draft.province_code) ? (
+                  <Alert severity="info" sx={{ borderRadius: 2 }}>
+                    Buffer isn&apos;t available in {draft.province_name || "this province"} yet. Please choose another province or territory to continue, or check back
+                    later.
+                  </Alert>
+                ) : null}
+              </Stack>
             )}
 
             {step === 3 && (
@@ -594,21 +619,67 @@ function OnboardingFlowContent({
             )}
 
             {step === 4 && (
-              <TextField
-                value={draft.annual_pre_tax_income_input}
-                onChange={(e) => {
-                  const raw = digitsOnly(e.target.value).slice(0, 8);
-                  setDraft((prev) => ({
-                    ...prev,
-                    annual_pre_tax_income_input: raw ? formatNumber(Number(raw)) : "",
-                  }));
-                  setFieldError("");
-                }}
-                placeholder="For example: $100,000"
-                fullWidth
-                inputProps={{ inputMode: "numeric" }}
-                sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#FFFFFF", borderRadius: 2 } }}
-              />
+              <Stack spacing={2}>
+                <FormControl fullWidth>
+                  <InputLabel id="onboarding-job-status-label">Job status</InputLabel>
+                  <Select
+                    labelId="onboarding-job-status-label"
+                    label="Job status"
+                    value={draft.job_status ?? ""}
+                    displayEmpty
+                    onChange={(e) => {
+                      const v = e.target.value as JobStatus | "";
+                      setDraft((prev) => ({
+                        ...prev,
+                        job_status: v === "" ? null : v,
+                        job_status_other: v === "other" ? prev.job_status_other : "",
+                      }));
+                      setFieldError("");
+                    }}
+                    sx={{ bgcolor: "#FFFFFF", borderRadius: 2, minHeight: 56 }}
+                  >
+                    <MenuItem value="" disabled>
+                      Select your job status
+                    </MenuItem>
+                    {JOB_STATUS_OPTIONS.map((opt) => (
+                      <MenuItem
+                        key={opt.value}
+                        value={opt.value}
+                        sx={{ whiteSpace: "normal", alignItems: "flex-start", py: 1.25, lineHeight: 1.35 }}
+                      >
+                        {opt.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {draft.job_status === "other" ? (
+                  <TextField
+                    value={draft.job_status_other}
+                    onChange={(e) => setDraft((prev) => ({ ...prev, job_status_other: e.target.value.slice(0, 200) }))}
+                    placeholder="Describe your situation"
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#FFFFFF", borderRadius: 2 } }}
+                  />
+                ) : null}
+                <TextField
+                  label="Annual pre-tax income"
+                  value={draft.annual_pre_tax_income_input}
+                  onChange={(e) => {
+                    const raw = digitsOnly(e.target.value).slice(0, 8);
+                    setDraft((prev) => ({
+                      ...prev,
+                      annual_pre_tax_income_input: raw ? formatNumber(Number(raw)) : "",
+                    }));
+                    setFieldError("");
+                  }}
+                  placeholder="For example: $100,000"
+                  fullWidth
+                  inputProps={{ inputMode: "numeric" }}
+                  sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#FFFFFF", borderRadius: 2 } }}
+                />
+              </Stack>
             )}
 
             {step === 5 && (
@@ -728,6 +799,10 @@ function OnboardingFlowContent({
                   >
                     Connect bank or credit card
                   </PlaidConnectButton>
+                  <Typography sx={{ color: "#6B7280", fontSize: "0.8rem", lineHeight: 1.5, textAlign: "center" }}>
+                    Read-only access — we never see or store your banking password. Bank-level encryption (TLS) and Plaid&apos;s security practices protect your data;
+                    you can disconnect anytime from your account settings.
+                  </Typography>
                   {saving ? (
                     <Typography variant="caption" sx={{ display: "block", mt: 1.5, color: "#6B7280", textAlign: "center" }}>
                       Finishing setup…

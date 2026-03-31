@@ -38,6 +38,8 @@ export type AdminUserDetail = AdminUserRow & {
   provinceName: string;
   creditScore: number | null;
   annualPreTaxIncome: number | null;
+  jobStatus: string | null;
+  jobStatusOther: string;
   heardAboutUs: string | null;
   heardAboutUsOther: string;
   updatedAt: string;

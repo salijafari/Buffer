@@ -31,6 +31,45 @@ export type AcquisitionSource =
   | "linkedin"
   | "other";
 
+/** Employment / job status (annual income step; persisted as string key). */
+export type JobStatus =
+  | "employed_full_time_30_plus"
+  | "employed_part_time_under_30"
+  | "self_employed"
+  | "unemployed_looking"
+  | "retired_still_working"
+  | "retired_not_working"
+  | "not_in_workforce"
+  | "studying_and_working"
+  | "other";
+
+export const JOB_STATUS_OPTIONS: { value: JobStatus; label: string }[] = [
+  { value: "employed_full_time_30_plus", label: "Employed full-time, that is, 30 or more hours per week" },
+  { value: "employed_part_time_under_30", label: "Employed part-time, that is, less than 30 hours per week" },
+  { value: "self_employed", label: "Self-employed" },
+  { value: "unemployed_looking", label: "Unemployed, but looking for work" },
+  { value: "retired_still_working", label: "Retired but still working" },
+  { value: "retired_not_working", label: "Retired and not working" },
+  {
+    value: "not_in_workforce",
+    label: "Not in the workforce (student, disability, unpaid household work, unemployed and not looking for work)",
+  },
+  { value: "studying_and_working", label: "Studying and working" },
+  { value: "other", label: "Other" },
+];
+
+/** Nova Scotia and Quebec: product not available in these provinces yet. */
+export const PROVINCE_CODES_UNAVAILABLE = ["NS", "QC"] as const;
+
+export function isProvinceUnavailable(code: string): boolean {
+  return (PROVINCE_CODES_UNAVAILABLE as readonly string[]).includes(code);
+}
+
+export function parseJobStatus(s: string | null | undefined): JobStatus | null {
+  if (!s || typeof s !== "string") return null;
+  return JOB_STATUS_OPTIONS.some((o) => o.value === s) ? (s as JobStatus) : null;
+}
+
 export type UserOnboardingProfile = {
   id: string;
   clerk_user_id: string;
@@ -45,6 +84,8 @@ export type UserOnboardingProfile = {
   province_name: string;
   credit_score: number | null;
   annual_pre_tax_income: number | null;
+  job_status: JobStatus | null;
+  job_status_other: string;
   heard_about_us: AcquisitionSource | null;
   heard_about_us_other: string;
   /** disconnected | connected — from server after Plaid Link (Phase 1). */

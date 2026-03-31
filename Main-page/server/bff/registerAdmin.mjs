@@ -27,6 +27,8 @@ function mapUserDetail(p) {
     provinceName: p.provinceName ?? "",
     creditScore: p.creditScore,
     annualPreTaxIncome: p.annualPreTaxIncome,
+    jobStatus: p.jobStatus ?? null,
+    jobStatusOther: p.jobStatusOther ?? "",
     heardAboutUs: p.heardAboutUs,
     heardAboutUsOther: p.heardAboutUsOther ?? "",
     updatedAt: p.updatedAt.toISOString(),

@@ -22,6 +22,9 @@ model UserOnboardingProfile {
   provinceName        String?  @map("province_name")
   creditScore         Int?     @map("credit_score")
   annualPreTaxIncome  Int?     @map("annual_pre_tax_income")
+  /** Stable key from onboarding (e.g. employed_full_time_30_plus); see Main-page onboardingProfile JobStatus. */
+  jobStatus           String?  @map("job_status")
+  jobStatusOther      String?  @map("job_status_other")
   heardAboutUs        String?  @map("heard_about_us")
   heardAboutUsOther   String?  @map("heard_about_us_other")
   /** Admin dashboard: soft-remove after Auth0 delete (audit). */
