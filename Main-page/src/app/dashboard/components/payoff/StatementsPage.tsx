@@ -24,10 +24,41 @@ function formatNextDue(iso: string): string {
 }
 
 export function StatementsPage() {
+  // #region agent log
+  fetch("http://127.0.0.1:7413/ingest/0e1d4fbe-df30-40db-abec-8444166ff922", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "9265ef" },
+    body: JSON.stringify({
+      sessionId: "9265ef",
+      location: "StatementsPage.tsx:entry",
+      message: "StatementsPage before hooks",
+      data: {},
+      timestamp: Date.now(),
+      hypothesisId: "H3",
+      runId: "pre",
+    }),
+  }).catch(() => {});
+  // #endregion
   const navigate = useNavigate();
   const p = OVERVIEW_MOCK.payment;
   const { showLiveFinancials } = useLiveFinancialDisplay();
   const live = showLiveFinancials;
+
+  // #region agent log
+  fetch("http://127.0.0.1:7413/ingest/0e1d4fbe-df30-40db-abec-8444166ff922", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "9265ef" },
+    body: JSON.stringify({
+      sessionId: "9265ef",
+      location: "StatementsPage.tsx:pre-jsx",
+      message: "StatementsPage after hooks, before JSX",
+      data: { live },
+      timestamp: Date.now(),
+      hypothesisId: "H2",
+      runId: "pre",
+    }),
+  }).catch(() => {});
+  // #endregion
 
   return (
     <Stack

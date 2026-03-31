@@ -168,6 +168,28 @@ function DesktopTopTabBar({
   user: BffUser | null;
   loading: boolean;
 }) {
+  // #region agent log
+  if (typeof window !== "undefined" && window.location.pathname.includes("/dashboard/payoff/statements")) {
+    const missingIcon = NAV_TABS.find((t) => t.Icon == null);
+    fetch("http://127.0.0.1:7413/ingest/0e1d4fbe-df30-40db-abec-8444166ff922", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "9265ef" },
+      body: JSON.stringify({
+        sessionId: "9265ef",
+        location: "Dashboard.tsx:DesktopTopTabBar",
+        message: "desktop tab bar render on statements path",
+        data: {
+          activeTab,
+          missingIconTabId: missingIcon?.id ?? null,
+          tabIds: NAV_TABS.map((t) => t.id),
+        },
+        timestamp: Date.now(),
+        hypothesisId: "H4",
+        runId: "pre",
+      }),
+    }).catch(() => {});
+  }
+  // #endregion
   const theme = useTheme();
   const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
   const accountMenuOpen = Boolean(accountMenuAnchor);
@@ -436,6 +458,29 @@ function DashboardContent() {
   const bffUser = bffState.status === "auth" ? bffState.user : null;
   const bffLoading = bffState.status === "loading";
   const activeTab = activeTabFromPathname(location.pathname);
+
+  // #region agent log
+  if (isStatementsPage) {
+    fetch("http://127.0.0.1:7413/ingest/0e1d4fbe-df30-40db-abec-8444166ff922", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "9265ef" },
+      body: JSON.stringify({
+        sessionId: "9265ef",
+        location: "Dashboard.tsx:DashboardContent",
+        message: "statements route: DashboardContent render",
+        data: {
+          pathname: location.pathname,
+          activeTab,
+          isStatementsPage,
+          statementsExport: typeof StatementsPage,
+        },
+        timestamp: Date.now(),
+        hypothesisId: "H1",
+        runId: "pre",
+      }),
+    }).catch(() => {});
+  }
+  // #endregion
 
   const [iconPulse, setIconPulse] = useState<Partial<Record<NavTabId, number>>>({});
   const bumpNavIcon = useCallback((tabId: NavTabId) => {
