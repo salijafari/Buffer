@@ -21,7 +21,8 @@ import {
 } from "@mui/material";
 import { alpha, keyframes } from "@mui/material/styles";
 import { Bell, CreditCard, HelpCircle, Home, LineChart, LogOut, User } from "lucide-react";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { SHOW_CREDIT_BUILDER_IN_DASHBOARD } from "../dashboard/featureFlags";
 import { useLocation, useNavigate } from "react-router";
 import { HomeScreen } from "../dashboard/components/home/HomeScreen";
 import { PayoffScreen } from "../dashboard/components/payoff/PayoffScreen";
@@ -62,6 +63,7 @@ function markNavBadgeCleared(key: string) {
 
 function initialNavBadges(pathnameHint?: string): { credit: number } {
   const path = pathnameHint ?? (typeof window !== "undefined" ? window.location.pathname : "");
+  if (!SHOW_CREDIT_BUILDER_IN_DASHBOARD) return { credit: 0 };
   const credit =
     path === "/dashboard/credit" || readNavBadgeCleared(SS_NAV_CREDIT_CLEARED) ? 0 : MOCK_CREDIT_REPORT_EVENTS;
   return { credit };
@@ -79,6 +81,9 @@ const TABS = [
   { id: "credit", label: "Credit Builder", shortTitle: "Credit", path: "/dashboard/credit", Icon: CreditCard },
   { id: "account", label: "Accounts", shortTitle: "Accounts", path: "/dashboard/account", Icon: User },
 ] as const;
+
+/** Tabs shown in desktop + mobile nav (Credit Builder omitted when feature flag is off). */
+const NAV_TABS = SHOW_CREDIT_BUILDER_IN_DASHBOARD ? TABS : TABS.filter((t) => t.id !== "credit");
 
 type NavTabId = (typeof TABS)[number]["id"];
 /** Includes legacy `/dashboard/ai` and `/dashboard/support` (not in the tab bar). */
@@ -219,7 +224,7 @@ function DesktopTopTabBar({
           spacing={0.5}
           sx={{ flex: 1, minWidth: 0, columnGap: 0.5, rowGap: 0.5 }}
         >
-          {TABS.map(({ id, label, path, Icon }) => {
+          {NAV_TABS.map(({ id, label, path, Icon }) => {
             const active = activeTab === id;
             const navBadge = id === "credit" ? navBadgeCounts.credit : 0;
             return (
@@ -442,6 +447,13 @@ function DashboardContent() {
   const [navBadgeCounts, setNavBadgeCounts] = useState(() => initialNavBadges());
 
   useLayoutEffect(() => {
+    if (!SHOW_CREDIT_BUILDER_IN_DASHBOARD && location.pathname === "/dashboard/credit") {
+      void navigate("/dashboard", { replace: true });
+    }
+  }, [location.pathname, navigate]);
+
+  useLayoutEffect(() => {
+    if (!SHOW_CREDIT_BUILDER_IN_DASHBOARD) return;
     if (location.pathname === "/dashboard/credit") {
       markNavBadgeCleared(SS_NAV_CREDIT_CLEARED);
       setNavBadgeCounts((prev) => (prev.credit === 0 ? prev : { ...prev, credit: 0 }));
@@ -772,7 +784,11 @@ function DashboardContent() {
         }}
       >
         <BottomNavigation
-          value={activeTab === "ai" || activeTab === "support" ? false : activeTab}
+          value={
+            activeTab === "ai" || activeTab === "support" || (!SHOW_CREDIT_BUILDER_IN_DASHBOARD && activeTab === "credit")
+              ? false
+              : activeTab
+          }
           showLabels
           onChange={(_, newValue) => {
             const tab = TABS.find((t) => t.id === newValue);
@@ -813,7 +829,7 @@ function DashboardContent() {
             },
           }}
         >
-          {TABS.map(({ id, label, Icon }) => {
+          {NAV_TABS.map(({ id, label, Icon }) => {
             const pulse = iconPulse[id] ?? 0;
             const kf = navAnim[id];
             const navBadge = id === "credit" ? navBadgeCounts.credit : 0;

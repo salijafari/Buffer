@@ -1,4 +1,5 @@
 import type { CardData } from "../types/timeline";
+import { SHOW_CREDIT_BUILDER_IN_DASHBOARD } from "../featureFlags";
 
 /** Post-connection mock cards (Plaid-shaped). */
 export const MOCK_CONNECTED_CARDS: CardData[] = [
@@ -54,7 +55,7 @@ export type DashboardNotificationSeed = {
   href?: string;
 };
 
-export const MOCK_DASHBOARD_NOTIFICATIONS: DashboardNotificationSeed[] = [
+const MOCK_DASHBOARD_NOTIFICATIONS_ALL: DashboardNotificationSeed[] = [
   {
     id: "pay-util",
     title: "High utilization alert",
@@ -84,3 +85,7 @@ export const MOCK_DASHBOARD_NOTIFICATIONS: DashboardNotificationSeed[] = [
     href: "/dashboard/payoff",
   },
 ];
+
+export const MOCK_DASHBOARD_NOTIFICATIONS = SHOW_CREDIT_BUILDER_IN_DASHBOARD
+  ? MOCK_DASHBOARD_NOTIFICATIONS_ALL
+  : MOCK_DASHBOARD_NOTIFICATIONS_ALL.filter((n) => n.href !== "/dashboard/credit");

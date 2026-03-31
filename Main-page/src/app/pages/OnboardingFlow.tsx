@@ -620,8 +620,10 @@ function OnboardingFlowContent({
 
             {step === 4 && (
               <Stack spacing={2}>
-                <FormControl fullWidth>
-                  <InputLabel id="onboarding-job-status-label">Job status</InputLabel>
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel id="onboarding-job-status-label" shrink>
+                    Job status
+                  </InputLabel>
                   <Select
                     labelId="onboarding-job-status-label"
                     label="Job status"
