@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardContent, IconButton, Link, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { Link as RouterLink } from "react-router";
+import { useNavigate } from "react-router";
 import { useLiveFinancialDisplay } from "../../hooks/useLiveFinancialDisplay";
 import { displayMoney, FINANCIAL_MASK } from "../../lib/financialDisplay";
 import { OVERVIEW_MOCK } from "../home/overview/overviewMock";
@@ -24,6 +24,7 @@ function formatNextDue(iso: string): string {
 }
 
 export function StatementsPage() {
+  const navigate = useNavigate();
   const p = OVERVIEW_MOCK.payment;
   const { showLiveFinancials } = useLiveFinancialDisplay();
   const live = showLiveFinancials;
@@ -45,8 +46,9 @@ export function StatementsPage() {
       }}
     >
       <Typography
-        component={RouterLink}
-        to={PAYMENTS_HOME}
+        component="button"
+        type="button"
+        onClick={() => navigate(PAYMENTS_HOME)}
         sx={{
           display: "inline-flex",
           alignItems: "center",
@@ -57,6 +59,11 @@ export function StatementsPage() {
           fontSize: "0.9375rem",
           color: OT.primary,
           textDecoration: "none",
+          cursor: "pointer",
+          border: "none",
+          bgcolor: "transparent",
+          p: 0,
+          textAlign: "left",
           "&:hover": { textDecoration: "underline" },
         }}
       >
@@ -209,7 +216,7 @@ export function StatementsPage() {
               <Typography sx={{ fontFamily: HEADLINE_FONT, fontWeight: 700, fontSize: "1.25rem", letterSpacing: "-0.02em", color: OT.onSurface, mb: 3 }}>
                 Billing Summary
               </Typography>
-              <Stack spacing={3} divider={<Box sx={{ borderTop: `1px solid ${OT.surfaceContainerHigh}` }} />}>
+              <Stack spacing={0}>
                 <Box>
                   <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: OT.onSurfaceVariant, mb: 0.5 }}>
                     Total paid this year
@@ -218,7 +225,7 @@ export function StatementsPage() {
                     {displayMoney(live, () => usd(STATEMENTS_YTD_PAID))}
                   </Typography>
                 </Box>
-                <Box>
+                <Box sx={{ mt: 3, pt: 3, borderTop: `1px solid ${OT.surfaceContainerHigh}` }}>
                   <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: OT.onSurfaceVariant, mb: 0.5 }}>
                     Current balance
                   </Typography>
@@ -226,7 +233,7 @@ export function StatementsPage() {
                     {displayMoney(live, () => fmtCurrency(p.currentBalance, 0))}
                   </Typography>
                 </Box>
-                <Box>
+                <Box sx={{ mt: 3, pt: 3, borderTop: `1px solid ${OT.surfaceContainerHigh}` }}>
                   <Typography sx={{ fontFamily: BODY_FONT, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: OT.onSurfaceVariant, mb: 0.5 }}>
                     Next due date
                   </Typography>
@@ -270,8 +277,8 @@ export function StatementsPage() {
                 If you have a question about a charge, payment, or statement, contact Buffer support.
               </Typography>
               <Button
-                component={RouterLink}
-                to="/dashboard/support"
+                type="button"
+                onClick={() => navigate("/dashboard/support")}
                 fullWidth
                 sx={{
                   borderRadius: "999px",
