@@ -62,14 +62,11 @@ export function PayLessSection() {
               </svg>
             </div>
             <h2 className="text-4xl font-bold leading-tight tracking-tight">
-              Buffer finds you a lower-rate credit line and uses it to pay down your highest-interest balances automatically.
+              Lower interest. Less guesswork. Faster payoff.<sup>1</sup>
+              <sup>2</sup>
             </h2>
             <p className="text-[18px] text-gray-800 leading-[28px]">
               Buffer finds you a lower-rate credit line and uses it to pay down your highest-interest balances automatically.
-            </p>
-            <p className="text-[18px] text-gray-800 leading-[28px]">
-              Lower interest. Less guesswork. Faster payoff.<sup>1</sup>
-              <sup>2</sup>
             </p>
             <p className="text-[18px] text-gray-800 leading-[28px]">
               You save on interest, simplify repayment, and make faster progress toward becoming debt-free.
@@ -163,16 +160,12 @@ export function PayLessSection() {
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-              Buffer finds you a lower-rate credit line and uses it to pay down your highest-interest balances automatically.
+              Lower interest. Less guesswork. Faster payoff.<sup>1</sup>
+              <sup>2</sup>
             </h2>
 
             <p className="text-[18px] text-gray-800 leading-[28px]">
               Buffer finds you a lower-rate credit line and uses it to pay down your highest-interest balances automatically.
-            </p>
-
-            <p className="text-[18px] text-gray-800 leading-[28px]">
-              Lower interest. Less guesswork. Faster payoff.<sup>1</sup>
-              <sup>2</sup>
             </p>
 
             <p className="text-[18px] text-gray-800 leading-[28px]">
