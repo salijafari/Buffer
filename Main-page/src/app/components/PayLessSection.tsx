@@ -160,8 +160,7 @@ export function PayLessSection() {
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-              Lower interest. Less guesswork. Faster payoff.<sup>1</sup>
-              <sup>2</sup>
+              Lower interest. Less guesswork. Faster payoff.
             </h2>
 
             <p className="text-[18px] text-gray-800 leading-[28px]">
