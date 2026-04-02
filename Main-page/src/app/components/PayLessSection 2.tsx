@@ -62,17 +62,20 @@ export function PayLessSection() {
               </svg>
             </div>
             <h2 className="text-4xl font-bold leading-tight tracking-tight">
-              Buffer finds you a lower-rate credit line and uses it to pay down your highest-interest balances automatically.
+              Spend less on interest. Finish sooner.
             </h2>
             <p className="text-[18px] text-gray-800 leading-[28px]">
-              Buffer finds you a lower-rate credit line and uses it to pay down your highest-interest balances automatically.
+              Buffer finds you a lower-rate credit line and uses it to automatically pay down
+              your highest-interest balances. No paperwork, no branch visits, no negotiating
+              with your bank.
             </p>
             <p className="text-[18px] text-gray-800 leading-[28px]">
-              Lower interest. Less guesswork. Faster payoff.<sup>1</sup>
-              <sup>2</sup>
+              Your card balances move to a lower APR.<sup>1</sup> You save on interest charges
+              and reach debt-free faster.<sup>2</sup>
             </p>
             <p className="text-[18px] text-gray-800 leading-[28px]">
-              You save on interest, simplify repayment, and make faster progress toward becoming debt-free.
+              Keep using your existing cards while Buffer continuously works in the background
+              to reduce what your debt costs you.
             </p>
           </div>
         </div>
@@ -163,20 +166,23 @@ export function PayLessSection() {
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-              Buffer finds you a lower-rate credit line and uses it to pay down your highest-interest balances automatically.
+              Spend less on interest. Finish sooner.
             </h2>
 
             <p className="text-[18px] text-gray-800 leading-[28px]">
-              Buffer finds you a lower-rate credit line and uses it to pay down your highest-interest balances automatically.
+              Buffer finds you a lower-rate credit line and uses it to automatically pay down
+              your highest-interest balances. No paperwork, no branch visits, no negotiating
+              with your bank.
             </p>
 
             <p className="text-[18px] text-gray-800 leading-[28px]">
-              Lower interest. Less guesswork. Faster payoff.<sup>1</sup>
-              <sup>2</sup>
+              Your card balances move to a lower APR.<sup>1</sup> You save on interest charges
+              and reach debt-free faster.<sup>2</sup>
             </p>
 
             <p className="text-[18px] text-gray-800 leading-[28px]">
-              You save on interest, simplify repayment, and make faster progress toward becoming debt-free.
+              Keep using your existing cards while Buffer continuously works in the background
+              to reduce what your debt costs you.
             </p>
           </div>
 

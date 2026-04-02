@@ -107,11 +107,11 @@ export function Hero() {
             </svg>
 
             <h1 className="text-[36px] md:text-[44px] lg:text-[52px] font-bold leading-[0.95] tracking-[-0.03em]">
-              Lower your credit interest to ~14%
+              Cut your Credit Card Interest to 14% Today
             </h1>
 
             <p className="text-[15px] md:text-[18px] text-black leading-[1.5] md:leading-[30px] max-w-[445px]">
-              Buffer turns high-interest credit card balances into one simpler payoff plan, helping you stay current, reduce debt faster, lower interest costs, and move toward becoming debt-free.
+              Automatically reduce the interest on your cards and loans, accelerate your payoff timeline, strengthen your credit profile, and free up more of your paycheque every month.
             </p>
 
             {/* CTAs: primary Web button + compact iOS/Android icons inline */}
@@ -119,7 +119,7 @@ export function Hero() {
               <button
                 onClick={() => navigate('/onboarding')}
                 className="border border-black text-black flex-1 md:flex-none px-5 py-3 md:py-3 rounded-[14px] md:rounded-[8px] hover:bg-gray-50 transition text-[15px] md:text-[17px] font-medium whitespace-nowrap">
-                See my rate
+                Get Started
               </button>
 
               {/* iOS icon */}
