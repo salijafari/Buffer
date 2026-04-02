@@ -59,7 +59,7 @@ export function Hero() {
             </div>
           </div>
 
-          {/* LEFT on desktop / below phone on mobile: heading + description + buttons */}
+          {/* LEFT on desktop / below phone on mobile: heading + buttons */}
           <div className="space-y-4 md:space-y-6 pt-1 md:pt-8 lg:pt-10 pb-6 md:pb-12 lg:pb-20">
             {/* QR Code — hidden on mobile */}
             <svg className="hidden md:block" width="117" height="117" viewBox="0 0 117 117" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -106,20 +106,16 @@ export function Hero() {
               <rect x="101" y="101" width="6" height="6" fill="#111827"/>
             </svg>
 
-            <h1 className="text-[36px] md:text-[44px] lg:text-[52px] font-bold leading-[0.95] tracking-[-0.03em]">
-              Cut your Credit Card Interest to 14% Today
+            <h1 className="text-[36px] md:text-[44px] lg:text-[52px] font-bold leading-[1.05] md:leading-[1.08] tracking-[-0.03em] max-w-[640px]">
+              Buffer turns high-interest credit card balances into one simpler payoff plan, helping you stay current, reduce debt faster, lower interest costs, and move toward becoming debt-free.
             </h1>
-
-            <p className="text-[15px] md:text-[18px] text-black leading-[1.5] md:leading-[30px] max-w-[445px]">
-              Automatically reduce the interest on your cards and loans, accelerate your payoff timeline, strengthen your credit profile, and free up more of your paycheque every month.
-            </p>
 
             {/* CTAs: primary Web button + compact iOS/Android icons inline */}
             <div className="flex items-center gap-3 w-full md:w-auto">
               <button
                 onClick={() => navigate('/onboarding')}
                 className="border border-black text-black flex-1 md:flex-none px-5 py-3 md:py-3 rounded-[14px] md:rounded-[8px] hover:bg-gray-50 transition text-[15px] md:text-[17px] font-medium whitespace-nowrap">
-                Get Started
+                See my rate
               </button>
 
               {/* iOS icon */}
